@@ -10,6 +10,7 @@ namespace Example
             //var view = new View();
             var visual = new TestVisual(window.RenderContext.RenderState, window.ContentLoader);
             window.Render += () => visual.RenderDeferred();
+            //window.Render += () => visual.RenderPhong();
             window.Update += (dt) => visual.Update(dt);
             window.Resize += (width, height) => visual.Resize(width, height);
             window.Run();

@@ -7,15 +7,16 @@ in vec3 normal;
 in vec2 uv;
 
 out Data {
-	vec3 position;
+	vec4 position;
 	vec3 normal;
 	flat uint material;
 } outdata;
 
 void main()
 {
-	outdata.position = position;
+	vec4 transPos = camera * vec4(position, 1);
+	gl_Position = transPos;
+	outdata.position = vec4(position,1);
 	outdata.normal = normal;
-	gl_Position = camera * vec4(position, 1);
 	outdata.material = uint(uv.x);;
 }

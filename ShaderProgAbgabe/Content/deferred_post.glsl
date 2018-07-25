@@ -6,7 +6,9 @@ uniform vec3 camPos;
 uniform vec3 dirLightDir;
 uniform vec4 dirLightCol;
 uniform vec4 dirSpecCol;
+uniform int specFactor;
 
+uniform sampler2D positionSampler;
 uniform sampler2D albedoSampler;
 uniform sampler2D normalSampler;
 
@@ -21,21 +23,25 @@ vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor)
 
 }
 
-vec4 getSpecular(vec3 position, vec3 normal, vec3 lightDirection, vec3 cameraPosition, vec4 SpecularColor,int specularFactor)
+vec4 getSpecular(vec3 viewDir, vec3 normal, vec3 lightDirection, vec4 SpecularColor,int specularFactor)
 {
 	vec3 l = -lightDirection;
 	vec3 r = reflect(l, normal) ;
-	vec3 v = normalize(position - cameraPosition);
+	vec3 v = viewDir;
 	float spec = max(0, dot(r, v)); 
 	return  SpecularColor * max(0, pow(spec, specularFactor));
 }
 
 void main()
 {
-	vec4 albedo = texture2D(albedoSampler, uv);
+	vec3 position = texture2D(positionSampler, uv).xyz;
+	vec3 albedo = texture2D(albedoSampler, uv).rgb;
 	vec3 normal = texture2D(normalSampler, uv).rgb;
-	vec4 ambient = ambientColor;
-	vec4 diffuse = getDiffuse(dirLightDir, normal, dirLightCol) * albedo;
-	vec4 color = ambient + diffuse;
+	vec3 ambient = ambientColor.rgb;
+	vec3 diffuse = getDiffuse(dirLightDir, normal, dirLightCol) * albedo;
+	//vec3 diffuse = max(0, dot(normal, -dirLightDir)) * albedo * dirLightCol;
+	vec3 viewDir = normalize(position - camPos);
+	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor);
+	vec4 color = vec4(ambient + diffuse + specular);
 	gl_FragColor = color;
 }

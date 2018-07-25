@@ -50,7 +50,7 @@ namespace Example
             phongShading.Uniform("dirLightDir", Vector3.Normalize(dirLightdir));
             phongShading.Uniform("dirLightCol", dirLightCol);
             phongShading.Uniform("dirSpecCol", dirSpecCol);
-            phongShading.Uniform("specFactor", 255);
+            phongShading.Uniform("specFactor", 90);
             geometryPhong.Draw();
             phongShading.Deactivate();
             
@@ -70,17 +70,20 @@ namespace Example
 
             //DeferredLightning
             deferredPost.Activate();
-            
+            int position = GL.GetUniformLocation(deferredPost.ProgramID, "positionSampler");
             int albedo = GL.GetUniformLocation(deferredPost.ProgramID, "albedoSampler");
             int normal = GL.GetUniformLocation(deferredPost.ProgramID, "normalSampler");
 
-            GL.Uniform1(albedo, 0);
-            GL.Uniform1(normal, 1);
+            GL.Uniform1(position, 0);
+            GL.Uniform1(albedo, 1);
+            GL.Uniform1(normal, 2);
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, renderToTexture.Textures[0].ID);
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, renderToTexture.Textures[1].ID);
+            GL.ActiveTexture(TextureUnit.Texture2);
+            GL.BindTexture(TextureTarget.Texture2D, renderToTexture.Textures[2].ID);
 
             //Pass Parameters
             deferredPost.Uniform("camPos", campos);
@@ -90,7 +93,7 @@ namespace Example
             deferredPost.Uniform("dirLightDir", dirLightdir);
             deferredPost.Uniform("dirLightCol", dirLightCol);
             deferredPost.Uniform("dirSpecCol", dirSpecCol);
-
+            deferredPost.Uniform("specFactor", 255);
             //PostProcessQuad
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
             deferredPost.Deactivate();
@@ -121,7 +124,7 @@ namespace Example
                 buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
             }
 
-            GL.DrawBuffers(2, buffers);
+            GL.DrawBuffers(textAmount, buffers);
 
             //Draw Gemetry
             geometryDeferred.Draw();
@@ -142,59 +145,14 @@ namespace Example
         {
             renderToTexture = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
             renderToTexture.Attach(Texture2dGL.Create(width, height, 4, true));
-            foreach(ITexture text in renderToTexture.Textures)
+            renderToTexture.Attach(Texture2dGL.Create(width, height, 4, true));
+            foreach (ITexture text in renderToTexture.Textures)
             {
                 text.WrapFunction = TextureWrapFunction.MirroredRepeat;
             }
         }
 
-        public void Update(float deltatime)
-        {
-            
-            KeyboardState kstate = Keyboard.GetState();
-            if(kstate.IsKeyDown(Key.A))
-            {
-                MoveCam(new Vector3(-1 * deltatime, 0, 0));
-            }
-            if(kstate.IsKeyDown(Key.D))
-            {
-                MoveCam(new Vector3(1 * deltatime, 0, 0));
-            }
-            if(kstate.IsKeyDown(Key.W))
-            {
-                MoveCam(new Vector3(0, 0, 1 * deltatime));
-            }
-            if(kstate.IsKeyDown(Key.S))
-            {
-                MoveCam(new Vector3(0, 0, -1 * deltatime));
-            }
-            if(kstate.IsKeyDown(Key.Q))
-            {
-                MoveCam(new Vector3(0, 1 * deltatime, 0));
-            }
-            if(kstate.IsKeyDown(Key.E))
-            {
-                MoveCam(new Vector3(0, -1 * deltatime, 0));
-            }
-            if(kstate.IsKeyDown(Key.Up))
-            {
-                RotateCam(new Vector2(-rotSpeedX * deltatime, 0));
-            }
-            if(kstate.IsKeyDown(Key.Down))
-            {
-                RotateCam(new Vector2(rotSpeedX * deltatime, 0));
-            }
-            if(kstate.IsKeyDown(Key.Left))
-            {
-                RotateCam(new Vector2(0, -rotSpeedY * deltatime));
-            }
-            if(kstate.IsKeyDown(Key.Right))
-            {
-                RotateCam(new Vector2(0, rotSpeedY * deltatime));
-            }
-            MouseState mstate = Mouse.GetState();
-            
-        }
+
 
         private void MoveCam(Vector3 move)
         {
@@ -232,5 +190,53 @@ namespace Example
         //Shadows
         //Shadowmap
         //ShadowRendering
+
+        public void Update(float deltatime)
+        {
+
+            KeyboardState kstate = Keyboard.GetState();
+            if (kstate.IsKeyDown(Key.A))
+            {
+                MoveCam(new Vector3(-1 * deltatime, 0, 0));
+            }
+            if (kstate.IsKeyDown(Key.D))
+            {
+                MoveCam(new Vector3(1 * deltatime, 0, 0));
+            }
+            if (kstate.IsKeyDown(Key.W))
+            {
+                MoveCam(new Vector3(0, 0, 1 * deltatime));
+            }
+            if (kstate.IsKeyDown(Key.S))
+            {
+                MoveCam(new Vector3(0, 0, -1 * deltatime));
+            }
+            if (kstate.IsKeyDown(Key.Q))
+            {
+                MoveCam(new Vector3(0, 1 * deltatime, 0));
+            }
+            if (kstate.IsKeyDown(Key.E))
+            {
+                MoveCam(new Vector3(0, -1 * deltatime, 0));
+            }
+            if (kstate.IsKeyDown(Key.Up))
+            {
+                RotateCam(new Vector2(-rotSpeedX * deltatime, 0));
+            }
+            if (kstate.IsKeyDown(Key.Down))
+            {
+                RotateCam(new Vector2(rotSpeedX * deltatime, 0));
+            }
+            if (kstate.IsKeyDown(Key.Left))
+            {
+                RotateCam(new Vector2(0, -rotSpeedY * deltatime));
+            }
+            if (kstate.IsKeyDown(Key.Right))
+            {
+                RotateCam(new Vector2(0, rotSpeedY * deltatime));
+            }
+            MouseState mstate = Mouse.GetState();
+
+        }
     }
 }

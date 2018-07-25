@@ -60,5 +60,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\deferred.frag" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\def_pointLight.frag" />
+    <None Include="Content\def_pointLight.vert" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
