@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
+    <Compile Include="src\model\PointLight.cs" />
     <Compile Include="TestVisual.cs" />
     <Compile Include="View.cs" />
   </ItemGroup>
@@ -61,8 +62,8 @@
     <EmbeddedResource Include="Content\deferred.frag" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\def_pointLight.frag" />
-    <None Include="Content\def_pointLight.vert" />
+    <EmbeddedResource Include="Content\def_pointLight.frag" />
+    <EmbeddedResource Include="Content\def_pointLight.vert" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

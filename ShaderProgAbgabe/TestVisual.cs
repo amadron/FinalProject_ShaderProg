@@ -9,6 +9,8 @@ using Zenseless.HLGL;
 using Zenseless.OpenGL;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
+using Example.src.model;
+using System.Drawing;
 
 namespace Example
 {
@@ -34,10 +36,36 @@ namespace Example
             deferredPost = contentLoader.LoadPixelShader("deferred_post");
             var mesh = Meshes.CreatePlane(5, 5, 1, 1);
             var sphere = Meshes.CreateSphere(1, 2);
+
+            //Lights
+            defPointLightShader = contentLoader.Load<IShaderProgram>("def_pointLight.*");
+            var lSphere = Meshes.CreateSphere(1, 1);
+            pointLightSphere = VAOLoader.FromMesh(lSphere, defPointLightShader);
+            pointLights = GetPointLights().ToArray();
+            Vector3[] instPos = new Vector3[pointLights.Length];
+            Vector4[] instCols = new Vector4[pointLights.Length];
+            float[] instRadius = new float[pointLights.Length];
+            for(int i = 0; i < pointLights.Length; i++)
+            {
+                instPos[i] = pointLights[i].position;
+                instCols[i] = new Vector4(pointLights[i].lightColor.ToVector3(), 1);
+                instRadius[i] = pointLights[i].radius;
+            }
+            pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instancePosition"), instPos, true);
+            pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceColor"), instCols, true);
+            pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceRadius"), instRadius, true);
+
             sphere.SetConstantUV(new Vector2(0, 0));
             mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(0, 1f, 0))));
             geometryPhong = VAOLoader.FromMesh(mesh, phongShading);
             geometryDeferred = VAOLoader.FromMesh(mesh, deferredShading);
+        }
+
+        List<PointLight> GetPointLights()
+        {
+            List<PointLight> lightList = new List<PointLight>();
+            
+            return lightList;
         }
 
         public void RenderPhong()
@@ -173,11 +201,15 @@ namespace Example
         Vector2 camrot = new Vector2(0, 0);
         float rotSpeedY = 40;
         float rotSpeedX = 40;
+        PointLight[] pointLights;
+
         //Phong
         IShaderProgram phongShading;
         IDrawable geometryPhong;
         //PostProcessing
         //Deferred
+        IShaderProgram defPointLightShader;
+        VAO pointLightSphere;
         IShaderProgram deferredShading;
         IShaderProgram deferredPost;
         private IRenderSurface renderToTexture;
