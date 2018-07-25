@@ -41,7 +41,7 @@ vec4 getPhongColor()
 	vec4 ambient = getAmbient();
 	vec4 diff =  getDiffuse(normal);
 	vec4 spec = getSpecular(normal);
-	return diff + spec;
+	return ambient + diff + spec;
 }
 
 void main()

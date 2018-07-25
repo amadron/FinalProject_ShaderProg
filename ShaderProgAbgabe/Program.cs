@@ -9,8 +9,9 @@ namespace Example
             var window = new ExampleWindow();
             //var view = new View();
             var visual = new TestVisual(window.RenderContext.RenderState, window.ContentLoader);
-            window.Render += () => visual.RenderPhong();
+            window.Render += () => visual.RenderDeferred();
             window.Update += (dt) => visual.Update(dt);
+            window.Resize += (width, height) => visual.Resize(width, height);
             window.Run();
 
         }

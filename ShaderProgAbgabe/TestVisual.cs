@@ -14,17 +14,21 @@ namespace Example
 {
     class TestVisual
     {
+        IRenderState renderState;
         public TestVisual(Zenseless.HLGL.IRenderState renderState, Zenseless.HLGL.IContentLoader contentLoader)
         {
             renderState.Set<DepthTest>(new DepthTest(true));
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
+            this.renderState = renderState;
+            //Camera Setup
             Vector3 pos = campos;
             fCam.Position = pos;
             fCam.Heading = camrot.Y;
             fCam.Tilt = camrot.X;
-            fCam.NearClip = 0.1f;
+            fCam.NearClip = 0.001f;
             fCam.FarClip = 50.0f;
+
             phongShading = contentLoader.Load<IShaderProgram>("phong.*");
             deferredShading = contentLoader.Load<IShaderProgram>("deferred.*");
             deferredPost = contentLoader.LoadPixelShader("deferred_post");
@@ -56,13 +60,53 @@ namespace Example
         public void RenderDeferred()
         {
 
+            //Render to Framebufferobject
+            renderToTexture.Activate();
+            DrawDeferredGeometry();
+            renderToTexture.Deactivate();
+
+            //TextureDebugger.Draw(renderToTexture.Textures[0]);
+            //return;
+
+            //DeferredLightning
+            deferredPost.Activate();
+            
+            int albedo = GL.GetUniformLocation(deferredPost.ProgramID, "albedoSampler");
+            int normal = GL.GetUniformLocation(deferredPost.ProgramID, "normalSampler");
+
+            GL.Uniform1(albedo, 0);
+            GL.Uniform1(normal, 1);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, renderToTexture.Textures[0].ID);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, renderToTexture.Textures[1].ID);
+
+            //Pass Parameters
+            deferredPost.Uniform("camPos", campos);
+
+            deferredPost.Uniform("ambientColor", ambientColor);
+
+            deferredPost.Uniform("dirLightDir", dirLightdir);
+            deferredPost.Uniform("dirLightCol", dirLightCol);
+            deferredPost.Uniform("dirSpecCol", dirSpecCol);
+
+            //PostProcessQuad
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+            deferredPost.Deactivate();
+            
         }
 
         public void DrawDeferredGeometry()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+
+
             deferredShading.Activate();
 
+            deferredShading.Uniform("camera", fCam.CalcMatrix());
             //Activate Textures of FBO
             int textAmount = renderToTexture.Textures.Count; //Number of Texture Channels of FBO
             for(int i = 0; i < textAmount; i++)
@@ -71,11 +115,18 @@ namespace Example
                 renderToTexture.Textures[i].Activate();
             }
 
+            DrawBuffersEnum[] buffers = new DrawBuffersEnum[textAmount];
+            for(int i = 0; i < textAmount; i++)
+            {
+                buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
+            }
+
+            GL.DrawBuffers(2, buffers);
+
             //Draw Gemetry
-
-
+            geometryDeferred.Draw();
             //Deactivate Textures of FBO
-            for(int i  = textAmount; i >= 0; i--)
+            for(int i  = textAmount - 1; i >= 0; i--)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + i);
                 renderToTexture.Textures[i].Deactivate();
@@ -83,6 +134,8 @@ namespace Example
 
 
             deferredShading.Deactivate();
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
         }
 
         public void Resize(int width, int height)
@@ -172,7 +225,7 @@ namespace Example
         private IRenderSurface renderToTexture;
         IDrawable geometryDeferred;
         //Shading
-        Vector4 ambientColor = new Vector4(0.419f, 0.4f, 0.341f, 1);
+        Vector4 ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
         Vector3 dirLightdir = new Vector3(0.1f, -0.2f, -1f);
         Vector4 dirLightCol = new Vector4(0.866f, 0.878f, 0.243f, 1);
         Vector4 dirSpecCol = new Vector4(1, 1, 1, 1);

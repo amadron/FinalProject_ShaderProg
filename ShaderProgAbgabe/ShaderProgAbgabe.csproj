@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="Content\Deferred\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -49,8 +50,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\phong.vert" />
-    <EmbeddedResource Include="Content\phong.frag" />
+    <EmbeddedResource Include="Content\Phong\phong.vert" />
+    <EmbeddedResource Include="Content\Phong\phong.frag" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\deferred.vert" />
