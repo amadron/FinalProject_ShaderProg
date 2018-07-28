@@ -3,6 +3,7 @@
 in vec3 instancePosition;
 in float instanceRadius;
 in vec4 instanceColor;
+in float instanceStrength;
 
 uniform mat4 camera;
 in vec3 position;
@@ -13,11 +14,17 @@ out Data
 	vec4 position;
 	vec3 normal;
 	vec4 lightColor;
+	vec3 lightPosition;
+	float lightStrength;
 } outData;
 
 void main()
 {
-	outData.position = camera * vec4(position, 1);
+	vec3 tpos = position * instanceRadius + instancePosition;
+	vec4 pos = camera * vec4(tpos, 1);
+	gl_Position = pos;
+	outData.position = pos;
 	outData.normal = normal;
 	outData.lightColor = instanceColor;
+	outData.lightPosition = instancePosition;
 }

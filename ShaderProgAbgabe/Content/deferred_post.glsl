@@ -11,6 +11,7 @@ uniform int specFactor;
 uniform sampler2D positionSampler;
 uniform sampler2D albedoSampler;
 uniform sampler2D normalSampler;
+uniform sampler2D pointLightSampler;
 
 in vec2 uv;
 
@@ -43,5 +44,6 @@ void main()
 	vec3 viewDir = normalize(position - camPos);
 	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor);
 	vec4 color = vec4(ambient + diffuse + specular);
-	gl_FragColor = color;
+	vec4 plightColor = texture(pointLightSampler, uv);
+	gl_FragColor = color + plightColor;
 }
