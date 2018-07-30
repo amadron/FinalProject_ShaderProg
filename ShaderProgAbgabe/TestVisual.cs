@@ -64,8 +64,8 @@ namespace Example
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceIntensity"), instIntensity, true);
 
             sphere.SetConstantUV(new Vector2(0, 0));
-            mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(0, 1f, -1.2f))));
-            mesh.Add(sphere2.Transform(Transformation.Translation(new Vector3(0, 1f, 1.2f))));
+            mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(0, 0.5f, -1.4f))));
+            mesh.Add(sphere2.Transform(Transformation.Translation(new Vector3(0, 0.5f, 1.4f))));
             geometryPhong = VAOLoader.FromMesh(mesh, phongShading);
             geometryDeferred = VAOLoader.FromMesh(mesh, deferredShading);
         }
@@ -73,7 +73,7 @@ namespace Example
         List<PointLight> GetPointLights()
         {
             List<PointLight> lightList = new List<PointLight>();
-            PointLight l = new PointLight(new Vector3(0, 0.4f, 0), Color.Green, 1f, 5f);
+            PointLight l = new PointLight(new Vector3(0, 0.4f, 0), Color.Green, 1f, 3f);
             PointLight l2 = new PointLight(new Vector3(0.2f, 0.1f, 0), Color.Red, 1f, 1.0f);
             lightList.Add(l);
             //lightList.Add(l2);

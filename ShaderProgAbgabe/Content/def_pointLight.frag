@@ -51,5 +51,5 @@ void main()
 	}
 	//color = diffuse;
 	//color = vec4(0);
-	color = diffuse * falloff * intensity;
+	color = diffuse * intensity * falloff;
 }
