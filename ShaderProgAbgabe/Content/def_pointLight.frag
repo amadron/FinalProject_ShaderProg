@@ -15,6 +15,7 @@ in Data
 	vec3 normal;
 	vec4 lightColor;
 	vec3 lightPosition;
+	float radius;
 	float lightStrength;
 } inData;
 
@@ -23,8 +24,8 @@ out vec4 color;
 vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor)
 {
 	
-	vec3 l = -lightDirection;
-	float lambert = max(0, dot(normal, l));
+	vec3 l = lightDirection;
+	float lambert = max(0, dot(l, normal));
 	return lightColor * lambert;
 
 }
@@ -37,8 +38,17 @@ void main()
 	vec3 scnNormal = texture(normalSampler, uv).xyz;
 	vec3 scnPosition = texture(positionSampler, uv).xyz;
 	vec3 lpos = inData.lightPosition;
-	vec3 ldir = normalize(lpos - scnPosition);
+	vec3 ldir = scnPosition - lpos;
+	//Taken anuttation from Example
+	float dist = length(ldir);
 	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor);
 	float intensity = inData.lightStrength;
+	
+	if(dist > inData.radius)
+	{
+		diffuse = vec4(0);
+	}
+	//color = diffuse;
+	//color = vec4(0);
 	color = diffuse;
 }

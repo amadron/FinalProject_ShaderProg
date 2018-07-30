@@ -38,6 +38,7 @@ namespace Example
             deferredShading = contentLoader.Load<IShaderProgram>("deferred.*");
             deferredPost = contentLoader.LoadPixelShader("deferred_post");
             var mesh = Meshes.CreatePlane(5, 5, 1, 1);
+            //var mesh = Meshes.CreateSphere(1, 2);
             var sphere = Meshes.CreateSphere(1, 2);
 
             //Lights
@@ -62,7 +63,7 @@ namespace Example
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceStrength"), instStrngth, true);
 
             sphere.SetConstantUV(new Vector2(0, 0));
-            mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(0, 0, 0))));
+            mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(0, 1f, -0.5f))));
             geometryPhong = VAOLoader.FromMesh(mesh, phongShading);
             geometryDeferred = VAOLoader.FromMesh(mesh, deferredShading);
         }
@@ -70,7 +71,7 @@ namespace Example
         List<PointLight> GetPointLights()
         {
             List<PointLight> lightList = new List<PointLight>();
-            PointLight l = new PointLight(new Vector3(0, 1, 0), Color.Green, 1f, 0.5f);
+            PointLight l = new PointLight(new Vector3(0, 1f, 0), Color.Green, 1f, 0.5f);
             PointLight l2 = new PointLight(new Vector3(0.2f, 0.1f, 0), Color.Red, 1f, 1.0f);
             lightList.Add(l);
             //lightList.Add(l2);
@@ -270,7 +271,7 @@ namespace Example
         IDrawable geometryDeferred;
         //Shading
         Vector4 ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
-        Vector3 dirLightdir = new Vector3(0.1f, -0.2f, -1f);
+        Vector3 dirLightdir = new Vector3(0.1f, -0.2f, 1f);
         Vector4 dirLightCol = new Vector4(0.866f, 0.878f, 0.243f, 1);
         Vector4 dirSpecCol = new Vector4(1, 1, 1, 1);
         //Shadows

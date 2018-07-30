@@ -15,6 +15,7 @@ out Data
 	vec3 normal;
 	vec4 lightColor;
 	vec3 lightPosition;
+	float radius;
 	float lightStrength;
 } outData;
 
@@ -27,4 +28,6 @@ void main()
 	outData.normal = normal;
 	outData.lightColor = instanceColor;
 	outData.lightPosition = instancePosition;
+	outData.radius = instanceRadius;
+	outData.lightStrength = instanceStrength;
 }

@@ -45,5 +45,5 @@ void main()
 	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor);
 	vec4 color = vec4(ambient + diffuse + specular);
 	vec4 plightColor = texture(pointLightSampler, uv);
-	gl_FragColor = color + plightColor;
+	gl_FragColor = color + plightColor;// + plightColor;//vec4(normal, 1);
 }
