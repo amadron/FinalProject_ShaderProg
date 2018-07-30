@@ -4,8 +4,9 @@ uniform sampler2D positionSampler;
 uniform sampler2D albedoSampler;
 uniform sampler2D normalSampler;
 
-
 uniform mat4 camera;
+uniform vec3 cameraPosition;
+
 in vec3 position;
 in vec3 normal;
 
@@ -17,6 +18,7 @@ in Data
 	vec3 lightPosition;
 	float radius;
 	float intensity;
+	vec4 specularColor;
 } inData;
 
 out vec4 color;
@@ -28,6 +30,15 @@ vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor)
 	float lambert = max(0, dot(l, normal));
 	return lightColor * lambert;
 
+}
+
+vec4 getSpecular(vec3 lightDirection, vec3 normal, vec4 specularColor, vec3 viewDirection, int specFactor, float intensity)
+{
+	vec3 l = -normalize(lightDirection);
+	vec3 r = reflect(l, normal) ;
+	vec3 v = normalize(viewDirection);
+	float spec = max(0, dot(r, v)); 
+	return  specularColor * max(0, pow(spec, specFactor)) * intensity;
 }
 
 void main()
@@ -49,7 +60,11 @@ void main()
 	{
 		falloff = 0;
 	}
+
+	//Specular
+	vec3 viewDir = scnPosition - cameraPosition;
+	vec4 specular = getSpecular(ldir, scnNormal, inData.specularColor, viewDir, 255, 5f);
 	//color = diffuse;
 	//color = vec4(0);
-	color = diffuse * intensity * falloff;
+	color = diffuse * intensity * falloff + specular * falloff;
 }
