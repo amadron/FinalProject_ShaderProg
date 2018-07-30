@@ -24,7 +24,7 @@ out vec4 color;
 vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor)
 {
 	
-	vec3 l = lightDirection;
+	vec3 l = -lightDirection;
 	float lambert = max(0, dot(l, normal));
 	return lightColor * lambert;
 
@@ -43,7 +43,8 @@ void main()
 	float dist = length(ldir);
 	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor);
 	float intensity = inData.intensity;
-	float falloff = clamp(0, 1,inData.radius - dist);
+	float falloff = clamp(0, inData.radius, inData.radius - dist);
+	float val = 1;
 	if(dist > inData.radius)
 	{
 		falloff = 0;

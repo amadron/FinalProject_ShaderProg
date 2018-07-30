@@ -6,6 +6,8 @@ uniform vec3 camPos;
 uniform vec3 dirLightDir;
 uniform vec4 dirLightCol;
 uniform vec4 dirSpecCol;
+uniform float dirIntensity;
+uniform float dirSpecIntensity;
 uniform int specFactor;
 
 uniform sampler2D positionSampler;
@@ -39,10 +41,10 @@ void main()
 	vec3 albedo = texture2D(albedoSampler, uv).rgb;
 	vec3 normal = texture2D(normalSampler, uv).rgb;
 	vec3 ambient = ambientColor.rgb;
-	vec3 diffuse = getDiffuse(dirLightDir, normal, dirLightCol) * albedo;
+	vec3 diffuse = getDiffuse(dirLightDir, normal, dirLightCol) * albedo * dirIntensity;
 	//vec3 diffuse = max(0, dot(normal, -dirLightDir)) * albedo * dirLightCol;
 	vec3 viewDir = normalize(position - camPos);
-	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor);
+	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor) * dirSpecIntensity;
 	vec4 color = vec4(ambient + diffuse + specular);
 	vec4 plightColor = texture(pointLightSampler, uv);
 	gl_FragColor = color + plightColor;// + plightColor;//vec4(normal, 1);
