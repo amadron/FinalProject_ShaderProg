@@ -49,18 +49,18 @@ namespace Example
             Vector3[] instPos = new Vector3[pointLights.Length];
             Vector4[] instCols = new Vector4[pointLights.Length];
             float[] instRadius = new float[pointLights.Length];
-            float[] instStrngth = new float[pointLights.Length];
+            float[] instIntensity = new float[pointLights.Length];
             for(int i = 0; i < pointLights.Length; i++)
             {
                 instPos[i] = pointLights[i].position;
                 instCols[i] = new Vector4(pointLights[i].lightColor.ToVector3(), 1);
                 instRadius[i] = pointLights[i].radius;
-                instStrngth[i] = pointLights[i].lightStrength;
+                instIntensity[i] = pointLights[i].intensity;
             }
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instancePosition"), instPos, true);
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceColor"), instCols, true);
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceRadius"), instRadius, true);
-            pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceStrength"), instStrngth, true);
+            pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceIntensity"), instIntensity, true);
 
             sphere.SetConstantUV(new Vector2(0, 0));
             mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(0, 1f, -0.5f))));
@@ -71,7 +71,7 @@ namespace Example
         List<PointLight> GetPointLights()
         {
             List<PointLight> lightList = new List<PointLight>();
-            PointLight l = new PointLight(new Vector3(0, 1f, 0), Color.Green, 1f, 0.5f);
+            PointLight l = new PointLight(new Vector3(0, 1f, 0), Color.Green, 1f, 5f);
             PointLight l2 = new PointLight(new Vector3(0.2f, 0.1f, 0), Color.Red, 1f, 1.0f);
             lightList.Add(l);
             //lightList.Add(l2);

@@ -3,7 +3,7 @@
 in vec3 instancePosition;
 in float instanceRadius;
 in vec4 instanceColor;
-in float instanceStrength;
+in float instanceIntensity;
 
 uniform mat4 camera;
 in vec3 position;
@@ -16,7 +16,7 @@ out Data
 	vec4 lightColor;
 	vec3 lightPosition;
 	float radius;
-	float lightStrength;
+	float intensity;
 } outData;
 
 void main()
@@ -29,5 +29,5 @@ void main()
 	outData.lightColor = instanceColor;
 	outData.lightPosition = instancePosition;
 	outData.radius = instanceRadius;
-	outData.lightStrength = instanceStrength;
+	outData.intensity = instanceIntensity;
 }

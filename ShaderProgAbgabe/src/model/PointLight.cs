@@ -16,20 +16,20 @@ namespace Example.src.model
             position = Vector3.Zero;
             lightColor = Color.White;
             radius = 1;
-            lightStrength = 1;
+            intensity = 1;
         }
 
-        public PointLight(Vector3 position, Color color, float radius, float lightStrength )
+        public PointLight(Vector3 position, Color color, float radius, float intensity )
         {
             this.position = position;
             this.lightColor = color;
             this.radius = radius;
-            this.lightStrength = lightStrength;
+            this.intensity = intensity;
         }
 
         public Vector3 position;
         public Color lightColor;
         public float radius;
-        public float lightStrength;
+        public float intensity;
     }
 }

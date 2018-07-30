@@ -16,7 +16,7 @@ in Data
 	vec4 lightColor;
 	vec3 lightPosition;
 	float radius;
-	float lightStrength;
+	float intensity;
 } inData;
 
 out vec4 color;
@@ -42,13 +42,13 @@ void main()
 	//Taken anuttation from Example
 	float dist = length(ldir);
 	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor);
-	float intensity = inData.lightStrength;
-	
+	float intensity = inData.intensity;
+	float falloff = clamp(0, 1,inData.radius - dist);
 	if(dist > inData.radius)
 	{
-		diffuse = vec4(0);
+		falloff = 0;
 	}
 	//color = diffuse;
 	//color = vec4(0);
-	color = diffuse;
+	color = diffuse * falloff * intensity;
 }
