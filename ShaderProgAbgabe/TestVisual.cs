@@ -298,23 +298,36 @@ namespace Example
 
         public void Update(float deltatime)
         {
-
+            OpenTK.Vector4 dirVec = new OpenTK.Vector4(0, 0, 1, 1);
+            OpenTK.Vector4 rightVec = new OpenTK.Vector4(1, 0, 0, 1);
+            Matrix4x4 rot = fCam.CalcRotationMatrix();
+            OpenTK.Matrix4 testMat = new OpenTK.Matrix4(rot.M11, rot.M12, rot.M13, rot.M14,
+                rot.M21, rot.M22, rot.M23, rot.M24,
+                rot.M31, rot.M32, rot.M33, rot.M34,
+                rot.M41, rot.M42, rot.M43, rot.M44);
+            testMat.Transpose();
+            dirVec = testMat * dirVec;
+            rightVec = testMat * rightVec;
+            dirVec.Normalize();
+            rightVec.Normalize();
+            Vector3 dirVecConvert = new Vector3(dirVec.X, dirVec.Y, dirVec.Z);
+            Vector3 rightVecConvert = new Vector3(rightVec.X, rightVec.Y, rightVec.Z);
             KeyboardState kstate = Keyboard.GetState();
             if (kstate.IsKeyDown(Key.A))
             {
-                MoveCam(new Vector3(-1 * deltatime, 0, 0));
+                MoveCam(rightVecConvert * deltatime * -1);
             }
             if (kstate.IsKeyDown(Key.D))
             {
-                MoveCam(new Vector3(1 * deltatime, 0, 0));
+                MoveCam(rightVecConvert * deltatime * 1);
             }
             if (kstate.IsKeyDown(Key.W))
             {
-                MoveCam(new Vector3(0, 0, 1 * deltatime));
+                MoveCam(dirVecConvert * -1 * deltatime);
             }
             if (kstate.IsKeyDown(Key.S))
             {
-                MoveCam(new Vector3(0, 0, -1 * deltatime));
+                MoveCam(dirVecConvert * 1 * deltatime);
             }
             if (kstate.IsKeyDown(Key.Q))
             {

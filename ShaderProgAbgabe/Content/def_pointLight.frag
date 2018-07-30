@@ -66,5 +66,5 @@ void main()
 	vec4 specular = getSpecular(ldir, scnNormal, inData.specularColor, viewDir, 255, 5f);
 	//color = diffuse;
 	//color = vec4(0);
-	color = diffuse * intensity * falloff + specular * falloff;
+	color = specular * falloff + diffuse * intensity * falloff;
 }
