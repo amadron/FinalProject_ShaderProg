@@ -31,13 +31,15 @@ namespace Example
             fCam.Position = pos;
             fCam.Heading = camrot.Y;
             fCam.Tilt = camrot.X;
-            fCam.NearClip = 0.001f;
+            fCam.NearClip = 0.1f;
             fCam.FarClip = 50.0f;
 
             phongShading = contentLoader.Load<IShaderProgram>("phong.*");
+            //Deferred
+            //Deferred Shader
             deferredShading = contentLoader.Load<IShaderProgram>("deferred.*");
             deferredPost = contentLoader.LoadPixelShader("deferred_post");
-            var mesh = Meshes.CreatePlane(5, 5, 5, 5);
+            var mesh = Meshes.CreatePlane(5, 5, 10, 10);
             //var mesh = Meshes.CreateSphere(1, 2);
             var sphere = Meshes.CreateSphere(1, 2);
             var sphere2 = Meshes.CreateSphere(1, 2);
@@ -75,10 +77,19 @@ namespace Example
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceSpecularColor"), instSpecCol, true);
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceSpecularFactor"), instSpecFact, true);
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceSpecularIntensity"), instSpecIntensity, true);
+            //PointLight end
 
+            //Shadowmapping
+            shadowMapLightViewShader = contentLoader.Load<IShaderProgram>("shadowLightView.*");
+            shadowMapShader = contentLoader.Load<IShaderProgram>("shadowMap.*");
+            dirLightCamera.View.Target = Vector3.Zero;
+
+            //Scene/ Geometry
             sphere.SetConstantUV(new Vector2(0, 0));
             mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(1f, 0.5f, -1f))));
             mesh.Add(sphere2.Transform(Transformation.Translation(new Vector3(-1f, 0.5f, 1f))));
+            var cube = Meshes.CreateCubeWithNormals(1);
+            mesh.Add(cube.Transform(Transformation.Translation(new Vector3(-0.5f, 0.5f, -1.5f))));
             geometryPhong = VAOLoader.FromMesh(mesh, phongShading);
             geometryDeferred = VAOLoader.FromMesh(mesh, deferredShading);
         }
@@ -96,6 +107,10 @@ namespace Example
         public void RenderDeferred()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            //DrawShadowMap
+            DrawShadowMapPass();
+
             //Render Geometry Data to Framebuffer
             renderToTextureShading.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -105,6 +120,8 @@ namespace Example
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
             renderToTextureShading.Deactivate();
+
+            
 
             //Render Lights as Spheres to texture
             
@@ -121,6 +138,8 @@ namespace Example
 
             //TextureDebugger.Draw(renderToTextureShading.Textures[0]);
             //TextureDebugger.Draw(renderToTexturePointLights.Textures[0]);
+            //TextureDebugger.Draw(renderToTextureDirectionalLightView.Texture);
+            //TextureDebugger.Draw(renderToTextureShadowMap.Texture);
             //return;
             //DeferredLightning
             deferredPost.Activate();
@@ -130,11 +149,13 @@ namespace Example
             int albedo = GL.GetUniformLocation(deferredPost.ProgramID, "albedoSampler");
             int normal = GL.GetUniformLocation(deferredPost.ProgramID, "normalSampler");
             int lights = GL.GetUniformLocation(deferredPost.ProgramID, "pointLightSampler");
+            int shadows = GL.GetUniformLocation(deferredPost.ProgramID, "shadowSampler");
 
             GL.Uniform1(position, 0);
             GL.Uniform1(albedo, 1);
             GL.Uniform1(normal, 2);
             GL.Uniform1(lights, 3);
+            GL.Uniform1(shadows, 4);
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, renderToTextureShading.Textures[0].ID);
@@ -144,6 +165,8 @@ namespace Example
             GL.BindTexture(TextureTarget.Texture2D, renderToTextureShading.Textures[2].ID);
             GL.ActiveTexture(TextureUnit.Texture3);
             GL.BindTexture(TextureTarget.Texture2D, renderToTexturePointLights.Textures[0].ID);
+            GL.ActiveTexture(TextureUnit.Texture4);
+            GL.BindTexture(TextureTarget.Texture2D, renderToTextureShadowMap.Texture.ID);
 
             //Pass Parameters
             deferredPost.Uniform("camPos", campos);
@@ -153,14 +176,13 @@ namespace Example
             deferredPost.Uniform("dirLightDir", dirLightdir);
             deferredPost.Uniform("dirLightCol", dirLightCol);
             deferredPost.Uniform("dirSpecCol", dirSpecCol);
-            deferredPost.Uniform("dirIntensity", 0.1f);
+            deferredPost.Uniform("dirIntensity", dirLightIntensity);
             deferredPost.Uniform("dirSpecIntensity", 0f);
             deferredPost.Uniform("specFactor", 255);
 
             //PostProcessQuad
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
             
-            deferredPost.Deactivate();
         }
 
         public void DrawDeferredGeometry()
@@ -239,8 +261,54 @@ namespace Example
             renderState.Set(new DepthTest(false));
         }
 
+        private void DrawShadowMapPass()
+        {
+            //Create ShadowMap
+            renderToTextureDirectionalLightView.Activate();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+
+            shadowMapLightViewShader.Activate();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            renderToTextureDirectionalLightView.Texture.Activate();
+            //Render
+            shadowMapLightViewShader.Uniform("lightCamera", dirLightCamera);
+            geometryDeferred.Draw();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            renderToTextureDirectionalLightView.Texture.Deactivate();
+            shadowMapLightViewShader.Deactivate();
+
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
+            renderToTextureDirectionalLightView.Deactivate();
+
+            //Create Shadow Map
+            renderToTextureShadowMap.Activate();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+
+            shadowMapShader.Activate();
+            //Render
+            GL.ActiveTexture(TextureUnit.Texture0);
+            renderToTextureDirectionalLightView.Texture.Activate();
+            shadowMapShader.Uniform("camera", fCam.CalcMatrix());
+            shadowMapShader.Uniform("lightCamera", dirLightCamera);
+            geometryDeferred.Draw();
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            renderToTextureDirectionalLightView.Texture.Deactivate();
+            shadowMapShader.Deactivate();
+
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
+            renderToTextureShadowMap.Deactivate();
+        }
+
         public void Resize(int width, int height)
         {
+            //Deferred
             renderToTextureShading = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
             renderToTextureShading.Attach(Texture2dGL.Create(width, height, 4, true));
             renderToTextureShading.Attach(Texture2dGL.Create(width, height, 4, true));
@@ -250,6 +318,12 @@ namespace Example
             }
             renderToTexturePointLights = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
             renderToTexturePointLights.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
+            //Shadowmap
+            renderToTextureDirectionalLightView = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
+            renderToTextureDirectionalLightView.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
+
+            renderToTextureShadowMap = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
+            renderToTextureShadowMap.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
         }
 
 
@@ -290,9 +364,15 @@ namespace Example
         //Shading
         Vector4 ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
         Vector3 dirLightdir = new Vector3(0.1f, -0.5f, 1f);
-        Vector4 dirLightCol = new Vector4(0.866f, 0.878f, 0.243f, 1);
+        float dirLightIntensity = 0.1f;
+        Vector4 dirLightCol = new Vector4(1f, 0.968f, 0.878f, 1);
         Vector4 dirSpecCol = new Vector4(1, 1, 1, 1);
         //Shadows
+        Camera<Orbit, Perspective> dirLightCamera = new Camera<Orbit, Perspective>(new Orbit(4.3f, 180, 45), new Perspective(farClip: 50));
+        IShaderProgram shadowMapLightViewShader;
+        IShaderProgram shadowMapShader;
+        IRenderSurface renderToTextureDirectionalLightView;
+        IRenderSurface renderToTextureShadowMap;
         //Shadowmap
         //ShadowRendering
 

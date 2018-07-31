@@ -14,6 +14,7 @@ uniform sampler2D positionSampler;
 uniform sampler2D albedoSampler;
 uniform sampler2D normalSampler;
 uniform sampler2D pointLightSampler;
+uniform sampler2D shadowSampler;
 
 in vec2 uv;
 
@@ -40,6 +41,7 @@ void main()
 	vec3 position = texture2D(positionSampler, uv).xyz;
 	vec3 albedo = texture2D(albedoSampler, uv).rgb;
 	vec3 normal = texture2D(normalSampler, uv).rgb;
+	vec4 shadows = texture2D(shadowSampler, uv);
 	vec3 ambient = ambientColor.rgb;
 	vec3 diffuse = getDiffuse(dirLightDir, normal, dirLightCol) * albedo * dirIntensity;
 	//vec3 diffuse = max(0, dot(normal, -dirLightDir)) * albedo * dirLightCol;
@@ -47,5 +49,6 @@ void main()
 	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor) * dirSpecIntensity;
 	vec4 color = vec4(ambient + diffuse + specular);
 	vec4 plightColor = texture(pointLightSampler, uv);
-	gl_FragColor = color + plightColor;// + plightColor;//vec4(normal, 1);
+	gl_FragColor = color * (1 - shadows) + plightColor;
+	//gl_FragColor = shadows;
 }

@@ -65,5 +65,13 @@
     <EmbeddedResource Include="Content\def_pointLight.frag" />
     <EmbeddedResource Include="Content\def_pointLight.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\shadowLightView.frag" />
+    <EmbeddedResource Include="Content\shadowLightView.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\shadowMap.frag" />
+    <EmbeddedResource Include="Content\shadowMap.vert" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
