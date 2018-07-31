@@ -19,6 +19,9 @@ The following techniques are implemented:
 
 * Phong Shading
 * Deferred Lighting
+    * Point light Datatype, which stores Settings.
+    * Point lights will be rendered as Spheres and shaded as Seperate pass.
+    * Deferred Pass processes Directional Light and adds Point Light Data.
 
 ### To do
 

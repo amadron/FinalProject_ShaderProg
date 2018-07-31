@@ -19,6 +19,8 @@ in Data
 	float radius;
 	float intensity;
 	vec4 specularColor;
+	float specFactor;
+	float specIntensity;
 } inData;
 
 out vec4 color;
@@ -32,7 +34,7 @@ vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor)
 
 }
 
-vec4 getSpecular(vec3 lightDirection, vec3 normal, vec4 specularColor, vec3 viewDirection, int specFactor, float intensity)
+vec4 getSpecular(vec3 lightDirection, vec3 normal, vec4 specularColor, vec3 viewDirection, float specFactor, float intensity)
 {
 	vec3 l = -normalize(lightDirection);
 	vec3 r = reflect(l, normal) ;
@@ -63,7 +65,7 @@ void main()
 
 	//Specular
 	vec3 viewDir = scnPosition - cameraPosition;
-	vec4 specular = getSpecular(ldir, scnNormal, inData.specularColor, viewDir, 255, 5f);
+	vec4 specular = getSpecular(ldir, scnNormal, inData.specularColor, viewDir, inData.specFactor, inData.specIntensity);
 	//color = diffuse;
 	//color = vec4(0);
 	color = specular * falloff + diffuse * intensity * falloff;

@@ -6,7 +6,7 @@ in vec4 instanceColor;
 in float instanceIntensity;
 
 in vec4 instanceSpecularColor;
-in int instanceSpecularFactor;
+in float instanceSpecularFactor;
 in float instanceSpecularIntensity;
 
 uniform mat4 camera;
@@ -22,6 +22,8 @@ out Data
 	float radius;
 	float intensity;
 	vec4 specularColor;
+	float specFactor;
+	float specIntensity;
 } outData;
 
 void main()
@@ -37,4 +39,6 @@ void main()
 	outData.intensity = instanceIntensity;
 
 	outData.specularColor = instanceSpecularColor;
+	outData.specFactor = instanceSpecularFactor;
+	outData.specIntensity = instanceSpecularIntensity;
 }

@@ -53,7 +53,7 @@ namespace Example
             float[] instIntensity = new float[pointLights.Length];
 
             Vector4[] instSpecCol = new Vector4[pointLights.Length];
-            int[] instSpecFact = new int[pointLights.Length];
+            float[] instSpecFact = new float[pointLights.Length];
             float[] instSpecIntensity = new float[pointLights.Length];
 
             for(int i = 0; i < pointLights.Length; i++)
@@ -74,7 +74,7 @@ namespace Example
 
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceSpecularColor"), instSpecCol, true);
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceSpecularFactor"), instSpecFact, true);
-            pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceSpecularIntensity"), instSpecFact, true);
+            pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceSpecularIntensity"), instSpecIntensity, true);
 
             sphere.SetConstantUV(new Vector2(0, 0));
             mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(0, 0.5f, -1.4f))));
@@ -86,7 +86,7 @@ namespace Example
         List<PointLight> GetPointLights()
         {
             List<PointLight> lightList = new List<PointLight>();
-            PointLight l = new PointLight(new Vector3(0, 0.4f, 0), Color.Green, 1f, 3f, Color.White, 255, 1f);
+            PointLight l = new PointLight(new Vector3(0, 0.4f, 0), Color.Green, 1f, 3f, Color.White, 80, 0.6f);
             PointLight l2 = new PointLight(new Vector3(0.2f, 0.1f, 0), Color.Red, 1f, 1.0f);
             lightList.Add(l);
             //lightList.Add(l2);
