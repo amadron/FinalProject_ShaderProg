@@ -6,12 +6,16 @@ Based on [Zenseless Framework](https://github.com/danielscherzer/Zenseless) by D
 
 Current first person Controls are:
 
-* W - Forward in Camera Direction
-* A - Left Strafe
-* D - Right Strafe
-* S - Backward in from Camera Direction
-* Q - Vertical Down
-* E - Vertical Up
+* Camera Movement:
+    * W - Forward in Camera Direction
+    * A - Left Strafe
+    * D - Right Strafe
+    * S - Backward in from Camera Direction
+    * Q - Vertical Down
+    * E - Vertical Up
+* Camera Rotation:
+    * Left/Right Arrows - Rotate Horizontal Direction
+    * Up/Down Arrows - Rotate Vertical Direction
 
 ## Implementations
 

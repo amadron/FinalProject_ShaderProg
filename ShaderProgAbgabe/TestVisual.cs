@@ -77,8 +77,8 @@ namespace Example
             pointLightSphere.SetAttribute(GL.GetAttribLocation(defPointLightShader.ProgramID, "instanceSpecularIntensity"), instSpecIntensity, true);
 
             sphere.SetConstantUV(new Vector2(0, 0));
-            mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(0, 0.5f, -1.4f))));
-            mesh.Add(sphere2.Transform(Transformation.Translation(new Vector3(0, 0.5f, 1.4f))));
+            mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(1f, 0.5f, -1f))));
+            mesh.Add(sphere2.Transform(Transformation.Translation(new Vector3(-1f, 0.5f, 1f))));
             geometryPhong = VAOLoader.FromMesh(mesh, phongShading);
             geometryDeferred = VAOLoader.FromMesh(mesh, deferredShading);
         }
