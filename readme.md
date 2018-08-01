@@ -40,5 +40,5 @@ Known Issues:
 * Shadow Maps:
     * Implementation of Shadow Map filtering
     * Implementation of Soft Shadows
-    * Is point lighting right in Shadow areas?
+    * Changing light Camera from perspective to Orthogonal
 
