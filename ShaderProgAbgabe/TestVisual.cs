@@ -112,22 +112,10 @@ namespace Example
             DrawShadowMapPass();
 
             //Render Geometry Data to Framebuffer
-            renderToTextureShading.Activate();
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
             DrawDeferredGeometry();
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
-            renderState.Set(new DepthTest(false));
-            renderToTextureShading.Deactivate();
-
-            
 
             //Render Lights as Spheres to texture
-            
-            renderToTexturePointLights.Activate();
-            DrawPointLightPass();
-            renderToTexturePointLights.Deactivate();
+            DrawDeferredPointLightPass();
 
             //TextureDebugger.Draw(renderToTextureShading.Textures[0]);
             //TextureDebugger.Draw(renderToTexturePointLights.Textures[0]);
@@ -135,51 +123,16 @@ namespace Example
             //TextureDebugger.Draw(renderToTextureShadowMap.Texture);
             //return;
             //DeferredLightning
-            deferredPost.Activate();
-            //GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            
-            int position = GL.GetUniformLocation(deferredPost.ProgramID, "positionSampler");
-            int albedo = GL.GetUniformLocation(deferredPost.ProgramID, "albedoSampler");
-            int normal = GL.GetUniformLocation(deferredPost.ProgramID, "normalSampler");
-            int lights = GL.GetUniformLocation(deferredPost.ProgramID, "pointLightSampler");
-            int shadows = GL.GetUniformLocation(deferredPost.ProgramID, "shadowSampler");
-
-            GL.Uniform1(position, 0);
-            GL.Uniform1(albedo, 1);
-            GL.Uniform1(normal, 2);
-            GL.Uniform1(lights, 3);
-            GL.Uniform1(shadows, 4);
-
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, renderToTextureShading.Textures[0].ID);
-            GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, renderToTextureShading.Textures[1].ID);
-            GL.ActiveTexture(TextureUnit.Texture2);
-            GL.BindTexture(TextureTarget.Texture2D, renderToTextureShading.Textures[2].ID);
-            GL.ActiveTexture(TextureUnit.Texture3);
-            GL.BindTexture(TextureTarget.Texture2D, renderToTexturePointLights.Textures[0].ID);
-            GL.ActiveTexture(TextureUnit.Texture4);
-            GL.BindTexture(TextureTarget.Texture2D, renderToTextureShadowMap.Texture.ID);
-
-            //Pass Parameters
-            deferredPost.Uniform("camPos", campos);
-
-            deferredPost.Uniform("ambientColor", ambientColor);
-
-            deferredPost.Uniform("dirLightDir", dirLightdir);
-            deferredPost.Uniform("dirLightCol", dirLightCol);
-            deferredPost.Uniform("dirSpecCol", dirSpecCol);
-            deferredPost.Uniform("dirIntensity", dirLightIntensity);
-            deferredPost.Uniform("dirSpecIntensity", 0f);
-            deferredPost.Uniform("specFactor", 255);
-
-            //PostProcessQuad
-            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-            
+            DrawDeferredFinalPass();
         }
 
         public void DrawDeferredGeometry()
         {
+            renderToTextureShading.Activate();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+
             deferredShading.Activate();
 
             deferredShading.Uniform("camera", fCam.CalcMatrix());
@@ -208,10 +161,14 @@ namespace Example
                 renderToTextureShading.Textures[i].Deactivate();
             }
             deferredShading.Deactivate();
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
+            renderToTextureShading.Deactivate();
         }
 
-        private void DrawPointLightPass()
+        private void DrawDeferredPointLightPass()
         {
+            renderToTexturePointLights.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderState.Set(new DepthTest(false));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.FRONT_SIDE));
@@ -253,6 +210,7 @@ namespace Example
             renderState.Set(BlendStates.Opaque);
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
+            renderToTexturePointLights.Deactivate();
         }
 
         private void DrawShadowMapPass()
@@ -284,6 +242,7 @@ namespace Example
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
 
             shadowMapShader.Activate();
+
             //Render
             GL.ActiveTexture(TextureUnit.Texture0);
             renderToTextureDirectionalLightView.Texture.Activate();
@@ -299,6 +258,52 @@ namespace Example
             renderState.Set(new DepthTest(false));
             renderToTextureShadowMap.Deactivate();
         }
+
+        private void DrawDeferredFinalPass()
+        {
+            deferredPost.Activate();
+
+            int position = GL.GetUniformLocation(deferredPost.ProgramID, "positionSampler");
+            int albedo = GL.GetUniformLocation(deferredPost.ProgramID, "albedoSampler");
+            int normal = GL.GetUniformLocation(deferredPost.ProgramID, "normalSampler");
+            int lights = GL.GetUniformLocation(deferredPost.ProgramID, "pointLightSampler");
+            int shadows = GL.GetUniformLocation(deferredPost.ProgramID, "shadowSampler");
+
+            GL.Uniform1(position, 0);
+            GL.Uniform1(albedo, 1);
+            GL.Uniform1(normal, 2);
+            GL.Uniform1(lights, 3);
+            GL.Uniform1(shadows, 4);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, renderToTextureShading.Textures[0].ID);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, renderToTextureShading.Textures[1].ID);
+            GL.ActiveTexture(TextureUnit.Texture2);
+            GL.BindTexture(TextureTarget.Texture2D, renderToTextureShading.Textures[2].ID);
+            GL.ActiveTexture(TextureUnit.Texture3);
+            GL.BindTexture(TextureTarget.Texture2D, renderToTexturePointLights.Textures[0].ID);
+            GL.ActiveTexture(TextureUnit.Texture4);
+            GL.BindTexture(TextureTarget.Texture2D, renderToTextureShadowMap.Texture.ID);
+
+            //Pass Parameters
+            deferredPost.Uniform("camPos", campos);
+
+            deferredPost.Uniform("ambientColor", ambientColor);
+
+            deferredPost.Uniform("dirLightDir", dirLightdir);
+            deferredPost.Uniform("dirLightCol", dirLightCol);
+            deferredPost.Uniform("dirSpecCol", dirSpecCol);
+            deferredPost.Uniform("dirIntensity", dirLightIntensity);
+            deferredPost.Uniform("dirSpecIntensity", 0f);
+            deferredPost.Uniform("specFactor", 255);
+
+            //PostProcessQuad
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+
+            deferredPost.Deactivate();
+        }
+
 
         public void Resize(int width, int height)
         {
@@ -430,6 +435,7 @@ namespace Example
             MouseState mstate = Mouse.GetState();
 
         }
+
         public void RenderPhong()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
