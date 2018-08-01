@@ -23,8 +23,11 @@ The following techniques are implemented:
 
 * Phong Shading
 * Shadow Maps
+    * Exponential Shadowmaps implemented
     * One Pass renders from Light view
+        * Calculates the exponential of k * lightDistance
     * Another Pass validates Distance from Light view and Camera View. And renders into shadow Pass.
+        * Calculates the exponential of -k * viewDistance and multiplies with the data from Light View Pass
 * Deferred Lighting
     * Point light Datatype, which stores Settings.
     * Point lights will be rendered as Spheres and shaded as Seperate pass.

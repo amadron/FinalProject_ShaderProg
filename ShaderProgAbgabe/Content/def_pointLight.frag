@@ -56,13 +56,9 @@ void main()
 	float dist = length(ldir);
 	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor);
 	float intensity = inData.intensity;
-	float falloff = clamp(0, inData.radius, inData.radius - dist);
-	float val = 1;
-	if(dist > inData.radius)
-	{
-		falloff = 0;
-	}
-
+	//Check if ScenePosition is within range of lightsource
+	float falloffvalid = step(dist, inData.radius);
+	float falloff = clamp(0, inData.radius, inData.radius - dist) * falloffvalid;
 	//Specular
 	vec3 viewDir = scnPosition - cameraPosition;
 	vec4 specular = getSpecular(ldir, scnNormal, inData.specularColor, viewDir, inData.specFactor, inData.specIntensity);
