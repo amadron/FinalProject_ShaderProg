@@ -98,9 +98,9 @@ namespace Example
         {
             List<PointLight> lightList = new List<PointLight>();
             PointLight l = new PointLight(new Vector3(0, 0.4f, 0), Color.Green, 1f, 3f, Color.White, 80, 0.6f);
-            PointLight l2 = new PointLight(new Vector3(0.2f, 0.1f, 0), Color.Red, 1f, 1.0f);
+            PointLight l2 = new PointLight(new Vector3(0.8f, 0.4f, 0.5f), Color.Red, 1f, 3f);
             lightList.Add(l);
-            //lightList.Add(l2);
+            lightList.Add(l2);
             return lightList;
         }
 
@@ -126,14 +126,7 @@ namespace Example
             //Render Lights as Spheres to texture
             
             renderToTexturePointLights.Activate();
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.FRONT_SIDE));
-            renderState.Set(BlendStates.AlphaBlend);
             DrawPointLightPass();
-            renderState.Set(BlendStates.Opaque);
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
-            renderState.Set(new DepthTest(false));
             renderToTexturePointLights.Deactivate();
 
             //TextureDebugger.Draw(renderToTextureShading.Textures[0]);
@@ -220,9 +213,9 @@ namespace Example
         private void DrawPointLightPass()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            renderState.Set(new DepthTest(true));
+            renderState.Set(new DepthTest(false));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.FRONT_SIDE));
-
+            renderState.Set(BlendStates.Additive);
             defPointLightShader.Activate();
 
             int position = GL.GetUniformLocation(defPointLightShader.ProgramID, "positionSampler");
@@ -257,6 +250,7 @@ namespace Example
             renderToTexturePointLights.Textures[0].Deactivate();
 
             defPointLightShader.Deactivate();
+            renderState.Set(BlendStates.Opaque);
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
         }
