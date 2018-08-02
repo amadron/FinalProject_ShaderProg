@@ -38,7 +38,7 @@ namespace Example
             phongShading = contentLoader.Load<IShaderProgram>("phong.*");
             //Deferred
             //Deferred Shader
-            deferredShading = contentLoader.Load<IShaderProgram>("deferred.*");
+            deferredShading = contentLoader.Load<IShaderProgram>("deferred_geometry.*");
             deferredPost = contentLoader.LoadPixelShader("deferred_post");
             var mesh = Meshes.CreatePlane(5, 5, 10, 10);
             //var mesh = Meshes.CreateSphere(1, 2);
@@ -378,6 +378,7 @@ namespace Example
             OpenTK.Vector4 dirVec = new OpenTK.Vector4(0, 0, 1, 1);
             OpenTK.Vector4 rightVec = new OpenTK.Vector4(1, 0, 0, 1);
             Matrix4x4 rot = fCam.CalcRotationMatrix();
+            
             OpenTK.Matrix4 testMat = new OpenTK.Matrix4(rot.M11, rot.M12, rot.M13, rot.M14,
                 rot.M21, rot.M22, rot.M23, rot.M24,
                 rot.M31, rot.M32, rot.M33, rot.M34,

@@ -31,7 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Content\Deferred\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -57,23 +56,23 @@
     <EmbeddedResource Include="Content\Phong\phong.frag" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\deferred.vert" />
-    <EmbeddedResource Include="Content\deferred_post.glsl" />
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_geometry.vert" />
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_post.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\deferred.frag" />
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_geometry.frag" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\def_pointLight.frag" />
-    <EmbeddedResource Include="Content\def_pointLight.vert" />
+    <EmbeddedResource Include="Content\Shader\Deferred\def_pointLight.frag" />
+    <EmbeddedResource Include="Content\Shader\Deferred\def_pointLight.vert" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\shadowLightView.frag" />
-    <EmbeddedResource Include="Content\shadowLightView.vert" />
+    <EmbeddedResource Include="Content\Shader\Shadow\shadowLightView.frag" />
+    <EmbeddedResource Include="Content\Shader\Shadow\shadowLightView.vert" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\shadowMap.frag" />
-    <EmbeddedResource Include="Content\shadowMap.vert" />
+    <EmbeddedResource Include="Content\Shader\Shadow\shadowMap.frag" />
+    <EmbeddedResource Include="Content\Shader\Shadow\shadowMap.vert" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
