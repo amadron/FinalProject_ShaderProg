@@ -41,7 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="src\model\PointLight.cs" />
+    <Compile Include="src\model\lightning\DirectionalLight.cs" />
+    <Compile Include="src\model\lightning\Light.cs" />
+    <Compile Include="src\model\lightning\PointLight.cs" />
     <Compile Include="TestVisual.cs" />
     <Compile Include="View.cs" />
   </ItemGroup>

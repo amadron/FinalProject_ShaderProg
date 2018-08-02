@@ -11,6 +11,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Input;
 using Example.src.model;
 using System.Drawing;
+using Example.src.model.lightning;
 
 namespace Example
 {
@@ -61,11 +62,11 @@ namespace Example
             for(int i = 0; i < pointLights.Length; i++)
             {
                 instPos[i] = pointLights[i].position;
-                instCols[i] = new Vector4(pointLights[i].lightColor.ToVector3(), 1);
+                instCols[i] = pointLights[i].lightColor;
                 instRadius[i] = pointLights[i].radius;
                 instIntensity[i] = pointLights[i].intensity;
 
-                instSpecCol[i] = new Vector4(pointLights[i].specularColor.ToVector3(), 1);
+                instSpecCol[i] = pointLights[i].specularColor;
                 instSpecFact[i] = pointLights[i].specularFactor;
                 instSpecIntensity[i] = pointLights[i].specularIntensity;
             }
@@ -97,8 +98,8 @@ namespace Example
         List<PointLight> GetPointLights()
         {
             List<PointLight> lightList = new List<PointLight>();
-            PointLight l = new PointLight(new Vector3(0, 0.4f, 0), Color.Green, 1f, 3f, Color.White, 80, 0.6f);
-            PointLight l2 = new PointLight(new Vector3(0.8f, 0.4f, 0.5f), Color.Red, 1f, 3f);
+            PointLight l = new PointLight(new Vector3(0, 0.4f, 0), new Vector4(Color.Green.ToVector3(), 1), 1f, 3f, new Vector4(1), 80, 0.6f);
+            PointLight l2 = new PointLight(new Vector3(0.8f, 0.4f, 0.5f), new Vector4(Color.Red.ToVector3(),1), 1f, 3f);
             lightList.Add(l);
             lightList.Add(l2);
             return lightList;
@@ -291,12 +292,12 @@ namespace Example
 
             deferredPost.Uniform("ambientColor", ambientColor);
 
-            deferredPost.Uniform("dirLightDir", dirLightdir);
-            deferredPost.Uniform("dirLightCol", dirLightCol);
-            deferredPost.Uniform("dirSpecCol", dirSpecCol);
-            deferredPost.Uniform("dirIntensity", dirLightIntensity);
-            deferredPost.Uniform("dirSpecIntensity", 0f);
-            deferredPost.Uniform("specFactor", 255);
+            deferredPost.Uniform("dirLightDir", dirLight.direction);
+            deferredPost.Uniform("dirLightCol", dirLight.lightColor);
+            deferredPost.Uniform("dirSpecCol", dirLight.specularColor);
+            deferredPost.Uniform("dirIntensity", dirLight.intensity);
+            deferredPost.Uniform("dirSpecIntensity", dirLight.specularIntensity);
+            deferredPost.Uniform("specFactor", dirLight.specularFactor);
 
             //PostProcessQuad
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
@@ -361,11 +362,8 @@ namespace Example
         private IRenderSurface renderToTexturePointLights;
         IDrawable geometryDeferred;
         //Shading
+        DirectionalLight dirLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 0.1f, new Vector4(1, 1, 1, 1), 255, 0);
         Vector4 ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
-        Vector3 dirLightdir = new Vector3(0.1f, -0.5f, 1f);
-        float dirLightIntensity = 0.1f;
-        Vector4 dirLightCol = new Vector4(1f, 0.968f, 0.878f, 1);
-        Vector4 dirSpecCol = new Vector4(1, 1, 1, 1);
         //Shadows
         Camera<Orbit, Perspective> dirLightCamera = new Camera<Orbit, Perspective>(new Orbit(4.3f, 180, 45), new Perspective(farClip: 50));
         IShaderProgram shadowMapLightViewShader;
@@ -443,9 +441,9 @@ namespace Example
             phongShading.Uniform("camera", fCam.CalcMatrix());
             phongShading.Uniform("ambientColor", ambientColor);
             phongShading.Uniform("camPos", campos);
-            phongShading.Uniform("dirLightDir", Vector3.Normalize(dirLightdir));
-            phongShading.Uniform("dirLightCol", dirLightCol);
-            phongShading.Uniform("dirSpecCol", dirSpecCol);
+            phongShading.Uniform("dirLightDir", Vector3.Normalize(dirLight.direction));
+            phongShading.Uniform("dirLightCol", dirLight.lightColor);
+            phongShading.Uniform("dirSpecCol", dirLight.specularColor);
             phongShading.Uniform("specFactor", 90);
             geometryPhong.Draw();
             phongShading.Deactivate();
