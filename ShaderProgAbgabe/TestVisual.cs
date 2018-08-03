@@ -12,14 +12,17 @@ using OpenTK.Input;
 using Example.src.model;
 using System.Drawing;
 using Example.src.model.lightning;
+using Example.src.controller;
 
 namespace Example
 {
     class TestVisual
     {
         IRenderState renderState;
+        IContentLoader contentLoader;
         public TestVisual(Zenseless.HLGL.IRenderState renderState, Zenseless.HLGL.IContentLoader contentLoader)
         {
+            this.contentLoader = contentLoader;
             renderState.Set<DepthTest>(new DepthTest(true));
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
@@ -108,7 +111,7 @@ namespace Example
         public void RenderDeferred()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
+            //return;
             //DrawShadowMap
             DrawShadowMapPass();
 
@@ -120,8 +123,11 @@ namespace Example
 
             //TextureDebugger.Draw(renderToTextureShading.Textures[0]);
             //TextureDebugger.Draw(renderToTexturePointLights.Textures[0]);
+            //satFilter.FilterTexture(renderToTextureDirectionalLightView.Texture);
             //TextureDebugger.Draw(renderToTextureDirectionalLightView.Texture);
             //TextureDebugger.Draw(renderToTextureShadowMap.Texture);
+            //satFilter.Test();
+            //TextureDebugger.Draw(satFilter.GetFilterTexture());
             //return;
             //DeferredLightning
             DrawDeferredFinalPass();
@@ -324,9 +330,9 @@ namespace Example
 
             renderToTextureShadowMap = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
             renderToTextureShadowMap.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
+
+            satFilter = new SATGpuFilter(contentLoader, 64, 64, width, height, 20, 20);
         }
-
-
 
         private void MoveCam(Vector3 move)
         {
@@ -370,6 +376,7 @@ namespace Example
         IShaderProgram shadowMapShader;
         IRenderSurface renderToTextureDirectionalLightView;
         IRenderSurface renderToTextureShadowMap;
+        SATGpuFilter satFilter;
         //Shadowmap
         //ShadowRendering
 

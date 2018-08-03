@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
+    <Compile Include="src\controller\SATGpuFilter.cs" />
     <Compile Include="src\model\lightning\DirectionalLight.cs" />
     <Compile Include="src\model\lightning\Light.cs" />
     <Compile Include="src\model\lightning\PointLight.cs" />
@@ -52,8 +53,8 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Phong\phong.vert" />
-    <EmbeddedResource Include="Content\Phong\phong.frag" />
+    <EmbeddedResource Include="Content\Shader\Phong\phong.vert" />
+    <EmbeddedResource Include="Content\Shader\Phong\phong.frag" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Shader\Deferred\deferred_geometry.vert" />
@@ -73,6 +74,20 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Shader\Shadow\shadowMap.frag" />
     <EmbeddedResource Include="Content\Shader\Shadow\shadowMap.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATSumHorizontal.glsl" />
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATAssemblyPassVertical.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATFiltering.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\testTexture.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATAssemblyPassHorizontal.glsl" />
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATSumVertical.glsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
