@@ -13,6 +13,8 @@ namespace Example.src.controller
     class SATGpuFilter
     {
         IContentLoader contentLoader;
+        IRenderState renderState;
+        IShaderProgram fullScreenQuad;
         IShaderProgram shaderSumHorizontal;
         IShaderProgram shaderSumVertical;
         IShaderProgram shaderAssemblyVertical;
@@ -31,9 +33,10 @@ namespace Example.src.controller
         IRenderSurface FBO1;
         IRenderSurface FBO2;
 
-        public SATGpuFilter(IContentLoader contentLoader, int amountBlocksX, int amountBlocksY, int resX, int resY, int kernelSizeY, int kernelSizeX)
+        public SATGpuFilter(IContentLoader contentLoader, IRenderState renderState,int amountBlocksX, int amountBlocksY, int resX, int resY, int kernelSizeY, int kernelSizeX)
         {
             this.contentLoader = contentLoader;
+            this.renderState = renderState;
             shaderSumHorizontal = contentLoader.LoadPixelShader("SATSumHorizontal");   
             shaderSumVertical = contentLoader.LoadPixelShader("SATSumVertical");
 
@@ -41,6 +44,7 @@ namespace Example.src.controller
             shaderAssemblyHorizontal = contentLoader.LoadPixelShader("SATAssemblyPassHorizontal");
 
             shaderSATFilter = contentLoader.LoadPixelShader("SATFiltering");
+            fullScreenQuad = contentLoader.Load<IShaderProgram>("FullQuad.*");
             testTexture = contentLoader.Load<ITexture2D>("testTexture.*");
             this.kernelSizeX = kernelSizeX;
             this.kernelSizeY = kernelSizeY;
@@ -62,6 +66,7 @@ namespace Example.src.controller
         public ITexture2D GetFilterTexture()
         {
             return FBO2.Texture;
+            //return FBO2.Texture;
             //return testTexture;
         }
 
@@ -72,74 +77,103 @@ namespace Example.src.controller
 
         public void FilterTexture(ITexture2D sourceTexture)
         {
+            DrawFullQuad(sourceTexture, FBO1);
             //Vertical sum Pass
-            SumValues(sourceTexture, shaderSumVertical, FBO1);
+            SumValues(FBO1.Texture, shaderSumVertical, FBO2);
             //Assembly Block Values Vertical
-            SumValues(FBO1.Texture, shaderAssemblyVertical, FBO2);
+           //DrawFullQuad(FBO2.Texture, FBO1);
+            SumValues(FBO2.Texture, shaderAssemblyVertical, FBO1);
             
             //Horizontal sum Pass
-            SumValues(FBO2.Texture, shaderSumHorizontal, FBO1);
+            SumValues(FBO1.Texture, shaderSumHorizontal, FBO2);
             //Assembly Block Values Horizontal
-            SumValues(FBO1.Texture, shaderAssemblyHorizontal, FBO2);
+            SumValues(FBO2.Texture, shaderAssemblyHorizontal, FBO1);
 
-            ProcessFilterPass(FBO2.Texture, FBO1);
+            ProcessFilterPass(FBO1.Texture, FBO2);
+        }
+
+        private void DrawFullQuad(ITexture2D sourceTexture, IRenderSurface fbo)
+        {
+            int SATSampler = GL.GetUniformLocation(fullScreenQuad.ProgramID, "inputTexture");
+            fbo.Activate();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+
+            fullScreenQuad.Activate();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Uniform1(SATSampler, 0);
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, sourceTexture.ID);
+
+            GL.DrawArrays(PrimitiveType.Quads, 0, 4);
+
+            fullScreenQuad.Deactivate();
+
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
+            fbo.Deactivate();
         }
         
         private void SumValues(ITexture2D sourceTexture, IShaderProgram program, IRenderSurface fbo)
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            sourceTexture.Activate();
+            int SATSampler = GL.GetUniformLocation(fullScreenQuad.ProgramID, "sourceSampler");
             fbo.Activate();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+
             program.Activate();
-            //int SATSampler = GL.GetUniformLocation(program.ProgramID, "sourceSampler");
-            //GL.Uniform1(SATSampler, 1);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Uniform1(SATSampler, 0);
 
-            //GL.ActiveTexture(TextureUnit.Texture1);
-            //GL.BindTexture(TextureTarget.Texture2D, sourceTexture.ID);
-
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, sourceTexture.ID);
             program.Uniform("blockLengthX", blockSizeX);
-            program.Uniform("blockLengthY", blockSizeY);
+            program.Uniform("blockLengthY", blockSizeX);
             program.Uniform("amountBlockX", amountBlocksX);
-            program.Uniform("amountBlockY", amountBlocksY);
-
+            program.Uniform("amountBlockY", amountBlocksX);
+            //satFilter.GetFilterTexture().Activate();
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-
-            GL.ActiveTexture(TextureUnit.Texture1);
+            //satFilter.GetFilterTexture().Deactivate();
             program.Deactivate();
 
             fbo.Deactivate();
-            sourceTexture.Deactivate();
         }
         
         //Filter FBO2 and Write result in FBO1[0]
-        private void ProcessFilterPass(ITexture2D satTexture, IRenderSurface fbo)
+        private void ProcessFilterPass(ITexture2D sourceTexture, IRenderSurface fbo)
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             int halfKernelX = kernelSizeX/2;
             int halfKernelY = kernelSizeY/2;
 
+
+            int SATSampler = GL.GetUniformLocation(fullScreenQuad.ProgramID, "sourceSampler");
             fbo.Activate();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
 
             shaderSATFilter.Activate();
-            satTexture.Activate();
-            int SATSampler = GL.GetUniformLocation(shaderSATFilter.ProgramID, "sourceSampler");
-            GL.Uniform1(SATSampler, 1);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Uniform1(SATSampler, 0);
 
-            GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, satTexture.ID);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, sourceTexture.ID);
 
-            shaderSATFilter.Uniform("width", satTexture.Width);
-            shaderSATFilter.Uniform("height", satTexture.Height);
+            shaderSATFilter.Uniform("width", sourceTexture.Width);
+            shaderSATFilter.Uniform("height", sourceTexture.Height);
             shaderSATFilter.Uniform("halfKernelX", halfKernelX);
             shaderSATFilter.Uniform("halfKernelY", halfKernelY);
-
+            //satFilter.GetFilterTexture().Activate();
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-
-            satTexture.Deactivate();
+            //satFilter.GetFilterTexture().Deactivate();
             shaderSATFilter.Deactivate();
 
             fbo.Deactivate();
 
+
+
+            
         }
 
         

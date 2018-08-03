@@ -21,5 +21,5 @@ void main()
 	vec4 lr = texelFetch(sourceSampler, ivec2(rX, dY), 0);
 	vec4 ll = texelFetch(sourceSampler, ivec2(lX, dY), 0);
 	color = (lr - ur - ll + ul) / (width * height);
-	//color = vec4(1);
+	//color = vec4(0.45);
 }

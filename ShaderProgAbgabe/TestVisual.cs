@@ -96,6 +96,7 @@ namespace Example
             mesh.Add(cube.Transform(Transformation.Translation(new Vector3(-0.5f, 0.5f, -1.5f))));
             geometryPhong = VAOLoader.FromMesh(mesh, phongShading);
             geometryDeferred = VAOLoader.FromMesh(mesh, deferredShading);
+            fullScreenQuad = contentLoader.Load<IShaderProgram>("FullQuad.*");
         }
 
         List<PointLight> GetPointLights()
@@ -111,6 +112,8 @@ namespace Example
         public void RenderDeferred()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            //satFilter.Test();
+            //TextureDebugger.Draw(satFilter.GetFilterTexture());
             //return;
             //DrawShadowMap
             DrawShadowMapPass();
@@ -135,6 +138,7 @@ namespace Example
 
         public void DrawDeferredGeometry()
         {
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderToTextureShading.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderState.Set(new DepthTest(true));
@@ -331,7 +335,7 @@ namespace Example
             renderToTextureShadowMap = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
             renderToTextureShadowMap.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
 
-            satFilter = new SATGpuFilter(contentLoader, 64, 64, width, height, 20, 20);
+            satFilter = new SATGpuFilter(contentLoader, renderState,16, 16, width, height, 250, 250);
         }
 
         private void MoveCam(Vector3 move)
@@ -348,6 +352,7 @@ namespace Example
         }
 
         //Main
+        IShaderProgram fullScreenQuad;
         CameraFirstPerson fCam = new CameraFirstPerson();
         Vector3 campos = new Vector3(0, 3, 5f);
         Vector2 camrot = new Vector2(0, 0);

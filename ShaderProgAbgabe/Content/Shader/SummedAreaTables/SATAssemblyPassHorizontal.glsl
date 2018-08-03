@@ -19,12 +19,14 @@ void main()
 	float currBlockStartY = currBlockY * blockLengthY;
 	int startX = int (currBlockStartX);
 	int startY = int (currBlockStartY);
-	float currVal = texture(sourceSampler, uv).r;
+	vec4 currVal = texture(sourceSampler, uv);
 	for(int i = 0; i < currBlockX; i++)
 	{
 		int currPrevBlockX = (i + 1) * blockLengthX;
-		int currPrevX = clamp(0, currX, blockLengthX -1);
-		currVal += texelFetch(sourceSampler, ivec2(currPrevX, currY),0).r;
+		int currPrevX = clamp(0, currX, currPrevBlockX -1);
+
+		currVal += texelFetch(sourceSampler, ivec2(currPrevX, currY),0);
 	}
-	color = vec4(vec3(1),1);
+	color = currVal;
+	//color = vec4(0.1);
 }

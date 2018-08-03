@@ -89,5 +89,9 @@
     <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATAssemblyPassHorizontal.glsl" />
     <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATSumVertical.glsl" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Util\FullQuad.frag" />
+    <EmbeddedResource Include="Content\Shader\Util\FullQuad.vert" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

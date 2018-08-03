@@ -19,13 +19,15 @@ void main()
 	float currBlockStartY = currBlockY * blockLengthY;
 	int startX = int (currBlockStartX);
 	int startY = int (currBlockStartY);
-	float currVal = texture(sourceSampler, uv).r;
+	vec4 currVal = texture(sourceSampler, uv);
 	for(int i = 0; i < currBlockY; i++)
 	{
 		int currPrevBlockY = (i + 1) * blockLengthY;
 		int currPrevY = clamp(0, currY, currPrevBlockY - 1);
 		
-		currVal += texelFetch(sourceSampler, ivec2(currX, currPrevY),0).r;
+		currVal += texelFetch(sourceSampler, ivec2(currX, currPrevY),0);
 	}
-	color = vec4(vec3(currVal),1);
+	color = currVal;
+	//gl_FragColor = vec4(1);
+	//color =vec4(0.1f);
 }
