@@ -127,7 +127,10 @@ namespace Example
             //TextureDebugger.Draw(renderToTextureDirectionalLightView.Texture);
             //TextureDebugger.Draw(renderToTextureShadowMap.Texture);
             //satFilter.Test();
+            //satFilter.FilterTexture(renderToTextureShading.Textures[0]);
             //TextureDebugger.Draw(satFilter.GetFilterTexture());
+            //Vector4[,] buff = new Vector4[satFilter.GetFilterTexture().Width, satFilter.GetFilterTexture().Height];
+            //satFilter.GetFilterTexture().ToBuffer(ref buff);
             //return;
             //DeferredLightning
             DrawDeferredFinalPass();
@@ -243,6 +246,9 @@ namespace Example
             renderState.Set(new DepthTest(false));
             renderToTextureDirectionalLightView.Deactivate();
 
+            //Filter ShadowMap
+            satFilter.FilterTexture(renderToTextureDirectionalLightView.Texture);
+
             //Create Shadow Map
             renderToTextureShadowMap.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -253,7 +259,8 @@ namespace Example
 
             //Render
             GL.ActiveTexture(TextureUnit.Texture0);
-            renderToTextureDirectionalLightView.Texture.Activate();
+            //renderToTextureDirectionalLightView.Texture.Activate();
+            satFilter.GetFilterTexture().Activate();
             shadowMapShader.Uniform("camera", fCam.CalcMatrix());
             shadowMapShader.Uniform("lightCamera", dirLightCamera);
             geometryDeferred.Draw();

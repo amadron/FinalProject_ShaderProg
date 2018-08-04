@@ -22,7 +22,18 @@ Current first person Controls are:
 The following techniques are implemented:
 
 * Phong Shading
+* Summed Area Table (SAT) Filter
+    * Implementation by Fragment Shader
+    * Each Pass is Parallelized by using Blocks
+    * Currently working in 5 passes
+        * First Pass Vertical: Sum vertical previous Pixel within this Block
+        * Second Pass Vertical: Add the Maximum Vertical Values of the Previous Blocks
+        * Third Pass Horizontal: Sum in each Block, for each Pixel the previous Pixels within this Block
+        * Fourth Pass Horizontal: Add for each Block the maximum Values of the previous Blocks. 
+        * Fifth/Final Pass: Get the Average value for an Range around each Pixel.
+            * (LowerRightCorner - UpRightCorner - LowerLeftCorner + UpLeftCorner) / (RangeWidth * RangeHeight)
 * Shadow Maps
+    * SAT Filtered Shadowmap
     * Exponential Shadowmaps implemented
     * One Pass renders from Light view
         * Calculates the exponential of k * lightDistance
@@ -39,7 +50,7 @@ The following techniques are implemented:
 
 Known Issues:
 * Shadow Maps:
-    * Implementation of Shadow Map filtering
+    * Refine Shadowmap filtering
     * Implementation of Soft Shadows
     * Changing light Camera from perspective to Orthogonal
 
