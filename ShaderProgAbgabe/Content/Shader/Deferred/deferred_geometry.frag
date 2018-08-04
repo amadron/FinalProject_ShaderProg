@@ -16,5 +16,6 @@ void main()
 	//vec3 pos = inData.position;
 	position = inData.position / inData.position.w;
 	albedo = vec4(materials[inData.material],1);
-	normal = vec4(inData.normal,1);
+	vec3 n = normalize(inData.normal);
+	normal = vec4(n,1);
 }
