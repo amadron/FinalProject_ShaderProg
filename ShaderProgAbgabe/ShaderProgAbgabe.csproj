@@ -41,9 +41,12 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="src\controller\SATGpuFilter.cs" />
-    <Compile Include="src\model\lightning\DirectionalLight.cs" />
-    <Compile Include="src\model\lightning\Light.cs" />
-    <Compile Include="src\model\lightning\PointLight.cs" />
+    <Compile Include="src\model\entitys\Entity.cs" />
+    <Compile Include="src\model\entitys\Terrain.cs" />
+    <Compile Include="src\model\graphics\lightning\DirectionalLight.cs" />
+    <Compile Include="src\model\graphics\lightning\Light.cs" />
+    <Compile Include="src\model\graphics\lightning\PointLight.cs" />
+    <Compile Include="src\model\graphics\rendering\DeferredRenderer.cs" />
     <Compile Include="TestVisual.cs" />
     <Compile Include="View.cs" />
   </ItemGroup>
@@ -92,6 +95,13 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Shader\Util\FullQuad.frag" />
     <EmbeddedResource Include="Content\Shader\Util\FullQuad.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Terrain\terrain.frag" />
+    <EmbeddedResource Include="Content\Shader\Terrain\terrain.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Heightmap.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
