@@ -112,9 +112,6 @@ namespace Example
         public void RenderDeferred()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            //satFilter.Test();
-            //TextureDebugger.Draw(satFilter.GetFilterTexture());
-            //return;
             //DrawShadowMap
             DrawShadowMapPass();
 
@@ -335,7 +332,7 @@ namespace Example
             renderToTextureShadowMap = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
             renderToTextureShadowMap.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
 
-            satFilter = new SATGpuFilter(contentLoader, renderState,16, 16, width, height, 250, 250);
+            satFilter = new SATGpuFilter(contentLoader, renderState,16, 16, width, height, 6, 6);
         }
 
         private void MoveCam(Vector3 move)

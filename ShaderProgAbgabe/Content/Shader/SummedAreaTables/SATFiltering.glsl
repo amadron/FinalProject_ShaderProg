@@ -20,6 +20,6 @@ void main()
 	vec4 ur = texelFetch(sourceSampler, ivec2(rX, uY), 0);
 	vec4 lr = texelFetch(sourceSampler, ivec2(rX, dY), 0);
 	vec4 ll = texelFetch(sourceSampler, ivec2(lX, dY), 0);
-	color = (lr - ur - ll + ul) / (width * height);
+	color = (lr - ur - ll + ul) / (halfKernelX * halfKernelY * 4);
 	//color = vec4(0.45);
 }
