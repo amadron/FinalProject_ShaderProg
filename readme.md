@@ -38,8 +38,6 @@ The following techniques are implemented:
 ### To do
 
 Known Issues:
-* Deferred Lighting:
-    * Specular lights disappear and appear when moving the Camera.
 * Shadow Maps:
     * Implementation of Shadow Map filtering
     * Implementation of Soft Shadows
