@@ -49,7 +49,7 @@ void main()
 	//vec3 diffuse = max(0, dot(normal, -dirLightDir)) * albedo * dirLightCol;
 	vec3 viewDir = normalize(position - camPos);
 	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor) * dirSpecIntensity;
-	vec4 col = vec4(diffuse + specular + ambient);
+	vec4 col = diffuse + specular + ambient;
 	vec4 plightColor = texture(pointLightSampler, uv);
 	color = col * shadows + plightColor;
 	//gl_FragColor = shadows;
