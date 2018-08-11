@@ -18,6 +18,8 @@ uniform sampler2D shadowSampler;
 
 in vec2 uv;
 
+out vec4 color;
+
 vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor)
 {
 	
@@ -43,12 +45,12 @@ void main()
 	vec3 normal = texture2D(normalSampler, uv).rgb;
 	vec4 shadows = texture2D(shadowSampler, uv);
 	vec3 ambient = ambientColor.rgb;
-	vec3 diffuse = getDiffuse(dirLightDir, normal, dirLightCol) * albedo * dirIntensity;
+	vec4 diffuse = getDiffuse(dirLightDir, normal, dirLightCol) * vec4(albedo,1) * dirIntensity;
 	//vec3 diffuse = max(0, dot(normal, -dirLightDir)) * albedo * dirLightCol;
 	vec3 viewDir = normalize(position - camPos);
 	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor) * dirSpecIntensity;
-	vec4 color = vec4(diffuse + specular + ambient);
+	vec4 col = vec4(diffuse + specular + ambient);
 	vec4 plightColor = texture(pointLightSampler, uv);
-	gl_FragColor = color * shadows + plightColor;
+	color = col * shadows + plightColor;
 	//gl_FragColor = shadows;
 }

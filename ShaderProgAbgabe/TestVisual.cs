@@ -381,7 +381,7 @@ namespace Example
         private IRenderSurface renderToTexturePointLights;
         IDrawable geometryDeferred;
         //Shading
-        DirectionalLight dirLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 0.1f, new Vector4(1, 1, 1, 1), 255, 0);
+        DirectionalLight dirLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 0.5f, new Vector4(1, 1, 1, 1), 255, 0);
         Vector4 ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
         //Shadows
         Camera<Orbit, Perspective> dirLightCamera = new Camera<Orbit, Perspective>(new Orbit(4.3f, 180, 45), new Perspective(farClip: 50));
