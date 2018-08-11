@@ -65,8 +65,8 @@ namespace Example.src.controller
 
         public ITexture2D GetFilterTexture()
         {
+            //return FBO1.Texture;
             return FBO2.Texture;
-            //return FBO2.Texture;
             //return testTexture;
         }
 
@@ -81,7 +81,6 @@ namespace Example.src.controller
             //Vertical sum Pass
             SumValues(FBO1.Texture, shaderSumVertical, FBO2);
             //Assembly Block Values Vertical
-           //DrawFullQuad(FBO2.Texture, FBO1);
             SumValues(FBO2.Texture, shaderAssemblyVertical, FBO1);
             
             //Horizontal sum Pass
@@ -128,6 +127,7 @@ namespace Example.src.controller
             GL.Uniform1(SATSampler, 0);
 
             GL.ActiveTexture(TextureUnit.Texture0);
+
             GL.BindTexture(TextureTarget.Texture2D, sourceTexture.ID);
             program.Uniform("blockLengthX", blockSizeX);
             program.Uniform("blockLengthY", blockSizeX);
@@ -147,26 +147,28 @@ namespace Example.src.controller
             int halfKernelX = kernelSizeX/2;
             int halfKernelY = kernelSizeY/2;
 
-
-            int SATSampler = GL.GetUniformLocation(fullScreenQuad.ProgramID, "sourceSampler");
             fbo.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 
             shaderSATFilter.Activate();
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            int SATSampler = GL.GetUniformLocation(shaderSATFilter.ProgramID, "sourceSampler");
             GL.Uniform1(SATSampler, 0);
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, sourceTexture.ID);
+            //sourceTexture.Activate();
 
             shaderSATFilter.Uniform("width", sourceTexture.Width);
             shaderSATFilter.Uniform("height", sourceTexture.Height);
             shaderSATFilter.Uniform("halfKernelX", halfKernelX);
             shaderSATFilter.Uniform("halfKernelY", halfKernelY);
-            //satFilter.GetFilterTexture().Activate();
+
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
-            //satFilter.GetFilterTexture().Deactivate();
+
+            //sourceTexture.Deactivate();
+
             shaderSATFilter.Deactivate();
 
             fbo.Deactivate();

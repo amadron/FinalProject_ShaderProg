@@ -16,7 +16,7 @@ void main()
 {
 	vec3 lpos = lightPosition.xyz/lightPosition.w;
 	vec3 vpos = viewPosition.xyz/viewPosition.w;
-	float vdepth = lpos.z - 0.00001;
+	float vdepth = lpos.z - 0.000001;
 	float k = -80;
 	float vexp = exp(k * vdepth);
 	float lexp = texture(lightViewSampler, lpos.xy * 0.5 + 0.5).r;

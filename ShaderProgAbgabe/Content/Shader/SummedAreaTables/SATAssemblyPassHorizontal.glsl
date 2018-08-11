@@ -23,7 +23,7 @@ void main()
 	for(int i = 0; i < currBlockX; i++)
 	{
 		int currPrevBlockX = (i + 1) * blockLengthX;
-		int currPrevX = clamp(0, currX, currPrevBlockX -1);
+		int currPrevX = clamp(currPrevBlockX -1, 0, currX);
 
 		currVal += texelFetch(sourceSampler, ivec2(currPrevX, currY),0);
 	}
