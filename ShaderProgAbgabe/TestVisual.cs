@@ -266,14 +266,14 @@ namespace Example
             //GL.Uniform1(lview, 1);
 
 
-            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.ActiveTexture(TextureUnit.Texture0);
             renderToTextureDirectionalLightView.Texture.Activate();
             satFilter.GetFilterTexture().Activate();
             shadowMapShader.Uniform("camera", fCam.CalcMatrix());
             shadowMapShader.Uniform("lightCamera", dirLightCamera);
             geometryDeferred.Draw();
 
-            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.ActiveTexture(TextureUnit.Texture0);
             renderToTextureDirectionalLightView.Texture.Deactivate();
             shadowMapShader.Deactivate();
 

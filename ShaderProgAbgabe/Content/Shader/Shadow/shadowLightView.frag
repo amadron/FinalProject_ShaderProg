@@ -14,10 +14,8 @@ float GetDistanceMapping(float dist)
 void main()
 {
 	float dist = lightPosition.z/lightPosition.w;
-	dist = GetDistanceMapping(dist);
-	float k = 50;
-	dist = k * dist;
-	float res = exp(dist);
+	float k = 80;
+	float res = exp(k * dist);
 
 	color = vec4(res);
 }
