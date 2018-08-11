@@ -127,15 +127,15 @@ namespace Example
             //TextureDebugger.Draw(renderToTexturePointLights.Textures[0]);
             //satFilter.FilterTexture(renderToTextureDirectionalLightView.Texture);
             //TextureDebugger.Draw(renderToTextureDirectionalLightView.Texture);
-            //TextureDebugger.Draw(renderToTextureShadowMap.Texture);
+            TextureDebugger.Draw(renderToTextureShadowMap.Texture);
             //satFilter.Test();
             //satFilter.FilterTexture(renderToTextureShading.Textures[0]);
             //TextureDebugger.Draw(satFilter.GetFilterTexture());
             //Vector4[,] buff = new Vector4[satFilter.GetFilterTexture().Width, satFilter.GetFilterTexture().Height];
             //satFilter.GetFilterTexture().ToBuffer(ref buff);
-            //return;
+            return;
             //DeferredLightning
-            DrawDeferredFinalPass();
+            //DrawDeferredFinalPass();
         }
 
         public void DrawDeferredGeometry()
@@ -262,14 +262,18 @@ namespace Example
             shadowMapShader.Activate();
 
             //Render
-            GL.ActiveTexture(TextureUnit.Texture0);
-            //renderToTextureDirectionalLightView.Texture.Activate();
+            //int lview = GL.GetUniformLocation(defPointLightShader.ProgramID, "positionSampler");
+            //GL.Uniform1(lview, 1);
+
+
+            GL.ActiveTexture(TextureUnit.Texture1);
+            renderToTextureDirectionalLightView.Texture.Activate();
             satFilter.GetFilterTexture().Activate();
             shadowMapShader.Uniform("camera", fCam.CalcMatrix());
             shadowMapShader.Uniform("lightCamera", dirLightCamera);
             geometryDeferred.Draw();
 
-            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.ActiveTexture(TextureUnit.Texture1);
             renderToTextureDirectionalLightView.Texture.Deactivate();
             shadowMapShader.Deactivate();
 
