@@ -14,6 +14,7 @@ using System.Drawing;
 using Example.src.model.lightning;
 using Example.src.controller;
 using Example.src.model.entitys;
+using Example.src.model.graphics.rendering;
 
 namespace Example
 {
@@ -23,6 +24,7 @@ namespace Example
         IContentLoader contentLoader;
         public TestVisual(Zenseless.HLGL.IRenderState renderState, Zenseless.HLGL.IContentLoader contentLoader)
         {
+            renderer = new DeferredRenderer(contentLoader, renderState);
             this.contentLoader = contentLoader;
             renderState.Set<DepthTest>(new DepthTest(true));
             GL.Enable(EnableCap.CullFace);
@@ -99,6 +101,7 @@ namespace Example
             geometryDeferred = VAOLoader.FromMesh(mesh, deferredShading);
             fullScreenQuad = contentLoader.Load<IShaderProgram>("FullQuad.*");
             terrain = getTerrain();
+            renderer.SetPointLights(pointLights);
         }
 
         List<PointLight> GetPointLights()
@@ -114,11 +117,13 @@ namespace Example
         public void RenderDeferred()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            UseRenderObject();
+            return;
             //DrawShadowMap
             DrawShadowMapPass();
 
             //Render Geometry Data to Framebuffer
-            DrawDeferredGeometry();
+            DrawDeferredGeometryPass();
 
             //Render Lights as Spheres to texture
             DrawDeferredPointLightPass();
@@ -136,27 +141,52 @@ namespace Example
             DrawDeferredFinalPass();
         }
 
-        public void DrawDeferredGeometry()
+        public void UseRenderObject()
+        {
+            renderer.StartLightViewPass();
+            renderer.DrawShadowLightView(dirLightCamera, geometryDeferred);
+            renderer.FinishLightViewPass();
+            renderer.StartShadowMapPass();
+            renderer.CreateShadowMap(fCam, dirLightCamera, geometryDeferred);
+            renderer.FinishShadowMassPass();
+            renderer.StartGeometryPass();
+            renderer.DrawDeferredGeometry(geometryDeferred, fCam);
+            renderer.FinishGeometryPass();
+            renderer.PointLightPass(fCam, campos);
+            //TextureDebugger.Draw(renderer.mainFBO.Textures[3]);
+            renderer.FinalPass(campos, ambientColor, dirLight);
+        }
+
+        public void DrawDeferredGeometryPass()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderToTextureShading.Activate();
+            DrawDeferredGeometry(geometryDeferred);
+            //DrawDeferredTerrain(terrain);
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
+            renderToTextureShading.Deactivate();
+        }
+
+        private void DrawDeferredGeometry(IDrawable geometry)
+        {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
-            //DrawDeferredTerrain(terrain);
+
             deferredShading.Activate();
 
             deferredShading.Uniform("camera", fCam.CalcMatrix());
             //Activate Textures of FBO
             int textAmount = renderToTextureShading.Textures.Count; //Number of Texture Channels of FBO
-            for(int i = 0; i < textAmount; i++)
+            for (int i = 0; i < textAmount; i++)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + i);
                 renderToTextureShading.Textures[i].Activate();
             }
 
             DrawBuffersEnum[] buffers = new DrawBuffersEnum[textAmount];
-            for(int i = 0; i < textAmount; i++)
+            for (int i = 0; i < textAmount; i++)
             {
                 buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
             }
@@ -164,18 +194,57 @@ namespace Example
             GL.DrawBuffers(textAmount, buffers);
 
             //Draw Gemetry
-            geometryDeferred.Draw();
+            geometry.Draw();
             //Deactivate Textures of FBO
-            for(int i  = textAmount - 1; i >= 0; i--)
+            for (int i = textAmount - 1; i >= 0; i--)
             {
                 GL.ActiveTexture(TextureUnit.Texture0 + i);
                 renderToTextureShading.Textures[i].Deactivate();
             }
             deferredShading.Deactivate();
+        }
+
+        public void DrawDeferredTerrain(Terrain terrain)
+        {
+            IShaderProgram shader = terrain.shader;
+            shader.Activate();
+
+            shader.Uniform("camera", fCam.CalcMatrix());
+            shader.Uniform("heightScale", 0);
+            int heightMap = GL.GetUniformLocation(shader.ProgramID, "heightMap");
+            GL.Uniform1(heightMap, 0);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.Texture2D, heightMap);
+            //Activate Textures of FBO
+            int textAmount = renderToTextureShading.Textures.Count; //Number of Texture Channels of FBO
+            for (int i = 0; i < textAmount; i++)
+            {
+                GL.ActiveTexture(TextureUnit.Texture0 + i);
+                renderToTextureShading.Textures[i].Activate();
+            }
+
+            DrawBuffersEnum[] buffers = new DrawBuffersEnum[textAmount];
+            for (int i = 0; i < textAmount; i++)
+            {
+                buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
+            }
+
+            GL.DrawBuffers(textAmount, buffers);
+
+            //Draw Gemetry
+            terrain.mesh.Draw();
+            //Deactivate Textures of FBO
+            for (int i = textAmount - 1; i >= 0; i--)
+            {
+                GL.ActiveTexture(TextureUnit.Texture0 + i);
+                renderToTextureShading.Textures[i].Deactivate();
+            }
+            shader.Deactivate();
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
-            renderToTextureShading.Deactivate();
         }
+
+
 
 
 
@@ -347,6 +416,7 @@ namespace Example
             renderToTextureShadowMap.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
 
             satFilter = new SATGpuFilter(contentLoader, renderState,16, 16, width, height, 4, 4);
+            renderer.Resize(width, height);
         }
 
         private void MoveCam(Vector3 move)
@@ -361,6 +431,8 @@ namespace Example
             fCam.Tilt = camrot.X;
             fCam.Heading = camrot.Y;
         }
+
+        DeferredRenderer renderer;
 
         //Main
         IShaderProgram fullScreenQuad;
@@ -485,45 +557,6 @@ namespace Example
             return res;
         }
 
-        public void DrawDeferredTerrain(Terrain terrain)
-        {
-            IShaderProgram shader = terrain.shader;
-            shader.Activate();
-
-            shader.Uniform("camera", fCam.CalcMatrix());
-            shader.Uniform("heightScale", 1);
-            int heightMap = GL.GetUniformLocation(shader.ProgramID, "heightMap");
-            GL.Uniform1(heightMap, 0);
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, heightMap);
-            //Activate Textures of FBO
-            int textAmount = renderToTextureShading.Textures.Count; //Number of Texture Channels of FBO
-            for (int i = 0; i < textAmount; i++)
-            {
-                GL.ActiveTexture(TextureUnit.Texture0 + i);
-                renderToTextureShading.Textures[i].Activate();
-            }
-
-            DrawBuffersEnum[] buffers = new DrawBuffersEnum[textAmount];
-            for (int i = 0; i < textAmount; i++)
-            {
-                buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
-            }
-
-            GL.DrawBuffers(textAmount, buffers);
-
-            //Draw Gemetry
-            terrain.mesh.Draw();
-            //Deactivate Textures of FBO
-            for (int i = textAmount - 1; i >= 0; i--)
-            {
-                GL.ActiveTexture(TextureUnit.Texture0 + i);
-                renderToTextureShading.Textures[i].Deactivate();
-            }
-            shader.Deactivate();
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
-            renderState.Set(new DepthTest(false));
-            renderToTextureShading.Deactivate();
-        }
+        
     }
 }

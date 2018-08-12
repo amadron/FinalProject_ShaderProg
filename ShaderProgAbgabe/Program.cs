@@ -1,4 +1,5 @@
-﻿using Zenseless.ExampleFramework;
+﻿using Example.src.controller;
+using Zenseless.ExampleFramework;
 
 namespace Example
 {
@@ -9,10 +10,14 @@ namespace Example
             var window = new ExampleWindow();
             //var view = new View();
             var visual = new TestVisual(window.RenderContext.RenderState, window.ContentLoader);
-            window.Render += () => visual.RenderDeferred();
+            var game = new Game(window.ContentLoader, window.RenderContext.RenderState);
+            //window.Render += () => visual.RenderDeferred();
+            window.Render += () => game.Render();
             //window.Render += () => visual.RenderPhong();
-            window.Update += (dt) => visual.Update(dt);
-            window.Resize += (width, height) => visual.Resize(width, height);
+            //window.Update += (dt) => visual.Update(dt);
+            window.Update += (dt) => game.Update(dt);
+            //window.Resize += (width, height) => visual.Resize(width, height);
+            window.Resize += (width, height) => game.Resize(width, height);
             window.Run();
 
         }
