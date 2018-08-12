@@ -10,6 +10,7 @@ out Data {
 	vec4 position;
 	vec3 normal;
 	flat uint material;
+	vec2 uv;
 } outdata;
 
 void main()
@@ -19,4 +20,5 @@ void main()
 	outdata.position = vec4(position,1);
 	outdata.normal = normal;
 	outdata.material = uint(uv.x);;
+	outdata.uv = uv;
 }

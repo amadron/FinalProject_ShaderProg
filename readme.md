@@ -22,6 +22,10 @@ Current first person Controls are:
 The following techniques are implemented:
 
 * Phong Shading
+* Textures
+    * Albedo/Diffuse
+    * Normal/Bump Maps
+        *Normals will be replaced by normals from map
 * Summed Area Table (SAT) Filter
     * Implementation by Fragment Shader
     * Each Pass is Parallelized by using Blocks
@@ -49,6 +53,7 @@ The following techniques are implemented:
 ### To do
 
 Known Issues:
+* Currently only One VAO can be rendered. Working on multiple VAO Rendering Support
 * Shadow Maps:
     * Refine Shadowmap filtering
     * Implementation of Soft Shadows

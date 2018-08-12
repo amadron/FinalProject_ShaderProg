@@ -25,12 +25,12 @@ in Data
 
 out vec4 color;
 
-vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor)
+vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor, vec4 albedo)
 {
 	
-	vec3 l = -lightDirection;
+	vec3 l = -normalize(lightDirection);
 	float lambert = max(0, dot(l, normal));
-	return lightColor * lambert;
+	return lightColor * lambert * albedo;
 
 }
 
@@ -54,7 +54,7 @@ void main()
 	vec3 ldir = scnPosition - lpos;
 	//Taken anuttation from Example
 	float dist = length(ldir);
-	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor);
+	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor, scnAlbedo);
 	float intensity = inData.intensity;
 	//Check if ScenePosition is within range of lightsource
 

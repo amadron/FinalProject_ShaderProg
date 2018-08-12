@@ -133,17 +133,17 @@ namespace Example.src.controller
 
         private void RenderDeferred()
         {
-            IDrawable[] geometry = activeScene.getGeometry();
+            Renderable[] geometry = activeScene.getGeometry();
             renderer.StartLightViewPass();
             for(int i = 0; i < geometry.Length; i++)
             {
-                renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i]);
+                renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i].mesh);
             }
             renderer.FinishLightViewPass();
             renderer.StartShadowMapPass();
             for (int i = 0; i < geometry.Length; i++)
             {
-                renderer.CreateShadowMap(activeCam, activeScene.GetDirectionalLightCamera(), geometry[i]);
+                renderer.CreateShadowMap(activeCam, activeScene.GetDirectionalLightCamera(), geometry[i].mesh);
             }
             renderer.FinishShadowMassPass();
             renderer.StartGeometryPass();

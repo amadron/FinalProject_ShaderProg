@@ -1,4 +1,5 @@
 ﻿using Example.src.model.entitys;
+using Example.src.model.graphics.rendering;
 using Example.src.model.lightning;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace Example.src.model
     {
         protected List<PointLight> pointLightList;
         protected DirectionalLight directionalLight;
-        protected List<IDrawable> geometryList;
+        protected List<Renderable> geometryList;
         protected Terrain terrain;
         protected Vector4 ambientColor;
         protected Camera<Orbit, Perspective> directionalLightCamera;
@@ -23,7 +24,7 @@ namespace Example.src.model
         public Scene()
         {
             pointLightList = new List<PointLight>();
-            geometryList = new List<IDrawable>();
+            geometryList = new List<Renderable>();
         }
 
         public PointLight[] getPointLights()
@@ -41,7 +42,7 @@ namespace Example.src.model
             return directionalLight;
         }
 
-        public IDrawable[] getGeometry()
+        public Renderable[] getGeometry()
         {
             return geometryList.ToArray();
         }
@@ -51,7 +52,7 @@ namespace Example.src.model
             pointLightList.Add(light);
         }
 
-        public void AddGeometry(IDrawable drawable)
+        public void AddGeometry(Renderable drawable)
         {
             geometryList.Add(drawable);
         }

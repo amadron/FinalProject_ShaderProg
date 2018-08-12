@@ -122,7 +122,7 @@ namespace Example.src.model.graphics.rendering
 
 
 
-        public void DrawDeferredGeometry(IDrawable geometry, CameraFirstPerson camera)
+        public void DrawDeferredGeometry(Renderable geometry, CameraFirstPerson camera)
         {
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -132,6 +132,11 @@ namespace Example.src.model.graphics.rendering
             deferredGeometryShader.Activate();
 
             deferredGeometryShader.Uniform("camera", camera.CalcMatrix());
+            deferredGeometryShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
+            deferredGeometryShader.Uniform("hasNormalMap", geometry.hasNormalMap);
+
+            
+
             //Activate Textures of FBO
             int textAmount = mainFBO.Textures.Count; //Number of Texture Channels of FBO
             for (int i = 0; i < textAmount; i++)
@@ -148,8 +153,24 @@ namespace Example.src.model.graphics.rendering
 
             GL.DrawBuffers(textAmount, buffers);
 
+            int albedoText = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "albedoSampler");
+            int normalMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "normalSampler");
+            GL.Uniform1(albedoText, 0);
+            GL.Uniform1(normalMap, 1);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            if (geometry.albedoTexture != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.albedoTexture.ID);
+            }
+
+            GL.ActiveTexture(TextureUnit.Texture1);
+            if (geometry.normalMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.normalMap.ID);
+            }
+
             //Draw Gemetry
-            geometry.Draw();
+            geometry.mesh.Draw();
             //Deactivate Textures of FBO
             for (int i = textAmount - 1; i >= 0; i--)
             {

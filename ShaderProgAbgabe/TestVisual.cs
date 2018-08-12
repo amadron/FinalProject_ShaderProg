@@ -150,7 +150,7 @@ namespace Example
             renderer.CreateShadowMap(fCam, dirLightCamera, geometryDeferred);
             renderer.FinishShadowMassPass();
             renderer.StartGeometryPass();
-            renderer.DrawDeferredGeometry(geometryDeferred, fCam);
+            //renderer.DrawDeferredGeometry(geometryDeferred, fCam);
             renderer.FinishGeometryPass();
             renderer.PointLightPass(fCam, campos);
             //TextureDebugger.Draw(renderer.mainFBO.Textures[3]);
