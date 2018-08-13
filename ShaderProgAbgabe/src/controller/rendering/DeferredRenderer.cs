@@ -15,6 +15,11 @@ namespace Example.src.model.graphics.rendering
 {
     class DeferredRenderer
     {
+        public enum DrawableType
+        {
+            defaultMesh
+        }
+
         public DeferredRenderer(IContentLoader contentLoader, IRenderState renderState)
         {
             renderState.Set<DepthTest>(new DepthTest(true));
@@ -43,6 +48,8 @@ namespace Example.src.model.graphics.rendering
         public IRenderSurface lightViewFBO;
 
         IShaderProgram deferredGeometryShader;
+        IShaderProgram deferredTerrainShader;
+
         IShaderProgram deferredPost;
         IShaderProgram pointLightShader;
         IShaderProgram shadowMapShader;
@@ -50,9 +57,21 @@ namespace Example.src.model.graphics.rendering
 
         SATGpuFilter satFilter;
 
-        public IDrawable GetDrawable(Mesh mesh)
+        public IDrawable GetDrawable(Mesh mesh, DrawableType type)
         {
-            return VAOLoader.FromMesh(mesh, deferredGeometryShader);
+            IShaderProgram shader = deferredGeometryShader;
+            /*
+            switch(type)
+            {
+                case DrawableType.terrain :
+                {
+                    shader = deferredTerrainShader;
+                    break;
+                }
+                    
+            }
+            */
+            return VAOLoader.FromMesh(mesh, shader);
         }
 
         public void Resize(int width, int height)
@@ -134,6 +153,8 @@ namespace Example.src.model.graphics.rendering
             deferredGeometryShader.Uniform("camera", camera.CalcMatrix());
             deferredGeometryShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
             deferredGeometryShader.Uniform("hasNormalMap", geometry.hasNormalMap);
+            deferredGeometryShader.Uniform("hasHeightMap", geometry.hasHeightMap);
+            deferredGeometryShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
 
             
 
@@ -155,8 +176,10 @@ namespace Example.src.model.graphics.rendering
 
             int albedoText = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "albedoSampler");
             int normalMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "normalSampler");
+            int heightMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "heightSampler");
             GL.Uniform1(albedoText, 0);
             GL.Uniform1(normalMap, 1);
+            GL.Uniform1(heightMap, 2);
             GL.ActiveTexture(TextureUnit.Texture0);
             if (geometry.albedoTexture != null)
             {
@@ -167,6 +190,11 @@ namespace Example.src.model.graphics.rendering
             if (geometry.normalMap != null)
             {
                 GL.BindTexture(TextureTarget.Texture2D, geometry.normalMap.ID);
+            }
+            GL.ActiveTexture(TextureUnit.Texture2);
+            if(geometry.heightMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.heightMap.ID);
             }
 
             //Draw Gemetry
@@ -199,14 +227,28 @@ namespace Example.src.model.graphics.rendering
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
         }
 
-        public void DrawShadowLightView(Camera<Orbit, Perspective> camera, IDrawable geometry)
+        public void DrawShadowLightView(Camera<Orbit, Perspective> camera, Renderable geometry)
         {
             shadowLightViewShader.Activate();
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Activate();
             //Render
+            
             shadowLightViewShader.Uniform("lightCamera", camera);
-            geometry.Draw();
+            
+            shadowLightViewShader.Uniform("hasHeightMap", geometry.hasHeightMap);
+            shadowLightViewShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
+
+            int heightMap = GL.GetUniformLocation(shadowLightViewShader.ProgramID, "heightSampler");
+            
+            GL.Uniform1(heightMap, 0);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            if (geometry.heightMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.heightMap.ID);
+            }
+            
+            geometry.mesh.Draw();
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Deactivate();
             shadowLightViewShader.Deactivate();
@@ -228,17 +270,32 @@ namespace Example.src.model.graphics.rendering
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
         }
 
-        public void CreateShadowMap(CameraFirstPerson viewCamera, Camera<Orbit, Perspective> lightViewCamera, IDrawable geometry)
+        public void CreateShadowMap(CameraFirstPerson viewCamera, Camera<Orbit, Perspective> lightViewCamera, Renderable geometry)
         {
             shadowMapShader.Activate();
 
             satFilter.GetFilterTexture().Activate();
             shadowMapShader.Uniform("camera", viewCamera.CalcMatrix());
             shadowMapShader.Uniform("lightCamera", lightViewCamera);
-            geometry.Draw();
+
+            shadowMapShader.Uniform("hasHeightMap", geometry.hasHeightMap);
+            shadowMapShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
+
+            
+            int heightMap = GL.GetUniformLocation(shadowMapShader.ProgramID, "heightSampler");
+
+            GL.Uniform1(heightMap, 1);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            if (geometry.heightMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.heightMap.ID);
+            }
+            
+
+            geometry.mesh.Draw();
 
             //GL.ActiveTexture(TextureUnit.Texture0);
-            lightViewFBO.Textures[0].Deactivate();
+            //lightViewFBO.Textures[0].Deactivate();
             //satFilter.GetFilterTexture().Deactivate();
             shadowMapShader.Deactivate();
         }

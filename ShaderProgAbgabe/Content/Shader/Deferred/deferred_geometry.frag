@@ -23,7 +23,7 @@ void main()
 	position = inData.position / inData.position.w;
 	//position = inData.transPos;
 	albedo = vec4(materials[inData.material],1) * (1 - hasAlbedo) +	texture(albedoSampler, inData.uv) * hasAlbedo;
-	vec3 n = inData.normal * (1 - hasNormalMap) + -texture(normalSampler, inData.uv).rgb * hasNormalMap;
+	vec3 n = inData.normal * (1 - hasNormalMap) + texture(normalSampler, inData.uv).rgb * hasNormalMap;
 	n = normalize(n);
 	normal = vec4(n,1);
 }

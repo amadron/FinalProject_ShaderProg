@@ -1,6 +1,9 @@
 ﻿#version 430 core
 
 uniform mat4 camera;
+uniform int hasHeightMap;
+uniform sampler2D heightSampler;
+uniform float heightScaleFactor;
 
 in vec3 position;
 in vec3 normal;
@@ -16,7 +19,10 @@ out Data {
 
 void main()
 {
-	vec4 transPos = camera * vec4(position, 1);
+	vec3 npos = position;
+	float height = (texture2D(heightSampler, uv).r - 0.5) * hasHeightMap * heightScaleFactor;
+	npos += normal * height;
+	vec4 transPos = camera * vec4(npos, 1);
 	gl_Position = transPos;
 	outdata.position = vec4(position,1);
 	outdata.normal = normal;

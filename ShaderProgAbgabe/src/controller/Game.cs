@@ -137,13 +137,13 @@ namespace Example.src.controller
             renderer.StartLightViewPass();
             for(int i = 0; i < geometry.Length; i++)
             {
-                renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i].mesh);
+                renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i]);
             }
             renderer.FinishLightViewPass();
             renderer.StartShadowMapPass();
             for (int i = 0; i < geometry.Length; i++)
             {
-                renderer.CreateShadowMap(activeCam, activeScene.GetDirectionalLightCamera(), geometry[i].mesh);
+                renderer.CreateShadowMap(activeCam, activeScene.GetDirectionalLightCamera(), geometry[i]);
             }
             renderer.FinishShadowMassPass();
             renderer.StartGeometryPass();

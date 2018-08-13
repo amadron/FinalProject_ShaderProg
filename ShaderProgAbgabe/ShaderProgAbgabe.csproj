@@ -43,7 +43,6 @@
     <Compile Include="src\controller\Game.cs" />
     <Compile Include="src\controller\SATGpuFilter.cs" />
     <Compile Include="src\model\entitys\Entity.cs" />
-    <Compile Include="src\model\entitys\Terrain.cs" />
     <Compile Include="src\model\graphics\lightning\DirectionalLight.cs" />
     <Compile Include="src\model\graphics\lightning\Light.cs" />
     <Compile Include="src\model\graphics\lightning\PointLight.cs" />
@@ -51,7 +50,6 @@
     <Compile Include="src\model\graphics\rendering\Rendererable.cs" />
     <Compile Include="src\model\Scene.cs" />
     <Compile Include="src\Test\TestScene.cs" />
-    <Compile Include="TestVisual.cs" />
     <Compile Include="View.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -101,11 +99,7 @@
     <EmbeddedResource Include="Content\Shader\Util\FullQuad.vert" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Shader\Terrain\terrain.frag" />
-    <EmbeddedResource Include="Content\Shader\Terrain\terrain.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Content\Textures\Heightmap.png" />
+    <EmbeddedResource Include="Content\Textures\heightmap.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Textures\normalTest.jpg" />

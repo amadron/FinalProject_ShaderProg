@@ -25,7 +25,9 @@ The following techniques are implemented:
 * Textures
     * Albedo/Diffuse
     * Normal/Bump Maps
-        *Normals will be replaced by normals from map
+        * Normals will be replaced by normals from map
+    * Heightmap
+        * Vertexposition will be offset by Normal direction
 * Summed Area Table (SAT) Filter
     * Implementation by Fragment Shader
     * Each Pass is Parallelized by using Blocks

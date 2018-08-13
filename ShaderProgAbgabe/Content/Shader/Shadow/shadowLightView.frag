@@ -14,6 +14,7 @@ float GetDistanceMapping(float dist)
 void main()
 {
 	float dist = lightPosition.z/lightPosition.w;
+	dist += 0.000001f;
 	float k = 80;
 	float res = exp(k * dist);
 

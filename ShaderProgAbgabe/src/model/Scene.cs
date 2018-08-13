@@ -17,7 +17,6 @@ namespace Example.src.model
         protected List<PointLight> pointLightList;
         protected DirectionalLight directionalLight;
         protected List<Renderable> geometryList;
-        protected Terrain terrain;
         protected Vector4 ambientColor;
         protected Camera<Orbit, Perspective> directionalLightCamera;
 
@@ -30,11 +29,6 @@ namespace Example.src.model
         public PointLight[] getPointLights()
         {
             return pointLightList.ToArray();
-        }
-
-        public Terrain getTerrain()
-        {
-            return terrain;
         }
 
         public DirectionalLight getDirectionalLight()

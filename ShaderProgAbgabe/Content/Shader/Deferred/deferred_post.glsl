@@ -23,7 +23,7 @@ out vec4 color;
 vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor, vec4 albedo)
 {
 	
-	vec3 l = -normalize(lightDirection);
+	vec3 l = normalize(lightDirection);
 	float lambert = max(0, dot(normal, l));
 	return lightColor * lambert * albedo;
 
@@ -31,7 +31,7 @@ vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor, vec4 albedo)
 
 vec4 getSpecular(vec3 viewDir, vec3 normal, vec3 lightDirection, vec4 SpecularColor,int specularFactor)
 {
-	vec3 l = -normalize(lightDirection);
+	vec3 l = normalize(lightDirection);
 	vec3 r = reflect(l, normal) ;
 	vec3 v = -viewDir;
 	float spec = max(0, dot(r, v)); 
