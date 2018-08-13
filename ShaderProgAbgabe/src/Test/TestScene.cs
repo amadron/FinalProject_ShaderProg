@@ -25,15 +25,15 @@ namespace Example.src.Test
             pointLightList = GetPointLights();
             ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
             geometryList = GetGeometry(renderer);
-            directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 0.5f, new Vector4(1, 1, 1, 1), 255, 0.1f);
+            directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 0.5f, new Vector4(1, 1, 1, 1), 255, 0f);
             directionalLightCamera = new Camera<Orbit, Perspective>(new Orbit(4.3f, 180, 45), new Perspective(farClip: 50));
         }
 
         List<PointLight> GetPointLights()
         {
             List<PointLight> lightList = new List<PointLight>();
-            PointLight l = new PointLight(new Vector3(0, 0.4f, 0), new Vector4(Color.Green.ToVector3(), 1), 1f, 10f, new Vector4(1), 80, 0.6f);
-            PointLight l2 = new PointLight(new Vector3(0.8f, 0.4f, 0.5f), new Vector4(Color.Red.ToVector3(), 1), 1f, 10f);
+            PointLight l = new PointLight(new Vector3(0, 0.4f, 0), new Vector4(Color.Green.ToVector3(), 1), 1f, 3f, new Vector4(1), 255, 1f);
+            PointLight l2 = new PointLight(new Vector3(0.8f, 0.4f, 0.5f), new Vector4(Color.Red.ToVector3(), 1), 1f, 3f);
             lightList.Add(l);
             lightList.Add(l2);
             return lightList;
@@ -51,7 +51,6 @@ namespace Example.src.Test
         {
             List<Renderable> res = new List<Renderable>();
             var mesh = Meshes.CreatePlane(5, 5, 10, 10);
-            var mesh2 = Meshes.CreatePlane(1, 1, 10, 10);
             var sphere = Meshes.CreateSphere(1, 2);
             var sphere2 = Meshes.CreateSphere(1, 2);
             mesh.Add(sphere.Transform(Transformation.Translation(new Vector3(1f, 0.5f, -1f))));
@@ -59,21 +58,39 @@ namespace Example.src.Test
             var cube = Meshes.CreateCubeWithNormals(1);
             mesh.Add(cube.Transform(Transformation.Translation(new Vector3(-0.5f, 0.5f, -1.5f))));
 
+
             IDrawable planeDraw = renderer.GetDrawable(mesh);
             Renderable planeRend = new Renderable();
             planeRend.mesh = planeDraw;
-            ITexture2D text = contentLoader.Load<ITexture2D>("testAlbedo.jpg");
+            ITexture2D text = contentLoader.Load<ITexture2D>("testTexture.png");
             ITexture2D normal = contentLoader.Load<ITexture2D>("normalTest.jpg");
             planeRend.SetAlbedoTexture(text);
             planeRend.SetNormalMap(normal);
             
             
             Renderable sphereRend = new Renderable();
-            IDrawable sphereDraw = renderer.GetDrawable(sphere);
+            var nsphere = Meshes.CreateSphere(1, 2);
+            IDrawable sphereDraw = renderer.GetDrawable(nsphere);
             sphereRend.mesh = sphereDraw;
+            
+            var mesh2 = Meshes.CreatePlane(1, 1, 10, 10);
+
+            Renderable plane2Rend = new Renderable();
+            IDrawable plane2Draw = renderer.GetDrawable(mesh2);
+            plane2Rend.mesh = plane2Draw;
+            plane2Rend.SetAlbedoTexture(text);
+
+            var suzanne = contentLoader.Load<DefaultMesh>("suzanne.obj").Transform(Transformation.Translation(0,1,0));
+            suzanne.Transform(Transformation.Scale(0.05f));
+            Renderable suzRend = new Renderable();
+            IDrawable suzanneDraw = renderer.GetDrawable(suzanne);
+            suzRend.mesh = suzanneDraw;
+            suzRend.SetNormalMap(normal);
             //res.Add(sphereRend);
             res.Add(planeRend);
-            
+            //res.Add(sphereRend);
+            //res.Add(plane2Rend);
+            res.Add(suzRend);
             return res;
         }
     }

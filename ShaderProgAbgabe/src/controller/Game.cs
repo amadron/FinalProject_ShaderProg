@@ -153,7 +153,7 @@ namespace Example.src.controller
             }
             renderer.FinishGeometryPass();
             renderer.PointLightPass(activeCam, campos);
-            //TextureDebugger.Draw(renderer.mainFBO.Textures[2]);
+            //TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
             renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight());
         }
     }

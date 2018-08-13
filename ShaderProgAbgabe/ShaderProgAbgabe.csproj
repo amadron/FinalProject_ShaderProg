@@ -111,5 +111,9 @@
     <EmbeddedResource Include="Content\Textures\normalTest.jpg" />
     <EmbeddedResource Include="Content\Textures\testAlbedo.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Models\capsule.obj" />
+    <EmbeddedResource Include="Content\Models\suzanne.obj" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

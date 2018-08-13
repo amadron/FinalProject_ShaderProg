@@ -25,12 +25,12 @@ in Data
 
 out vec4 color;
 
-vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor, vec4 albedo)
+vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor, vec4 albedo, float intensity)
 {
 	
 	vec3 l = -normalize(lightDirection);
 	float lambert = max(0, dot(l, normal));
-	return lightColor * lambert * albedo;
+	return lightColor * lambert * albedo * intensity;
 
 }
 
@@ -38,7 +38,7 @@ vec4 getSpecular(vec3 lightDirection, vec3 normal, vec4 specularColor, vec3 view
 {
 	vec3 l = -normalize(lightDirection);
 	vec3 r = reflect(l, normal) ;
-	vec3 v = normalize(viewDirection);
+	vec3 v = -normalize(viewDirection);
 	float spec = max(0, dot(r, v)); 
 	return  specularColor * max(0, pow(spec, specFactor)) * intensity;
 }
@@ -54,7 +54,7 @@ void main()
 	vec3 ldir = scnPosition - lpos;
 	//Taken anuttation from Example
 	float dist = length(ldir);
-	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor, scnAlbedo);
+	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor, scnAlbedo, inData.intensity);
 	float intensity = inData.intensity;
 	//Check if ScenePosition is within range of lightsource
 
@@ -63,6 +63,6 @@ void main()
 	vec3 viewDir = scnPosition - cameraPosition;
 	vec4 specular = getSpecular(ldir, scnNormal, inData.specularColor, viewDir, inData.specFactor, inData.specIntensity);
 	//color = diffuse;
-	//color = vec4(0);
-	color = specular * falloff + diffuse * intensity * falloff;
+	vec4 result = (specular + diffuse) * falloff;
+	color = result;
 }

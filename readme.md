@@ -53,7 +53,6 @@ The following techniques are implemented:
 ### To do
 
 Known Issues:
-* Currently only One VAO can be rendered. Working on multiple VAO Rendering Support
 * Shadow Maps:
     * Refine Shadowmap filtering
     * Implementation of Soft Shadows

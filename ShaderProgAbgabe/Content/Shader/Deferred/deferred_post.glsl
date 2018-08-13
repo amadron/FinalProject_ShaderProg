@@ -33,7 +33,7 @@ vec4 getSpecular(vec3 viewDir, vec3 normal, vec3 lightDirection, vec4 SpecularCo
 {
 	vec3 l = -normalize(lightDirection);
 	vec3 r = reflect(l, normal) ;
-	vec3 v = viewDir;
+	vec3 v = -viewDir;
 	float spec = max(0, dot(r, v)); 
 	return  SpecularColor * max(0, pow(spec, specularFactor)) * dirSpecIntensity;
 }
@@ -50,6 +50,6 @@ void main()
 	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor);
 	vec4 col = diffuse + specular + vec4(ambient,1);
 	vec4 plightColor = texture(pointLightSampler, uv);
-	color = plightColor + (col * shadows);
+	color = plightColor + (col * shadows * shadows);
 	//gl_FragColor = shadows;
 }

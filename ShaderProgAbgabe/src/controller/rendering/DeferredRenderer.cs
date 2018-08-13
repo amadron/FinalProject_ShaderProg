@@ -116,6 +116,7 @@ namespace Example.src.model.graphics.rendering
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             mainFBO.Activate();
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
 
@@ -124,12 +125,11 @@ namespace Example.src.model.graphics.rendering
 
         public void DrawDeferredGeometry(Renderable geometry, CameraFirstPerson camera)
         {
-
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
-
             deferredGeometryShader.Activate();
+            
 
             deferredGeometryShader.Uniform("camera", camera.CalcMatrix());
             deferredGeometryShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
@@ -185,7 +185,9 @@ namespace Example.src.model.graphics.rendering
 
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
+            
             mainFBO.Deactivate();
+            
         }
 
         public void StartLightViewPass()

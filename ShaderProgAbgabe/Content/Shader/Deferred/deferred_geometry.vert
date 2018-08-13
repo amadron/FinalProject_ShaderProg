@@ -8,6 +8,7 @@ in vec2 uv;
 
 out Data {
 	vec4 position;
+	vec4 transPos;
 	vec3 normal;
 	flat uint material;
 	vec2 uv;
@@ -21,4 +22,5 @@ void main()
 	outdata.normal = normal;
 	outdata.material = uint(uv.x);;
 	outdata.uv = uv;
+	outdata.transPos = transPos;
 }
