@@ -58,21 +58,17 @@ namespace Example.src.model.graphics.rendering
 
         SATGpuFilter satFilter;
 
-        public IDrawable GetDrawable(Mesh mesh, DrawableType type)
+        public IDrawable GetDrawable(DefaultMesh mesh, DrawableType type)
         {
-            IShaderProgram shader = deferredGeometryShader;
-            /*
-            switch(type)
+            MeshAttribute uvs = mesh.GetAttribute("uv");
+            int elems = uvs.ToArray().Length;
+            if(elems == 0)
             {
-                case DrawableType.terrain :
-                {
-                    shader = deferredTerrainShader;
-                    break;
-                }
-                    
+                mesh.SetConstantUV(new Vector2(0, 0));
             }
-            */
-            return VAOLoader.FromMesh(mesh, shader);
+            IShaderProgram shader = deferredGeometryShader;
+            IDrawable res = VAOLoader.FromMesh(mesh, shader);
+            return res;
         }
 
         public void Resize(int width, int height)
@@ -143,7 +139,7 @@ namespace Example.src.model.graphics.rendering
 
 
 
-        public void DrawDeferredGeometry(Renderable geometry, CameraFirstPerson camera)
+        public void DrawDeferredGeometry(Renderable geometry, CameraFirstPerson camera, Vector3 cameraPosition)
         {
             
             renderState.Set(new DepthTest(true));
@@ -157,11 +153,14 @@ namespace Example.src.model.graphics.rendering
             
 
             deferredGeometryShader.Uniform("camera", camera.CalcMatrix());
+            deferredGeometryShader.Uniform("cameraPosition", cameraPosition);
             deferredGeometryShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
             deferredGeometryShader.Uniform("hasNormalMap", geometry.hasNormalMap);
             deferredGeometryShader.Uniform("hasHeightMap", geometry.hasHeightMap);
             deferredGeometryShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
             deferredGeometryShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
+            deferredGeometryShader.Uniform("hasEnvironmentMap", geometry.hasEnvironmentMap);
+
             
 
             //Activate Textures of FBO
@@ -184,10 +183,12 @@ namespace Example.src.model.graphics.rendering
             int normalMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "normalSampler");
             int heightMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "heightSampler");
             int alphaMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "alphaSampler");
+            int environMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "environmentSampler");
             GL.Uniform1(albedoText, 0);
             GL.Uniform1(normalMap, 1);
             GL.Uniform1(heightMap, 2);
             GL.Uniform1(alphaMap, 3);
+            GL.Uniform1(environMap, 4);
             GL.ActiveTexture(TextureUnit.Texture0);
             if (geometry.albedoTexture != null)
             {
@@ -208,6 +209,11 @@ namespace Example.src.model.graphics.rendering
             if(geometry.alphaMap != null)
             {
                 GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
+            }
+            GL.ActiveTexture(TextureUnit.Texture4);
+            if(geometry.environmentMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.environmentMap.ID);
             }
 
             //Draw Gemetry

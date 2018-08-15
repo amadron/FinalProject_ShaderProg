@@ -116,5 +116,11 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Shader\Deferred\util.glsl" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\beach.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Models\sphere.obj" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

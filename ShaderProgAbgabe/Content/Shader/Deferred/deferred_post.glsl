@@ -31,9 +31,9 @@ vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor, vec4 albedo)
 
 vec4 getSpecular(vec3 viewDir, vec3 normal, vec3 lightDirection, vec4 SpecularColor,int specularFactor)
 {
-	vec3 l = normalize(lightDirection);
+	vec3 l = normalize(-lightDirection);
 	vec3 r = reflect(l, normal) ;
-	vec3 v = -viewDir;
+	vec3 v = viewDir;
 	float spec = max(0, dot(r, v)); 
 	return  SpecularColor * max(0, pow(spec, specularFactor)) * dirSpecIntensity;
 }

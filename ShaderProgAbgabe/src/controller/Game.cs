@@ -134,26 +134,31 @@ namespace Example.src.controller
         private void RenderDeferred()
         {
             Renderable[] geometry = activeScene.getGeometry();
+            
             renderer.StartLightViewPass();
             for(int i = 0; i < geometry.Length; i++)
             {
                 renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i]);
             }
             renderer.FinishLightViewPass();
+            
             renderer.StartShadowMapPass();
             for (int i = 0; i < geometry.Length; i++)
             {
                 renderer.CreateShadowMap(activeCam, activeScene.GetDirectionalLightCamera(), geometry[i], activeScene.getDirectionalLight().direction);
             }
             renderer.FinishShadowMassPass();
+            
+            
             renderer.StartGeometryPass();
             for (int i = 0; i < geometry.Length; i++)
             {
-                renderer.DrawDeferredGeometry(geometry[i], activeCam);
+                renderer.DrawDeferredGeometry(geometry[i], activeCam, campos);
             }
             renderer.FinishGeometryPass();
+            
             renderer.PointLightPass(activeCam, campos);
-            //TextureDebugger.Draw(renderer.mainFBO.Textures[0]);
+            //TextureDebugger.Draw(renderer.mainFBO.Textures[2]);
             //TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.pointLightFBO.Textures[0]);

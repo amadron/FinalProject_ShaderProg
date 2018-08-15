@@ -24,8 +24,8 @@ namespace Example.src.Test
             pointLightList = GetPointLights();
             ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
             geometryList = GetGeometry(renderer);
-            directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 0.5f, new Vector4(1, 1, 1, 1), 255, 0f);
-            directionalLightCamera = new Camera<Orbit, Perspective>(new Orbit(5f, 180, 30), new Perspective(farClip: 50));
+            directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
+            directionalLightCamera = new Camera<Orbit, Perspective>(new Orbit(6f, 180, 30), new Perspective(farClip: 50));
             directionalLightCamera.View.Target = Vector3.Zero;
         }
 
@@ -58,15 +58,14 @@ namespace Example.src.Test
             ITexture2D normal = contentLoader.Load<ITexture2D>("normalTest.jpg");
             ITexture2D height = contentLoader.Load<ITexture2D>("heightmap.png");
             ITexture2D alpha = contentLoader.Load<ITexture2D>("alphaTest.png");
+            ITexture2D environment = contentLoader.Load<ITexture2D>("beach.jpg");
+            environment.WrapFunction = TextureWrapFunction.MirroredRepeat;
             planeRend.SetAlbedoTexture(text);
             planeRend.SetNormalMap(normal);
             //planeRend.SetAlphaTexture(alpha);
             
             
-            Renderable sphereRend = new Renderable();
-            var nsphere = Meshes.CreateSphere(1, 2);
-            IDrawable sphereDraw = renderer.GetDrawable(nsphere, DeferredRenderer.DrawableType.defaultMesh);
-            sphereRend.mesh = sphereDraw;
+            
             
             var mesh2 = Meshes.CreatePlane(2, 2, 30, 30).Transform(Transformation.Translation(0, 1, 0));
 
@@ -75,9 +74,14 @@ namespace Example.src.Test
             plane2Rend.mesh = plane2Draw;
             //plane2Rend.SetAlbedoTexture(text);
             plane2Rend.SetNormalMap(normal);
-            //plane2Rend.SetHeightMap(height);
-            plane2Rend.SetAlphaTexture(alpha);
+            plane2Rend.SetHeightMap(height);
+            plane2Rend.SetAlphaMap(alpha);
             plane2Rend.heightScaleFactor = 20;
+
+            var refSphere = Meshes.CreateSphere(1, 2);
+            IDrawable refSphereDrawable = renderer.GetDrawable(refSphere, DeferredRenderer.DrawableType.defaultMesh);
+            Renderable sphereRenderable = new Renderable();
+            sphereRenderable.mesh = refSphereDrawable;
 
             var suzanne = contentLoader.Load<DefaultMesh>("suzanne.obj").Transform(Transformation.Translation(0,1,0));
             suzanne.Transform(Transformation.Scale(0.05f));
@@ -85,11 +89,12 @@ namespace Example.src.Test
             IDrawable suzanneDraw = renderer.GetDrawable(suzanne, DeferredRenderer.DrawableType.defaultMesh);
             suzRend.mesh = suzanneDraw;
             suzRend.SetNormalMap(normal);
-            //res.Add(sphereRend);
+            
             res.Add(planeRend);
             //res.Add(sphereRend);
-            res.Add(plane2Rend);
+            //res.Add(plane2Rend);
             //res.Add(suzRend);
+            //res.Add(sphereRenderable);
             return res;
         }
     }
