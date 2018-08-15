@@ -39,6 +39,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyConfig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="src\controller\Game.cs" />
     <Compile Include="src\controller\SATGpuFilter.cs" />
@@ -73,12 +74,12 @@
     <EmbeddedResource Include="Content\Shader\Deferred\def_pointLight.vert" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Shader\Shadow\shadowLightView.frag" />
-    <EmbeddedResource Include="Content\Shader\Shadow\shadowLightView.vert" />
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowLightView.frag" />
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowLightView.vert" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Shader\Shadow\shadowMap.frag" />
-    <EmbeddedResource Include="Content\Shader\Shadow\shadowMap.vert" />
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowMap.frag" />
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowMap.vert" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATSumHorizontal.glsl" />
@@ -108,6 +109,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Models\capsule.obj" />
     <EmbeddedResource Include="Content\Models\suzanne.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\alphaTest.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\util.glsl" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

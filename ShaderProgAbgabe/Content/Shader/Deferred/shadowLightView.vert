@@ -11,6 +11,7 @@ in vec2 uv;
 
 out vec4 lightPosition;
 out vec4 viewPosition;
+out vec2 passUv;
 
 void main()
 {
@@ -20,4 +21,5 @@ void main()
 	vec4 lpos = lightCamera * vec4(npos,1);
 	lightPosition = lpos;
 	gl_Position = lpos;
+	passUv = uv;
 }

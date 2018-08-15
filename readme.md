@@ -26,8 +26,10 @@ The following techniques are implemented:
     * Albedo/Diffuse
     * Normal/Bump Maps
         * Normals will be replaced by normals from map
-    * Heightmap
+    * Height Map
         * Vertexposition will be offset by Normal direction
+    * Alpha Map
+        * Alpha map are involved in Shadow Map creation and Deferred lightning.
 * Summed Area Table (SAT) Filter
     * Implementation by Fragment Shader
     * Each Pass is Parallelized by using Blocks

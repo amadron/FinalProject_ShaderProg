@@ -143,7 +143,7 @@ namespace Example.src.controller
             renderer.StartShadowMapPass();
             for (int i = 0; i < geometry.Length; i++)
             {
-                renderer.CreateShadowMap(activeCam, activeScene.GetDirectionalLightCamera(), geometry[i]);
+                renderer.CreateShadowMap(activeCam, activeScene.GetDirectionalLightCamera(), geometry[i], activeScene.getDirectionalLight().direction);
             }
             renderer.FinishShadowMassPass();
             renderer.StartGeometryPass();
@@ -153,7 +153,10 @@ namespace Example.src.controller
             }
             renderer.FinishGeometryPass();
             renderer.PointLightPass(activeCam, campos);
+            //TextureDebugger.Draw(renderer.mainFBO.Textures[0]);
+            //TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
+            //TextureDebugger.Draw(renderer.pointLightFBO.Textures[0]);
             renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight());
         }
     }

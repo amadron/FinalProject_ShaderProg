@@ -24,7 +24,9 @@ namespace Example.src.model.graphics.rendering
         {
             renderState.Set<DepthTest>(new DepthTest(true));
             GL.Enable(EnableCap.CullFace);
+            GL.Enable(EnableCap.Blend);
             GL.CullFace(CullFaceMode.Back);
+
 
             this.renderState = renderState;
             this.contentLoader = contentLoader;
@@ -48,7 +50,6 @@ namespace Example.src.model.graphics.rendering
         public IRenderSurface lightViewFBO;
 
         IShaderProgram deferredGeometryShader;
-        IShaderProgram deferredTerrainShader;
 
         IShaderProgram deferredPost;
         IShaderProgram pointLightShader;
@@ -147,6 +148,11 @@ namespace Example.src.model.graphics.rendering
             
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+            if (geometry.hasAlphaMap == 1)
+            {
+                GL.Enable(EnableCap.Blend);
+            }
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             deferredGeometryShader.Activate();
             
 
@@ -155,7 +161,7 @@ namespace Example.src.model.graphics.rendering
             deferredGeometryShader.Uniform("hasNormalMap", geometry.hasNormalMap);
             deferredGeometryShader.Uniform("hasHeightMap", geometry.hasHeightMap);
             deferredGeometryShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
-
+            deferredGeometryShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
             
 
             //Activate Textures of FBO
@@ -177,9 +183,11 @@ namespace Example.src.model.graphics.rendering
             int albedoText = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "albedoSampler");
             int normalMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "normalSampler");
             int heightMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "heightSampler");
+            int alphaMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "alphaSampler");
             GL.Uniform1(albedoText, 0);
             GL.Uniform1(normalMap, 1);
             GL.Uniform1(heightMap, 2);
+            GL.Uniform1(alphaMap, 3);
             GL.ActiveTexture(TextureUnit.Texture0);
             if (geometry.albedoTexture != null)
             {
@@ -196,6 +204,11 @@ namespace Example.src.model.graphics.rendering
             {
                 GL.BindTexture(TextureTarget.Texture2D, geometry.heightMap.ID);
             }
+            GL.ActiveTexture(TextureUnit.Texture3);
+            if(geometry.alphaMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
+            }
 
             //Draw Gemetry
             geometry.mesh.Draw();
@@ -206,6 +219,7 @@ namespace Example.src.model.graphics.rendering
                 mainFBO.Textures[i].Deactivate();
             }
             deferredGeometryShader.Deactivate();
+            GL.Disable(EnableCap.Blend);
         }
     
         public void FinishGeometryPass()
@@ -224,11 +238,18 @@ namespace Example.src.model.graphics.rendering
             lightViewFBO.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
         }
 
         public void DrawShadowLightView(Camera<Orbit, Perspective> camera, Renderable geometry)
         {
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            if (geometry.hasAlphaMap == 1)
+            {
+                GL.Enable(EnableCap.Blend);
+            }
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             shadowLightViewShader.Activate();
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Activate();
@@ -238,6 +259,7 @@ namespace Example.src.model.graphics.rendering
             
             shadowLightViewShader.Uniform("hasHeightMap", geometry.hasHeightMap);
             shadowLightViewShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
+            shadowLightViewShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
 
             int heightMap = GL.GetUniformLocation(shadowLightViewShader.ProgramID, "heightSampler");
             
@@ -247,11 +269,22 @@ namespace Example.src.model.graphics.rendering
             {
                 GL.BindTexture(TextureTarget.Texture2D, geometry.heightMap.ID);
             }
+
+            int alphaMap = GL.GetUniformLocation(shadowLightViewShader.ProgramID, "alphaSampler");
+            GL.Uniform1(alphaMap, 1);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            if(geometry.alphaMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
+            }
             
             geometry.mesh.Draw();
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Deactivate();
             shadowLightViewShader.Deactivate();
+            GL.Disable(EnableCap.Blend);
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
         }
 
         public void FinishLightViewPass()
@@ -267,19 +300,28 @@ namespace Example.src.model.graphics.rendering
             shadowMapFBO.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
         }
 
-        public void CreateShadowMap(CameraFirstPerson viewCamera, Camera<Orbit, Perspective> lightViewCamera, Renderable geometry)
+        public void CreateShadowMap(CameraFirstPerson viewCamera, Camera<Orbit, Perspective> lightViewCamera, Renderable geometry, Vector3 lightDir)
         {
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            if (geometry.hasAlphaMap == 1)
+            {
+                GL.Enable(EnableCap.Blend);
+            }
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             shadowMapShader.Activate();
 
             satFilter.GetFilterTexture().Activate();
             shadowMapShader.Uniform("camera", viewCamera.CalcMatrix());
             shadowMapShader.Uniform("lightCamera", lightViewCamera);
+            shadowMapShader.Uniform("lightDirection", lightDir);
 
             shadowMapShader.Uniform("hasHeightMap", geometry.hasHeightMap);
             shadowMapShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
+            shadowMapShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
 
             
             int heightMap = GL.GetUniformLocation(shadowMapShader.ProgramID, "heightSampler");
@@ -290,7 +332,19 @@ namespace Example.src.model.graphics.rendering
             {
                 GL.BindTexture(TextureTarget.Texture2D, geometry.heightMap.ID);
             }
-            
+
+            int normalMap = GL.GetUniformLocation(shadowMapShader.ProgramID, "normalSampler");
+            GL.Uniform1(normalMap, 2);
+            GL.ActiveTexture(TextureUnit.Texture2);
+            GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[2].ID);
+
+            int alphaMap = GL.GetUniformLocation(shadowMapShader.ProgramID, "alphaSampler");
+            GL.Uniform1(alphaMap, 3);
+            GL.ActiveTexture(TextureUnit.Texture3);
+            if (geometry.alphaMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
+            }
 
             geometry.mesh.Draw();
 
@@ -298,6 +352,9 @@ namespace Example.src.model.graphics.rendering
             //lightViewFBO.Textures[0].Deactivate();
             //satFilter.GetFilterTexture().Deactivate();
             shadowMapShader.Deactivate();
+            GL.Disable(EnableCap.Blend);
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
         }
 
         public void FinishShadowMassPass()
@@ -357,6 +414,7 @@ namespace Example.src.model.graphics.rendering
         public void FinalPass(Vector3 cameraPosition, Vector4 ambientColor, DirectionalLight dirLight)
         {
             deferredPost.Activate();
+            //renderState.Set(BlendStates.Additive);
 
             int position = GL.GetUniformLocation(deferredPost.ProgramID, "positionSampler");
             int albedo = GL.GetUniformLocation(deferredPost.ProgramID, "albedoSampler");
@@ -397,6 +455,7 @@ namespace Example.src.model.graphics.rendering
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
 
             deferredPost.Deactivate();
+            renderState.Set(BlendStates.Opaque);
         }
         
     }

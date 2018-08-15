@@ -16,6 +16,8 @@ namespace Example.src.model.graphics.rendering
         public int hasHeightMap;
         public ITexture2D heightMap;
         public float heightScaleFactor;
+        public int hasAlphaMap;
+        public ITexture2D alphaMap;
 
         public IDrawable mesh;
 
@@ -28,6 +30,8 @@ namespace Example.src.model.graphics.rendering
             hasHeightMap = 0;
             heightMap = null;
             heightScaleFactor = 1;
+            hasAlphaMap = 0;
+            alphaMap = null;
         }
 
         public void SetAlbedoTexture(ITexture2D texture)
@@ -48,6 +52,10 @@ namespace Example.src.model.graphics.rendering
             hasHeightMap = 1;
         }
 
-        
+        public void SetAlphaTexture(ITexture2D texture)
+        {
+            alphaMap = texture;
+            hasAlphaMap = 1;
+        }
     }
 }
