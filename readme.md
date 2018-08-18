@@ -19,8 +19,10 @@ Current first person Controls are:
 
 ## Implementations
 
-The following techniques are implemented:
+The following features/techniques are implemented:
 
+* Main
+    * Resizing of Window is supported
 * Phong Shading
 * Textures
     * Albedo/Diffuse
@@ -44,6 +46,7 @@ The following techniques are implemented:
     * SAT Filtered Shadowmap
     * Exponential Shadowmaps implemented
     * One Pass renders from Light view
+        * Light view will be Rendered using orthographic camera
         * Calculates the exponential of k * lightDistance
     * Another Pass validates Distance from Light view and Camera View. And renders into shadow Pass.
         * Calculates the exponential of -k * viewDistance and multiplies with the data from Light View Pass
@@ -60,5 +63,4 @@ Known Issues:
 * Shadow Maps:
     * Refine Shadowmap filtering
     * Implementation of Soft Shadows
-    * Changing light Camera from perspective to Orthogonal
 

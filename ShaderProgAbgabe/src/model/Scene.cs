@@ -1,4 +1,5 @@
 ﻿using Example.src.model.entitys;
+using Example.src.model.graphics.camera;
 using Example.src.model.graphics.rendering;
 using Example.src.model.lightning;
 using System;
@@ -18,7 +19,7 @@ namespace Example.src.model
         protected DirectionalLight directionalLight;
         protected List<Renderable> geometryList;
         protected Vector4 ambientColor;
-        protected Camera<Orbit, Perspective> directionalLightCamera;
+        protected Camera directionalLightCamera;
 
         public Scene()
         {
@@ -61,14 +62,20 @@ namespace Example.src.model
             return ambientColor;
         }
 
-        public void SetDirectionalLightCamera(Camera<Orbit, Perspective> camera)
+        public void SetDirectionalLightCamera(Camera camera)
         {
             directionalLightCamera = camera;
         }
 
-        public Camera<Orbit, Perspective> GetDirectionalLightCamera()
+        public Camera GetDirectionalLightCamera()
         {
             return directionalLightCamera;
+        }
+
+        public void Resize(int width, int height)
+        {
+            if(directionalLightCamera != null)
+                directionalLightCamera.Resize(width, height);
         }
 
     }

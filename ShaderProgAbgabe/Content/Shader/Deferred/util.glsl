@@ -37,3 +37,10 @@ vec4 getEnvironment(vec3 cameraDirection, vec3 normal, sampler2D environmentSamp
 	vec4 environment = texture(environmentSampler, projectLongLat(envDir));
 	return environment;
 }
+
+float mapDepthToRange(float value, float nearPlane, float farPlane)
+{
+	float dist = farPlane - nearPlane;
+	float part = float(1)/dist;
+	return value * part;
+}

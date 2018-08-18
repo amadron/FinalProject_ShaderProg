@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Example.src.model;
+using Example.src.model.graphics.camera;
 using Example.src.model.graphics.rendering;
 using Example.src.Test;
 using OpenTK.Input;
@@ -20,13 +21,16 @@ namespace Example.src.controller
         IContentLoader contentLoader;
         IRenderState renderState;
 
-        CameraFirstPerson activeCam;
+        Camera activeCam;
         Scene activeScene;
 
         Vector3 campos = new Vector3(0, 3, 5f);
         Vector2 camrot = new Vector2(0, 0);
+        //Vector3 campos = new Vector3(0, 1, 5f);
+        //Vector2 camrot = new Vector2(25, 180);
         float rotSpeedY = 40;
         float rotSpeedX = 40;
+        
 
         public Game(IContentLoader contentManager, IRenderState renderState)
         {
@@ -35,13 +39,16 @@ namespace Example.src.controller
             renderer = new DeferredRenderer(contentManager, renderState);
             activeScene = new TestScene(contentManager, renderer);
             renderer.SetPointLights(activeScene.getPointLights());
+            activeCam = new FirstPersonCamera(campos, camrot.X, camrot.Y, Camera.ProjectionType.Perspective, fov:1f, width:10, height:10);
+
+            /*
             activeCam = new CameraFirstPerson();
             activeCam.Position = campos;
             activeCam.Heading = camrot.Y;
             activeCam.Tilt = camrot.X;
             activeCam.NearClip = 0.1f;
             activeCam.FarClip = 50.0f;
-
+            */
         }
 
 
@@ -50,7 +57,7 @@ namespace Example.src.controller
         {
             OpenTK.Vector4 dirVec = new OpenTK.Vector4(0, 0, 1, 1);
             OpenTK.Vector4 rightVec = new OpenTK.Vector4(1, 0, 0, 1);
-            Matrix4x4 rot = activeCam.CalcRotationMatrix();
+            Matrix4x4 rot = activeCam.GetRotationMatrix();
 
             OpenTK.Matrix4 testMat = new OpenTK.Matrix4(rot.M11, rot.M12, rot.M13, rot.M14,
                 rot.M21, rot.M22, rot.M23, rot.M24,
@@ -111,14 +118,13 @@ namespace Example.src.controller
         private void MoveCam(Vector3 move)
         {
             campos += move;
-            activeCam.Position = campos;
+            activeCam.SetPosition(campos);
         }
 
         private void RotateCam(Vector2 rot)
         {
             camrot += rot;
-            activeCam.Tilt = camrot.X;
-            activeCam.Heading = camrot.Y;
+            activeCam.SetRotation(new Vector3(camrot, 0));
         }
 
         public void Render()
@@ -129,6 +135,13 @@ namespace Example.src.controller
         public void Resize(int width, int height)
         {
             renderer.Resize(width, height);
+            activeCam.Resize(width, height);
+            activeScene.Resize(width, height);
+        }
+
+        private Matrix4x4 GetCameraMatrix()
+        {
+            return activeCam.GetMatrix();
         }
 
         private void RenderDeferred()
@@ -145,7 +158,7 @@ namespace Example.src.controller
             renderer.StartShadowMapPass();
             for (int i = 0; i < geometry.Length; i++)
             {
-                renderer.CreateShadowMap(activeCam, activeScene.GetDirectionalLightCamera(), geometry[i], activeScene.getDirectionalLight().direction);
+                renderer.CreateShadowMap(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), geometry[i], activeScene.getDirectionalLight().direction);
             }
             renderer.FinishShadowMassPass();
             
@@ -153,11 +166,11 @@ namespace Example.src.controller
             renderer.StartGeometryPass();
             for (int i = 0; i < geometry.Length; i++)
             {
-                renderer.DrawDeferredGeometry(geometry[i], activeCam, campos);
+                renderer.DrawDeferredGeometry(geometry[i], GetCameraMatrix(), campos);
             }
             renderer.FinishGeometryPass();
             
-            renderer.PointLightPass(activeCam, campos);
+            renderer.PointLightPass(GetCameraMatrix(), campos);
             //TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.pointLightFBO.Textures[0]);

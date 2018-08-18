@@ -10,6 +10,7 @@ using Zenseless.Geometry;
 using System.Numerics;
 using Example.src.controller;
 using Example.src.model.lightning;
+using Example.src.model.graphics.camera;
 
 namespace Example.src.model.graphics.rendering
 {
@@ -57,6 +58,8 @@ namespace Example.src.model.graphics.rendering
         IShaderProgram shadowLightViewShader;
 
         SATGpuFilter satFilter;
+
+        int shadowExponent = 20;
 
         public IDrawable GetDrawable(DefaultMesh mesh, DrawableType type)
         {
@@ -140,7 +143,7 @@ namespace Example.src.model.graphics.rendering
 
 
 
-        public void DrawDeferredGeometry(Renderable geometry, CameraFirstPerson camera, Vector3 cameraPosition)
+        public void DrawDeferredGeometry(Renderable geometry, Matrix4x4 cameraMatrix, Vector3 cameraPosition)
         {
             
             renderState.Set(new DepthTest(true));
@@ -153,7 +156,7 @@ namespace Example.src.model.graphics.rendering
             deferredGeometryShader.Activate();
             
 
-            deferredGeometryShader.Uniform("camera", camera.CalcMatrix());
+            deferredGeometryShader.Uniform("camera", cameraMatrix);
             deferredGeometryShader.Uniform("cameraPosition", cameraPosition);
             deferredGeometryShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
             deferredGeometryShader.Uniform("hasNormalMap", geometry.hasNormalMap);
@@ -249,7 +252,7 @@ namespace Example.src.model.graphics.rendering
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
         }
 
-        public void DrawShadowLightView(Camera<Orbit, Perspective> camera, Renderable geometry)
+        public void DrawShadowLightView(Camera camera, Renderable geometry)
         {
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
@@ -262,8 +265,9 @@ namespace Example.src.model.graphics.rendering
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Activate();
             //Render
-            
-            shadowLightViewShader.Uniform("lightCamera", camera);
+
+            shadowLightViewShader.Uniform("shadowMapExponent", shadowExponent);
+            shadowLightViewShader.Uniform("lightCamera", camera.GetMatrix());
             
             shadowLightViewShader.Uniform("hasHeightMap", geometry.hasHeightMap);
             shadowLightViewShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
@@ -311,7 +315,7 @@ namespace Example.src.model.graphics.rendering
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
         }
 
-        public void CreateShadowMap(CameraFirstPerson viewCamera, Camera<Orbit, Perspective> lightViewCamera, Renderable geometry, Vector3 lightDir)
+        public void CreateShadowMap(Matrix4x4 cameraMatrix, Camera lightViewCamera, Renderable geometry, Vector3 lightDir)
         {
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
@@ -323,8 +327,9 @@ namespace Example.src.model.graphics.rendering
             shadowMapShader.Activate();
 
             satFilter.GetFilterTexture().Activate();
-            shadowMapShader.Uniform("camera", viewCamera.CalcMatrix());
-            shadowMapShader.Uniform("lightCamera", lightViewCamera);
+            shadowMapShader.Uniform("shadowMapExponent", shadowExponent);
+            shadowMapShader.Uniform("camera", cameraMatrix);
+            shadowMapShader.Uniform("lightCamera", lightViewCamera.GetMatrix());
             shadowMapShader.Uniform("lightDirection", lightDir);
 
             shadowMapShader.Uniform("hasHeightMap", geometry.hasHeightMap);
@@ -372,7 +377,7 @@ namespace Example.src.model.graphics.rendering
             shadowMapFBO.Deactivate();
         }
 
-        public void PointLightPass(CameraFirstPerson camera, Vector3 cameraPosition)
+        public void PointLightPass(Matrix4x4 cameraMatrix, Vector3 cameraPosition)
         {
             pointLightFBO.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -397,7 +402,7 @@ namespace Example.src.model.graphics.rendering
             GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[2].ID);
 
 
-            pointLightShader.Uniform("camera", camera.CalcMatrix());
+            pointLightShader.Uniform("camera", cameraMatrix);
             pointLightShader.Uniform("cameraPosition", cameraPosition );
             GL.ActiveTexture(TextureUnit.Texture0);
             pointLightFBO.Textures[0].Activate();

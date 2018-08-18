@@ -43,7 +43,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="src\controller\Game.cs" />
     <Compile Include="src\controller\SATGpuFilter.cs" />
+    <Compile Include="src\controller\util\MathUtil.cs" />
     <Compile Include="src\model\entitys\Entity.cs" />
+    <Compile Include="src\model\graphics\camera\Camera.cs" />
+    <Compile Include="src\model\graphics\camera\FirstPersonCamera.cs" />
     <Compile Include="src\model\graphics\lightning\DirectionalLight.cs" />
     <Compile Include="src\model\graphics\lightning\Light.cs" />
     <Compile Include="src\model\graphics\lightning\PointLight.cs" />
