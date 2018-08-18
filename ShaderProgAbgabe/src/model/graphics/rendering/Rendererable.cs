@@ -37,7 +37,7 @@ namespace Example.src.model.graphics.rendering
             alphaMap = null;
             hasEnvironmentMap = 0;
             environmentMap = null;
-            reflectionFactor = 1;
+            reflectionFactor = 0;
         }
 
         public void SetAlbedoTexture(ITexture2D texture)
@@ -68,6 +68,7 @@ namespace Example.src.model.graphics.rendering
         {
             environmentMap = texture;
             hasEnvironmentMap = 1;
+            reflectionFactor = 1;
         }
 
     }

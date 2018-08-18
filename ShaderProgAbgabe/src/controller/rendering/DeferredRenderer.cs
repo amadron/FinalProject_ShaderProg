@@ -61,6 +61,7 @@ namespace Example.src.model.graphics.rendering
         public IDrawable GetDrawable(DefaultMesh mesh, DrawableType type)
         {
             MeshAttribute uvs = mesh.GetAttribute("uv");
+            
             int elems = uvs.ToArray().Length;
             if(elems == 0)
             {
@@ -160,6 +161,7 @@ namespace Example.src.model.graphics.rendering
             deferredGeometryShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
             deferredGeometryShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
             deferredGeometryShader.Uniform("hasEnvironmentMap", geometry.hasEnvironmentMap);
+            deferredGeometryShader.Uniform("reflectionFactor", geometry.reflectionFactor);
 
             
 

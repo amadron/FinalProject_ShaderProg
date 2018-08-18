@@ -103,7 +103,7 @@
     <EmbeddedResource Include="Content\Textures\heightmap.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Textures\normalTest.jpg" />
+    <EmbeddedResource Include="Content\Textures\normalTest1.jpg" />
     <EmbeddedResource Include="Content\Textures\testAlbedo.jpg" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +121,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Models\sphere.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\normalTest2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

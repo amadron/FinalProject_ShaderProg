@@ -28,26 +28,21 @@ out vec4 normal;
 void main()
 {
 	const vec3 materials[] = { vec3(1), vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 1, 1) };
-	//vec3 pos = inData.position;
-	
-	//float alpha = texture(alphaSampler, inData.uv).r;
-	//alpha = alpha + 1 - hasAlphaMap;
+
 	float alpha = getAlpha(hasAlphaMap, alphaSampler, inData.uv);
 	vec4 pos = inData.position / inData.position.w;
 	pos.a = 1 - step(alpha, 0.9);
 	position = pos;
-	
-	vec3 n = inData.normal * (1 - hasNormalMap) + texture(normalSampler, inData.uv).rgb * hasNormalMap;
+	vec4 n = vec4(inData.normal, 1) * (1 - hasNormalMap) +  -(texture(normalSampler, inData.uv) * 2f - 1f) * hasNormalMap;
 	n = normalize(n);
-	
-	normal = vec4(n,alpha);
+	n.a = alpha;
+	normal = n;
 
 	vec3 camDir = normalize(camPos - inData.transPos.xyz);
-	vec3 envDir = normalize(reflect(camDir, n));
-	vec4 environment = texture(environmentSampler, projectLongLat(envDir));
+	vec4 environment = getEnvironment(-camDir, n.xyz, environmentSampler) * reflectionFactor;
 
 	vec4 color = vec4(materials[inData.material],1) * (1 - hasAlbedo) +	texture(albedoSampler, inData.uv) * hasAlbedo;
-	color = color + environment * hasEnvironmentMap;
+	color = color * (1 - hasEnvironmentMap) + (color * environment);
 	color.a = alpha;
-	albedo = color;
+	albedo =  clamp(color, 0, 1);
 }

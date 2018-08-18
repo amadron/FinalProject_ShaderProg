@@ -24,7 +24,7 @@ namespace Example.src.model.lightning
             this.intensity = intensity;
         }
 
-        public Light(Vector3 position, Vector4 color, float intensity, Vector4 specularColor, int specularFactor, float specularIntensity)
+        public Light(Vector3 position, Vector4 color, float intensity, Vector4 specularColor, float specularFactor, float specularIntensity)
         {
             this.position = position;
             this.lightColor = color;
@@ -38,7 +38,7 @@ namespace Example.src.model.lightning
         public Vector4 lightColor;
         public float intensity;
         public Vector4 specularColor = Vector4.One;
-        public int specularFactor = 255;
+        public float specularFactor = 255;
         public float specularIntensity = 0;
     }
 }

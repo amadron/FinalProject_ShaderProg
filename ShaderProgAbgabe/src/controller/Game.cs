@@ -158,10 +158,10 @@ namespace Example.src.controller
             renderer.FinishGeometryPass();
             
             renderer.PointLightPass(activeCam, campos);
-            //TextureDebugger.Draw(renderer.mainFBO.Textures[2]);
             //TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.pointLightFBO.Textures[0]);
+            //TextureDebugger.Draw(renderer.mainFBO.Textures[2]);
             renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight());
         }
     }

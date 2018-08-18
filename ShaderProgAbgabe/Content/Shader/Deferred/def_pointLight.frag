@@ -1,4 +1,5 @@
 ﻿#version 430 core
+#include "util.glsl"
 
 uniform sampler2D positionSampler;
 uniform sampler2D albedoSampler;
@@ -25,23 +26,7 @@ in Data
 
 out vec4 color;
 
-vec4 getDiffuse(vec3 lightDirection, vec3 normal, vec4 lightColor, vec4 albedo, float intensity)
-{
-	
-	vec3 l = -normalize(lightDirection);
-	float lambert = max(0, dot(l, normal));
-	return lightColor * lambert * albedo * intensity;
 
-}
-
-vec4 getSpecular(vec3 lightDirection, vec3 normal, vec4 specularColor, vec3 viewDirection, float specFactor, float intensity)
-{
-	vec3 l = -normalize(lightDirection);
-	vec3 r = reflect(l, normal) ;
-	vec3 v = -normalize(viewDirection);
-	float spec = max(0, dot(r, v)); 
-	return  specularColor * max(0, pow(spec, specFactor)) * intensity;
-}
 
 void main()
 {
@@ -54,15 +39,18 @@ void main()
 	vec3 ldir = scnPosition - lpos;
 	//Taken anuttation from Example
 	float dist = length(ldir);
-	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor, scnAlbedo, inData.intensity);
+	ldir = normalize(ldir);
+	scnNormal = normalize(scnNormal);
+	//scnAlbedo = clamp(scnAlbedo, 0,1);
 	float intensity = inData.intensity;
+	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor, scnAlbedo, intensity);
 	//Check if ScenePosition is within range of lightsource
 
 	float falloff = clamp(inData.radius - dist, 0, inData.radius);
 	//Specular
 	vec3 viewDir = scnPosition - cameraPosition;
-	vec4 specular = getSpecular(ldir, scnNormal, inData.specularColor, viewDir, inData.specFactor, inData.specIntensity);
+	vec4 specular = getSpecular(viewDir, scnNormal, ldir, inData.specularColor, inData.specFactor, inData.specIntensity);
 	//color = diffuse;
-	vec4 result = (specular + diffuse) * falloff;
+	vec4 result = falloff * diffuse;
 	color = result;
 }
