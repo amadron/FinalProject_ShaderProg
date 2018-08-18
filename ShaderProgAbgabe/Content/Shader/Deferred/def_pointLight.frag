@@ -7,6 +7,7 @@ uniform sampler2D normalSampler;
 
 uniform mat4 camera;
 uniform vec3 cameraPosition;
+uniform vec3 camDir;
 
 in vec3 position;
 in vec3 normal;

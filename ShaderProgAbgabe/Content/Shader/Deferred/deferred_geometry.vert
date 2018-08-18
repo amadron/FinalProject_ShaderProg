@@ -24,7 +24,7 @@ void main()
 	npos += normal * height;
 	vec4 transPos = camera * vec4(npos, 1);
 	gl_Position = transPos;
-	outdata.position = vec4(position,1);
+	outdata.position = vec4(npos,1);
 	outdata.normal = normal;
 	outdata.material = uint(uv.x);;
 	outdata.uv = uv;

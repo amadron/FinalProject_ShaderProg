@@ -3,6 +3,7 @@
 
 uniform vec4 ambientColor;
 uniform vec3 camPos;
+uniform vec3 camDir;
 
 uniform vec3 dirLightDir;
 uniform vec4 dirLightCol;

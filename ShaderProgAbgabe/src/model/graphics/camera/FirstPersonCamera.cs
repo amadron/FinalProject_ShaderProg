@@ -65,6 +65,7 @@ namespace Example.src.model.graphics.camera
         {
             Vector4 forward = new Vector4(0, 0, 1, 1);
             Matrix4x4 rot = GetRotationMatrix();
+            rot = Matrix4x4.Transpose(rot);
             forward = MathUtil.Transform(forward, rot);
             forward = Vector4.Normalize(forward);
             return new Vector3(forward.X, forward.Y, forward.Z);

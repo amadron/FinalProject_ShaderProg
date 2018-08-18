@@ -1,7 +1,8 @@
 ﻿#version 430 core
 #include "util.glsl"
 
-uniform vec3 camPos;
+uniform vec3 cameraPosition;
+uniform vec3 cameraDirection;
 
 uniform int hasAlbedo;
 uniform sampler2D albedoSampler;
@@ -33,16 +34,18 @@ void main()
 	vec4 pos = inData.position / inData.position.w;
 	pos.a = 1 - step(alpha, 0.9);
 	position = pos;
-	vec4 n = vec4(inData.normal, 1) * (1 - hasNormalMap) +  -(texture(normalSampler, inData.uv) * 2f - 1f) * hasNormalMap;
-	n = normalize(n);
+	vec3 inNormal = normalize(inData.normal);
+	vec3 normalSum = inNormal * (1 - hasNormalMap) +  -(texture(normalSampler, inData.uv).rgb * 2f - 1f) * hasNormalMap;
+	vec4 n = vec4(normalize(normalSum),1);
 	n.a = alpha;
 	normal = n;
 
-	vec3 camDir = normalize(camPos - inData.transPos.xyz);
-	vec4 environment = getEnvironment(-camDir, n.xyz, environmentSampler) * reflectionFactor;
+	vec3 viewDir = normalize(inData.position.xyz - cameraPosition);
+	vec3 comb = normalize((viewDir + -cameraDirection)/2);
+	vec4 environment = getEnvironment(comb, n.xyz, environmentSampler) * reflectionFactor;
 
 	vec4 color = vec4(materials[inData.material],1) * (1 - hasAlbedo) +	texture(albedoSampler, inData.uv) * hasAlbedo;
-	color = color * (1 - hasEnvironmentMap) + (color * environment);
+	color = mix(color, environment, reflectionFactor);
 	color.a = alpha;
 	albedo =  clamp(color, 0, 1);
 }

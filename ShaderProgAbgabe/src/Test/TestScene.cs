@@ -63,6 +63,7 @@ namespace Example.src.Test
             ITexture2D alpha = contentLoader.Load<ITexture2D>("alphaTest.png");
             ITexture2D environment = contentLoader.Load<ITexture2D>("beach.jpg");
             environment.WrapFunction = TextureWrapFunction.MirroredRepeat;
+            environment.Filter = TextureFilterMode.Linear;
             planeRend.SetAlbedoTexture(text);
             planeRend.SetNormalMap(normal);
             planeRend.SetAlphaMap(alpha);
@@ -85,8 +86,10 @@ namespace Example.src.Test
             IDrawable refSphereDrawable = renderer.GetDrawable(refSphere, DeferredRenderer.DrawableType.defaultMesh);
             Renderable sphereRenderable = new Renderable();
             sphereRenderable.mesh = refSphereDrawable;
+            sphereRenderable.SetAlbedoTexture(text);
             sphereRenderable.SetEnvironmentMap(environment);
-            sphereRenderable.reflectionFactor = 1;
+            sphereRenderable.reflectivity = 0.5f;
+            //sphereRenderable.SetNormalMap(normal);
 
             var suzanne = contentLoader.Load<DefaultMesh>("suzanne.obj").Transform(Transformation.Translation(0,1,0));
             suzanne.Transform(Transformation.Scale(0.05f));

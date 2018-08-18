@@ -24,8 +24,8 @@ namespace Example.src.controller
         Camera activeCam;
         Scene activeScene;
 
-        Vector3 campos = new Vector3(0, 3, 5f);
-        Vector2 camrot = new Vector2(0, 0);
+        Vector3 campos = new Vector3(0, 3, -5f);
+        Vector2 camrot = new Vector2(0, 180);
         //Vector3 campos = new Vector3(0, 1, 5f);
         //Vector2 camrot = new Vector2(25, 180);
         float rotSpeedY = 40;
@@ -147,7 +147,7 @@ namespace Example.src.controller
         private void RenderDeferred()
         {
             Renderable[] geometry = activeScene.getGeometry();
-            
+            Vector3 camDir = activeCam.GetDirection();
             renderer.StartLightViewPass();
             for(int i = 0; i < geometry.Length; i++)
             {
@@ -166,16 +166,16 @@ namespace Example.src.controller
             renderer.StartGeometryPass();
             for (int i = 0; i < geometry.Length; i++)
             {
-                renderer.DrawDeferredGeometry(geometry[i], GetCameraMatrix(), campos);
+                renderer.DrawDeferredGeometry(geometry[i], GetCameraMatrix(), campos, camDir);
             }
             renderer.FinishGeometryPass();
             
-            renderer.PointLightPass(GetCameraMatrix(), campos);
+            renderer.PointLightPass(GetCameraMatrix(), campos, camDir);
             //TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.pointLightFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.mainFBO.Textures[2]);
-            renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight());
+            renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight(), camDir);
         }
     }
 }

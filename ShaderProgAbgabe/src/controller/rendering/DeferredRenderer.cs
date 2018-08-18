@@ -143,7 +143,7 @@ namespace Example.src.model.graphics.rendering
 
 
 
-        public void DrawDeferredGeometry(Renderable geometry, Matrix4x4 cameraMatrix, Vector3 cameraPosition)
+        public void DrawDeferredGeometry(Renderable geometry, Matrix4x4 cameraMatrix, Vector3 cameraPosition, Vector3 cameraDirection)
         {
             
             renderState.Set(new DepthTest(true));
@@ -158,13 +158,14 @@ namespace Example.src.model.graphics.rendering
 
             deferredGeometryShader.Uniform("camera", cameraMatrix);
             deferredGeometryShader.Uniform("cameraPosition", cameraPosition);
+            deferredGeometryShader.Uniform("cameraDirection", cameraDirection);
             deferredGeometryShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
             deferredGeometryShader.Uniform("hasNormalMap", geometry.hasNormalMap);
             deferredGeometryShader.Uniform("hasHeightMap", geometry.hasHeightMap);
             deferredGeometryShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
             deferredGeometryShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
             deferredGeometryShader.Uniform("hasEnvironmentMap", geometry.hasEnvironmentMap);
-            deferredGeometryShader.Uniform("reflectionFactor", geometry.reflectionFactor);
+            deferredGeometryShader.Uniform("reflectionFactor", geometry.reflectivity);
 
             
 
@@ -377,7 +378,7 @@ namespace Example.src.model.graphics.rendering
             shadowMapFBO.Deactivate();
         }
 
-        public void PointLightPass(Matrix4x4 cameraMatrix, Vector3 cameraPosition)
+        public void PointLightPass(Matrix4x4 cameraMatrix, Vector3 cameraPosition, Vector3 cameraDirection)
         {
             pointLightFBO.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -404,6 +405,7 @@ namespace Example.src.model.graphics.rendering
 
             pointLightShader.Uniform("camera", cameraMatrix);
             pointLightShader.Uniform("cameraPosition", cameraPosition );
+            pointLightShader.Uniform("camDir", cameraDirection);
             GL.ActiveTexture(TextureUnit.Texture0);
             pointLightFBO.Textures[0].Activate();
 
@@ -424,7 +426,7 @@ namespace Example.src.model.graphics.rendering
             pointLightFBO.Deactivate();
         }
 
-        public void FinalPass(Vector3 cameraPosition, Vector4 ambientColor, DirectionalLight dirLight)
+        public void FinalPass(Vector3 cameraPosition, Vector4 ambientColor, DirectionalLight dirLight, Vector3 cameraDirection)
         {
             deferredPost.Activate();
             //renderState.Set(BlendStates.Additive);
@@ -454,6 +456,7 @@ namespace Example.src.model.graphics.rendering
 
             //Pass Parameters
             deferredPost.Uniform("camPos", cameraPosition);
+            deferredPost.Uniform("camDir", cameraDirection);
 
             deferredPost.Uniform("ambientColor", ambientColor);
 
