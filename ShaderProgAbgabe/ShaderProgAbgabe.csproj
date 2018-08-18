@@ -53,6 +53,7 @@
     <Compile Include="src\controller\rendering\DeferredRenderer.cs" />
     <Compile Include="src\model\graphics\rendering\Rendererable.cs" />
     <Compile Include="src\model\Scene.cs" />
+    <Compile Include="src\Test\IslandScene.cs" />
     <Compile Include="src\Test\TestScene.cs" />
     <Compile Include="View.cs" />
   </ItemGroup>
@@ -127,6 +128,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Textures\normalTest2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_water.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_water.frag" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -18,7 +18,8 @@ namespace Example.src.model.graphics.rendering
     {
         public enum DrawableType
         {
-            defaultMesh
+            defaultMesh,
+            water
         }
 
         public DeferredRenderer(IContentLoader contentLoader, IRenderState renderState)
@@ -32,6 +33,8 @@ namespace Example.src.model.graphics.rendering
             this.renderState = renderState;
             this.contentLoader = contentLoader;
             deferredGeometryShader = contentLoader.Load<IShaderProgram>("deferred_geometry.*");
+            deferredWaterShader = contentLoader.Load<IShaderProgram>("deferred_water.*");
+
             deferredPost = contentLoader.LoadPixelShader("deferred_post");
             pointLightShader = contentLoader.Load<IShaderProgram>("def_pointLight.*");
             shadowMapShader = contentLoader.Load<IShaderProgram>("shadowMap.*");
@@ -51,6 +54,7 @@ namespace Example.src.model.graphics.rendering
         public IRenderSurface lightViewFBO;
 
         IShaderProgram deferredGeometryShader;
+        IShaderProgram deferredWaterShader;
 
         IShaderProgram deferredPost;
         IShaderProgram pointLightShader;
@@ -71,6 +75,10 @@ namespace Example.src.model.graphics.rendering
                 mesh.SetConstantUV(new Vector2(0, 0));
             }
             IShaderProgram shader = deferredGeometryShader;
+            if(type == DrawableType.water)
+            {
+
+            }
             IDrawable res = VAOLoader.FromMesh(mesh, shader);
             return res;
         }

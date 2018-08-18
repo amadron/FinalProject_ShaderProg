@@ -88,7 +88,7 @@ namespace Example.src.Test
             sphereRenderable.mesh = refSphereDrawable;
             sphereRenderable.SetAlbedoTexture(text);
             sphereRenderable.SetEnvironmentMap(environment);
-            sphereRenderable.reflectivity = 0.5f;
+            sphereRenderable.reflectivity = 1f;
             //sphereRenderable.SetNormalMap(normal);
 
             var suzanne = contentLoader.Load<DefaultMesh>("suzanne.obj").Transform(Transformation.Translation(0,1,0));

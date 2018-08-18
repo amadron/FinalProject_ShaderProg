@@ -26,7 +26,7 @@ namespace Example.src.controller
 
         Vector3 campos = new Vector3(0, 3, -5f);
         Vector2 camrot = new Vector2(0, 180);
-        //Vector3 campos = new Vector3(0, 1, 5f);
+        //Vector3 campos = new Vector3(0, 1, 10f);
         //Vector2 camrot = new Vector2(25, 180);
         float rotSpeedY = 40;
         float rotSpeedX = 40;
@@ -37,18 +37,9 @@ namespace Example.src.controller
             this.renderState = renderState;
             this.contentLoader = contentManager;
             renderer = new DeferredRenderer(contentManager, renderState);
-            activeScene = new TestScene(contentManager, renderer);
+            activeScene = new IslandScene(contentManager, renderer);
             renderer.SetPointLights(activeScene.getPointLights());
-            activeCam = new FirstPersonCamera(campos, camrot.X, camrot.Y, Camera.ProjectionType.Perspective, fov:1f, width:10, height:10);
-
-            /*
-            activeCam = new CameraFirstPerson();
-            activeCam.Position = campos;
-            activeCam.Heading = camrot.Y;
-            activeCam.Tilt = camrot.X;
-            activeCam.NearClip = 0.1f;
-            activeCam.FarClip = 50.0f;
-            */
+            activeCam = new FirstPersonCamera(campos, camrot.X, camrot.Y, Camera.ProjectionType.Perspective, fov:1f, width:20, height:20);
         }
 
 
