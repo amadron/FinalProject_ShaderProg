@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Example.src.model;
+using Example.src.model.entitys;
 using Example.src.model.graphics.camera;
 using Example.src.model.graphics.rendering;
 using Example.src.Test;
@@ -45,6 +46,12 @@ namespace Example.src.controller
 
 
         public void Update(float deltatime)
+        {
+            UpdateControl(deltatime);
+            activeScene.Update(deltatime);
+        }
+
+        private void UpdateControl(float deltatime)
         {
             OpenTK.Vector4 dirVec = new OpenTK.Vector4(0, 0, 1, 1);
             OpenTK.Vector4 rightVec = new OpenTK.Vector4(1, 0, 0, 1);
@@ -137,17 +144,18 @@ namespace Example.src.controller
 
         private void RenderDeferred()
         {
-            Renderable[] geometry = activeScene.getGeometry();
+            List<Renderable> geometry = activeScene.getGeometry();
+            List<ParticleSystem> particleSystem = activeScene.GetParticleSystems();
             Vector3 camDir = activeCam.GetDirection();
             renderer.StartLightViewPass();
-            for(int i = 0; i < geometry.Length; i++)
+            for(int i = 0; i < geometry.Count; i++)
             {
                 renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i]);
             }
             renderer.FinishLightViewPass();
             
             renderer.StartShadowMapPass();
-            for (int i = 0; i < geometry.Length; i++)
+            for (int i = 0; i < geometry.Count; i++)
             {
                 renderer.CreateShadowMap(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), geometry[i], activeScene.getDirectionalLight().direction);
             }
@@ -155,9 +163,13 @@ namespace Example.src.controller
             
             
             renderer.StartGeometryPass();
-            for (int i = 0; i < geometry.Length; i++)
+            for (int i = 0; i < geometry.Count; i++)
             {
                 renderer.DrawDeferredGeometry(geometry[i], GetCameraMatrix(), campos, camDir);
+            }
+            for(int j = 0; j < particleSystem.Count; j++)
+            {
+                renderer.DrawDeferredParticle(particleSystem[j].GetRenderable(), GetCameraMatrix(), campos, camDir, particleSystem[j].GetSpawnedParticles());
             }
             renderer.FinishGeometryPass();
             

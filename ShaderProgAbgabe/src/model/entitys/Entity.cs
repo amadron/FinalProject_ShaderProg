@@ -9,18 +9,19 @@ namespace Example.src.model.entitys
 {
     class Entity
     {
+        public Transform transform;
+
         public Entity()
         {
+            transform = new Transform();
             enabled = true;
             visible = true;
-            position = Vector3.Zero;
-            rotation = Vector3.Zero;
-            scale = Vector3.One;
+            transform.position = Vector3.Zero;
+            transform.rotation = Vector3.Zero;
+            transform.scale = Vector3.One;
         }
-        bool enabled;
-        bool visible;
-        Vector3 position;
-        Vector3 rotation;
-        Vector3 scale;
+        public bool enabled;
+        public bool visible;
+       
     }
 }

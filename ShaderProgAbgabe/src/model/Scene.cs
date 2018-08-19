@@ -18,6 +18,7 @@ namespace Example.src.model
         protected List<PointLight> pointLightList;
         protected DirectionalLight directionalLight;
         protected List<Renderable> geometryList;
+        protected List<ParticleSystem> particleSystems;
         protected Vector4 ambientColor;
         protected Camera directionalLightCamera;
 
@@ -25,11 +26,21 @@ namespace Example.src.model
         {
             pointLightList = new List<PointLight>();
             geometryList = new List<Renderable>();
+            particleSystems = new List<ParticleSystem>();
         }
 
-        public PointLight[] getPointLights()
+        public void Update(float deltatime)
         {
-            return pointLightList.ToArray();
+            for(int i = 0; i < particleSystems.Count; i++)
+            {
+                particleSystems[i].Update(deltatime);
+            }
+        }
+
+
+        public List<PointLight> getPointLights()
+        {
+            return pointLightList;
         }
 
         public DirectionalLight getDirectionalLight()
@@ -37,9 +48,9 @@ namespace Example.src.model
             return directionalLight;
         }
 
-        public Renderable[] getGeometry()
+        public List<Renderable> getGeometry()
         {
-            return geometryList.ToArray();
+            return geometryList;
         }
 
         public void AddPointLight(PointLight light)
@@ -76,6 +87,16 @@ namespace Example.src.model
         {
             if(directionalLightCamera != null)
                 directionalLightCamera.Resize(width, height);
+        }
+
+        public void AddParticleSystem(ParticleSystem system)
+        {
+            particleSystems.Add(system);
+        }
+
+        public List<ParticleSystem> GetParticleSystems()
+        {
+            return particleSystems;
         }
 
     }

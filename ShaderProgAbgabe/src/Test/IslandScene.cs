@@ -26,7 +26,10 @@ namespace Example.src.Test
             ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
             geometryList = GetGeometry(renderer);
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
-            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 20, height: 20); ;
+            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 20, height: 20);
+            ParticleSystem system = new ParticleSystem(renderer);
+            system.transform.position = new Vector3(0, 0.3f, 0);
+            AddParticleSystem(system);
         }
 
         List<PointLight> GetPointLights()
@@ -41,11 +44,12 @@ namespace Example.src.Test
 
         private List<Renderable> GetGeometry(DeferredRenderer renderer)
         {
+            IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.defaultMesh);
             List<Renderable> res = new List<Renderable>();
             Renderable isle = new Renderable();
             var islePlane = Meshes.CreatePlane(10, 10, 60, 60);
-            IDrawable isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.defaultMesh);
-            isle.mesh = isleDrawable;
+            VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.defaultMesh);
+            isle.SetMesh(isleDrawable, defaultShader);
             ITexture2D isleAlbedo = contentLoader.Load<ITexture2D>("testTexture.png");
             isle.SetAlbedoTexture(isleAlbedo);
             ITexture2D isleHeightmap = contentLoader.Load<ITexture2D>("heightmap.png");
@@ -56,11 +60,11 @@ namespace Example.src.Test
 
             Renderable water = new Renderable();
             var waterplane = Meshes.CreatePlane(20, 20, 70, 70).Transform(Transformation.Translation(0, 0.5f, 0));
-            IDrawable waterDrawable = renderer.GetDrawable(waterplane, DeferredRenderer.DrawableType.water);
-            water.mesh = waterDrawable;
+            VAO waterDrawable = renderer.GetDrawable(waterplane, DeferredRenderer.DrawableType.defaultMesh);
+            water.SetMesh(waterDrawable, defaultShader);
             water.SetAlbedoTexture(isleAlbedo);
 
-            res.Add(water);
+            //res.Add(water);
             return res;
         }
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Zenseless.HLGL;
+using Zenseless.OpenGL;
 
 namespace Example.src.model.graphics.rendering
 {
@@ -21,8 +22,11 @@ namespace Example.src.model.graphics.rendering
         public ITexture2D environmentMap;
         public float reflectivity;
         public int hasEnvironmentMap;
+        public FaceCullingMode faceCullingMode;
+        public int instances;
 
-        public IDrawable mesh;
+        private VAO mesh;
+        private IShaderProgram shader;
 
         public Renderable()
         {
@@ -38,6 +42,8 @@ namespace Example.src.model.graphics.rendering
             hasEnvironmentMap = 0;
             environmentMap = null;
             reflectivity = 0;
+            faceCullingMode = FaceCullingMode.BACK_SIDE;
+            instances = 0;
         }
 
         public void SetAlbedoTexture(ITexture2D texture)
@@ -71,5 +77,21 @@ namespace Example.src.model.graphics.rendering
             reflectivity = 1;
         }
 
+
+        public void SetMesh(VAO mesh, IShaderProgram shader)
+        {
+            this.mesh = mesh;
+            this.shader = shader;
+        }
+
+        public VAO GetMesh()
+        {
+            return mesh;
+        }
+
+        public IShaderProgram GetShader()
+        {
+            return shader;
+        }
     }
 }

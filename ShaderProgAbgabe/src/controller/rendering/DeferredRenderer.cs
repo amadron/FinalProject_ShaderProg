@@ -11,6 +11,7 @@ using System.Numerics;
 using Example.src.controller;
 using Example.src.model.lightning;
 using Example.src.model.graphics.camera;
+using Example.src.model.entitys;
 
 namespace Example.src.model.graphics.rendering
 {
@@ -18,8 +19,7 @@ namespace Example.src.model.graphics.rendering
     {
         public enum DrawableType
         {
-            defaultMesh,
-            water
+            defaultMesh
         }
 
         public DeferredRenderer(IContentLoader contentLoader, IRenderState renderState)
@@ -33,7 +33,6 @@ namespace Example.src.model.graphics.rendering
             this.renderState = renderState;
             this.contentLoader = contentLoader;
             deferredGeometryShader = contentLoader.Load<IShaderProgram>("deferred_geometry.*");
-            deferredWaterShader = contentLoader.Load<IShaderProgram>("deferred_water.*");
 
             deferredPost = contentLoader.LoadPixelShader("deferred_post");
             pointLightShader = contentLoader.Load<IShaderProgram>("def_pointLight.*");
@@ -54,7 +53,7 @@ namespace Example.src.model.graphics.rendering
         public IRenderSurface lightViewFBO;
 
         IShaderProgram deferredGeometryShader;
-        IShaderProgram deferredWaterShader;
+        IShaderProgram deferredParticleShader;
 
         IShaderProgram deferredPost;
         IShaderProgram pointLightShader;
@@ -65,7 +64,7 @@ namespace Example.src.model.graphics.rendering
 
         int shadowExponent = 20;
 
-        public IDrawable GetDrawable(DefaultMesh mesh, DrawableType type)
+        public VAO GetDrawable(DefaultMesh mesh, DrawableType type)
         {
             MeshAttribute uvs = mesh.GetAttribute("uv");
             
@@ -74,13 +73,15 @@ namespace Example.src.model.graphics.rendering
             {
                 mesh.SetConstantUV(new Vector2(0, 0));
             }
-            IShaderProgram shader = deferredGeometryShader;
-            if(type == DrawableType.water)
-            {
-
-            }
-            IDrawable res = VAOLoader.FromMesh(mesh, shader);
+            IShaderProgram shader = GetShader(type);
+            VAO res = VAOLoader.FromMesh(mesh, shader);
             return res;
+        }
+
+        public IShaderProgram GetShader(DrawableType type)
+        {
+            IShaderProgram shader = deferredGeometryShader;
+            return shader;
         }
 
         public void Resize(int width, int height)
@@ -106,18 +107,18 @@ namespace Example.src.model.graphics.rendering
 
 
         
-        public void SetPointLights(PointLight[] pointLights)
+        public void SetPointLights(List<PointLight> pointLights)
         {
-            Vector3[] instPos = new Vector3[pointLights.Length];
-            Vector4[] instCols = new Vector4[pointLights.Length];
-            float[] instRadius = new float[pointLights.Length];
-            float[] instIntensity = new float[pointLights.Length];
+            Vector3[] instPos = new Vector3[pointLights.Count];
+            Vector4[] instCols = new Vector4[pointLights.Count];
+            float[] instRadius = new float[pointLights.Count];
+            float[] instIntensity = new float[pointLights.Count];
 
-            Vector4[] instSpecCol = new Vector4[pointLights.Length];
-            float[] instSpecFact = new float[pointLights.Length];
-            float[] instSpecIntensity = new float[pointLights.Length];
+            Vector4[] instSpecCol = new Vector4[pointLights.Count];
+            float[] instSpecFact = new float[pointLights.Count];
+            float[] instSpecIntensity = new float[pointLights.Count];
 
-            for (int i = 0; i < pointLights.Length; i++)
+            for (int i = 0; i < pointLights.Count; i++)
             {
                 instPos[i] = pointLights[i].position;
                 instCols[i] = pointLights[i].lightColor;
@@ -136,7 +137,7 @@ namespace Example.src.model.graphics.rendering
             pointLightSphere.SetAttribute(GL.GetAttribLocation(pointLightShader.ProgramID, "instanceSpecularColor"), instSpecCol, true);
             pointLightSphere.SetAttribute(GL.GetAttribLocation(pointLightShader.ProgramID, "instanceSpecularFactor"), instSpecFact, true);
             pointLightSphere.SetAttribute(GL.GetAttribLocation(pointLightShader.ProgramID, "instanceSpecularIntensity"), instSpecIntensity, true);
-            pointLightAmount = pointLights.Length;
+            pointLightAmount = pointLights.Count;
         }
 
 
@@ -155,7 +156,7 @@ namespace Example.src.model.graphics.rendering
         {
             
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+            renderState.Set(new FaceCullingModeState(geometry.faceCullingMode));
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
@@ -174,7 +175,6 @@ namespace Example.src.model.graphics.rendering
             deferredGeometryShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
             deferredGeometryShader.Uniform("hasEnvironmentMap", geometry.hasEnvironmentMap);
             deferredGeometryShader.Uniform("reflectionFactor", geometry.reflectivity);
-
             
 
             //Activate Textures of FBO
@@ -231,7 +231,7 @@ namespace Example.src.model.graphics.rendering
             }
 
             //Draw Gemetry
-            geometry.mesh.Draw();
+            geometry.GetMesh().Draw();
             //Deactivate Textures of FBO
             for (int i = textAmount - 1; i >= 0; i--)
             {
@@ -241,7 +241,98 @@ namespace Example.src.model.graphics.rendering
             deferredGeometryShader.Deactivate();
             GL.Disable(EnableCap.Blend);
         }
-    
+
+        public void DrawDeferredParticle(Renderable geometry, Matrix4x4 cameraMatrix, Vector3 cameraPosition, Vector3 cameraDirection, int instances)
+        {
+
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(geometry.faceCullingMode));
+            if (geometry.hasAlphaMap == 1)
+            {
+                GL.Enable(EnableCap.Blend);
+            }
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            deferredGeometryShader.Activate();
+
+
+            deferredGeometryShader.Uniform("camera", cameraMatrix);
+            deferredGeometryShader.Uniform("cameraPosition", cameraPosition);
+            deferredGeometryShader.Uniform("cameraDirection", cameraDirection);
+            deferredGeometryShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
+            deferredGeometryShader.Uniform("hasNormalMap", geometry.hasNormalMap);
+            deferredGeometryShader.Uniform("hasHeightMap", geometry.hasHeightMap);
+            deferredGeometryShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
+            deferredGeometryShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
+            deferredGeometryShader.Uniform("hasEnvironmentMap", geometry.hasEnvironmentMap);
+            deferredGeometryShader.Uniform("reflectionFactor", geometry.reflectivity);
+
+
+
+            //Activate Textures of FBO
+            int textAmount = mainFBO.Textures.Count; //Number of Texture Channels of FBO
+            for (int i = 0; i < textAmount; i++)
+            {
+                GL.ActiveTexture(TextureUnit.Texture0 + i);
+                mainFBO.Textures[i].Activate();
+            }
+
+            DrawBuffersEnum[] buffers = new DrawBuffersEnum[textAmount];
+            for (int i = 0; i < textAmount; i++)
+            {
+                buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
+            }
+
+            GL.DrawBuffers(textAmount, buffers);
+
+            int albedoText = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "albedoSampler");
+            int normalMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "normalSampler");
+            int heightMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "heightSampler");
+            int alphaMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "alphaSampler");
+            int environMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "environmentSampler");
+            GL.Uniform1(albedoText, 0);
+            GL.Uniform1(normalMap, 1);
+            GL.Uniform1(heightMap, 2);
+            GL.Uniform1(alphaMap, 3);
+            GL.Uniform1(environMap, 4);
+            GL.ActiveTexture(TextureUnit.Texture0);
+            if (geometry.albedoTexture != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.albedoTexture.ID);
+            }
+
+            GL.ActiveTexture(TextureUnit.Texture1);
+            if (geometry.normalMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.normalMap.ID);
+            }
+            GL.ActiveTexture(TextureUnit.Texture2);
+            if (geometry.heightMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.heightMap.ID);
+            }
+            GL.ActiveTexture(TextureUnit.Texture3);
+            if (geometry.alphaMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
+            }
+            GL.ActiveTexture(TextureUnit.Texture4);
+            if (geometry.environmentMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.environmentMap.ID);
+            }
+
+            //Draw Gemetry
+            geometry.GetMesh().Draw(instances);
+            //Deactivate Textures of FBO
+            for (int i = textAmount - 1; i >= 0; i--)
+            {
+                GL.ActiveTexture(TextureUnit.Texture0 + i);
+                mainFBO.Textures[i].Deactivate();
+            }
+            deferredGeometryShader.Deactivate();
+            GL.Disable(EnableCap.Blend);
+        }
+
         public void FinishGeometryPass()
         {
 
@@ -299,7 +390,7 @@ namespace Example.src.model.graphics.rendering
                 GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
             }
             
-            geometry.mesh.Draw();
+            geometry.GetMesh().Draw();
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Deactivate();
             shadowLightViewShader.Deactivate();
@@ -368,7 +459,7 @@ namespace Example.src.model.graphics.rendering
                 GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
             }
 
-            geometry.mesh.Draw();
+            geometry.GetMesh().Draw();
 
             //GL.ActiveTexture(TextureUnit.Texture0);
             //lightViewFBO.Textures[0].Deactivate();

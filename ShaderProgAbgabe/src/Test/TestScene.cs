@@ -26,7 +26,8 @@ namespace Example.src.Test
             ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
             geometryList = GetGeometry(renderer);
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
-            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 10, height: 10); ;
+            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 10, height: 10);
+            ParticleSystem system = new ParticleSystem(renderer);
         }
 
         List<PointLight> GetPointLights()
@@ -41,6 +42,7 @@ namespace Example.src.Test
 
         private List<Renderable> GetGeometry(DeferredRenderer renderer)
         {
+            IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.defaultMesh);
             List<Renderable> res = new List<Renderable>();
             var mesh = Meshes.CreatePlane(10, 10, 10, 10);
             var sphere = Meshes.CreateSphere(1, 2).Transform(Transformation.Translation(new Vector3(1f, 0.5f, -1f)));
@@ -49,14 +51,14 @@ namespace Example.src.Test
             sphere.Add(sphere2.Transform(Transformation.Translation(new Vector3(-1f, 0.5f, 1f))));
             var cube = Meshes.CreateCubeWithNormals(1);
             sphere.Add(cube.Transform(Transformation.Translation(new Vector3(-0.5f, 0.5f, -1.5f))));
-            IDrawable sphereDraw = renderer.GetDrawable(sphere, DeferredRenderer.DrawableType.defaultMesh);
+            VAO sphereDraw = renderer.GetDrawable(sphere, DeferredRenderer.DrawableType.defaultMesh);
             Renderable sphereRend = new Renderable();
-            sphereRend.mesh = sphereDraw;
+            sphereRend.SetMesh(sphereDraw, defaultShader);
 
 
-            IDrawable planeDraw = renderer.GetDrawable(mesh, DeferredRenderer.DrawableType.defaultMesh);
+            VAO planeDraw = renderer.GetDrawable(mesh, DeferredRenderer.DrawableType.defaultMesh);
             Renderable planeRend = new Renderable();
-            planeRend.mesh = planeDraw;
+            planeRend.SetMesh(planeDraw, defaultShader);
             ITexture2D text = contentLoader.Load<ITexture2D>("testTexture.png");
             ITexture2D normal = contentLoader.Load<ITexture2D>("normalTest1.jpg");
             ITexture2D height = contentLoader.Load<ITexture2D>("heightmap.png");
@@ -74,8 +76,8 @@ namespace Example.src.Test
             var mesh2 = Meshes.CreatePlane(2, 2, 30, 30).Transform(Transformation.Translation(0, 1, 0));
 
             Renderable plane2Rend = new Renderable();
-            IDrawable plane2Draw = renderer.GetDrawable(mesh2, DeferredRenderer.DrawableType.defaultMesh);
-            plane2Rend.mesh = plane2Draw;
+            VAO plane2Draw = renderer.GetDrawable(mesh2, DeferredRenderer.DrawableType.defaultMesh);
+            plane2Rend.SetMesh(plane2Draw, defaultShader);
             //plane2Rend.SetAlbedoTexture(text);
             plane2Rend.SetNormalMap(normal);
             plane2Rend.SetHeightMap(height);
@@ -83,9 +85,9 @@ namespace Example.src.Test
             plane2Rend.heightScaleFactor = 20;
 
             var refSphere = contentLoader.Load<DefaultMesh>("sphere.obj").Transform(Transformation.Translation(0,2.5f,0));
-            IDrawable refSphereDrawable = renderer.GetDrawable(refSphere, DeferredRenderer.DrawableType.defaultMesh);
+            VAO refSphereDrawable = renderer.GetDrawable(refSphere, DeferredRenderer.DrawableType.defaultMesh);
             Renderable sphereRenderable = new Renderable();
-            sphereRenderable.mesh = refSphereDrawable;
+            sphereRenderable.SetMesh(refSphereDrawable, defaultShader);
             sphereRenderable.SetAlbedoTexture(text);
             sphereRenderable.SetEnvironmentMap(environment);
             sphereRenderable.reflectivity = 1f;
@@ -94,8 +96,8 @@ namespace Example.src.Test
             var suzanne = contentLoader.Load<DefaultMesh>("suzanne.obj").Transform(Transformation.Translation(0,1,0));
             suzanne.Transform(Transformation.Scale(0.05f));
             Renderable suzRend = new Renderable();
-            IDrawable suzanneDraw = renderer.GetDrawable(suzanne, DeferredRenderer.DrawableType.defaultMesh);
-            suzRend.mesh = suzanneDraw;
+            VAO suzanneDraw = renderer.GetDrawable(suzanne, DeferredRenderer.DrawableType.defaultMesh);
+            suzRend.SetMesh(suzanneDraw, defaultShader);
             suzRend.SetNormalMap(normal);
             
             res.Add(planeRend);
