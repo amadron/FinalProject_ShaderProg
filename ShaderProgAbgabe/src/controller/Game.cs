@@ -51,6 +51,10 @@ namespace Example.src.controller
             activeScene.Update(deltatime);
         }
 
+        bool mouseClicked = false;
+        Vector2 mouseClickedPos;
+        Vector2 mouseSpeed = new Vector2(0.5f, 0.5f);
+        Vector3 movementSpeed = new Vector3(1f, 1f, 1f);
         private void UpdateControl(float deltatime)
         {
             OpenTK.Vector4 dirVec = new OpenTK.Vector4(0, 0, 1, 1);
@@ -68,30 +72,56 @@ namespace Example.src.controller
             rightVec.Normalize();
             Vector3 dirVecConvert = new Vector3(dirVec.X, dirVec.Y, dirVec.Z);
             Vector3 rightVecConvert = new Vector3(rightVec.X, rightVec.Y, rightVec.Z);
+
+            MouseState mstate = Mouse.GetState();
+            Vector2 mpos = new Vector2(mstate.Y, mstate.X);
+            if (mstate.IsButtonDown(MouseButton.Left))
+            {
+                if (!mouseClicked)
+                {
+                    mouseClicked = true;
+                    mouseClickedPos = new Vector2(mstate.Y, mstate.X);
+                }
+                Vector2 mDiff = mpos - mouseClickedPos;
+                RotateCam(mDiff * deltatime * mouseSpeed);
+            }
+            else
+            {
+                if(mouseClicked)
+                {
+                    mouseClicked = false;
+                }
+            }
+
             KeyboardState kstate = Keyboard.GetState();
+            Vector3 tmpMovementSpeed = movementSpeed;
+            if(kstate.IsKeyDown(Key.ShiftLeft))
+            {
+                tmpMovementSpeed *= 2f;
+            }
             if (kstate.IsKeyDown(Key.A))
             {
-                MoveCam(rightVecConvert * deltatime * -1);
+                MoveCam(rightVecConvert * deltatime * -1 * tmpMovementSpeed.X);
             }
             if (kstate.IsKeyDown(Key.D))
             {
-                MoveCam(rightVecConvert * deltatime * 1);
+                MoveCam(rightVecConvert * deltatime * 1 * tmpMovementSpeed.X);
             }
             if (kstate.IsKeyDown(Key.W))
             {
-                MoveCam(dirVecConvert * -1 * deltatime);
+                MoveCam(dirVecConvert * -1 * deltatime * tmpMovementSpeed.Z );
             }
             if (kstate.IsKeyDown(Key.S))
             {
-                MoveCam(dirVecConvert * 1 * deltatime);
+                MoveCam(dirVecConvert * 1 * deltatime * tmpMovementSpeed.Z);
             }
             if (kstate.IsKeyDown(Key.Q))
             {
-                MoveCam(new Vector3(0, 1 * deltatime, 0));
+                MoveCam(new Vector3(0, 1 * deltatime * tmpMovementSpeed.Y, 0));
             }
             if (kstate.IsKeyDown(Key.E))
             {
-                MoveCam(new Vector3(0, -1 * deltatime, 0));
+                MoveCam(new Vector3(0, -1 * deltatime * tmpMovementSpeed.Y, 0));
             }
             if (kstate.IsKeyDown(Key.Up))
             {
@@ -109,7 +139,6 @@ namespace Example.src.controller
             {
                 RotateCam(new Vector2(0, rotSpeedY * deltatime));
             }
-            MouseState mstate = Mouse.GetState();
 
         }
 
@@ -177,7 +206,7 @@ namespace Example.src.controller
             //TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
             //TextureDebugger.Draw(renderer.pointLightFBO.Textures[0]);
-            //TextureDebugger.Draw(renderer.mainFBO.Textures[2]);
+            //TextureDebugger.Draw(renderer.mainFBO.Textures[1]);
             renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight(), camDir);
         }
     }

@@ -19,7 +19,7 @@ vec4 getSpecular(vec3 viewDir, vec3 normal, vec3 lightDirection, vec4 SpecularCo
 float getAlpha(int hasAlphaMap, sampler2D alphaMap, vec2 uv)
 {
 	float alpha = texture(alphaMap, uv).r;
-	alpha = alpha + 1 - hasAlphaMap;
+	alpha = 1 - hasAlphaMap + alpha;
 	return alpha;
 }
 

@@ -29,7 +29,7 @@ namespace Example.src.Test
             directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 20, height: 20);
             ParticleSystem system = new ParticleSystem(renderer);
             system.transform.position = new Vector3(0, 0.3f, 0);
-            AddParticleSystem(system);
+            //AddParticleSystem(system);
         }
 
         List<PointLight> GetPointLights()
@@ -64,6 +64,17 @@ namespace Example.src.Test
             water.SetMesh(waterDrawable, defaultShader);
             water.SetAlbedoTexture(isleAlbedo);
 
+            Renderable grass = new Renderable();
+            grass.faceCullingMode = FaceCullingMode.NONE;
+            var grassPlane = Meshes.CreatePlane(1, 1, 2, 2).Transform(Transformation.Rotation(-90, Axis.X)).Transform(Transformation.Translation(0, 1.8f, -2f));
+            VAO grassMesh = renderer.GetDrawable(grassPlane, DeferredRenderer.DrawableType.defaultMesh);
+            grass.SetMesh(grassMesh, renderer.GetShader(DeferredRenderer.DrawableType.defaultMesh));
+            ITexture2D grassAlbedo = contentLoader.Load<ITexture2D>("Grass_512_albedo.tif");
+            ITexture2D grassAlpha = contentLoader.Load<ITexture2D>("tGrass_512_alpha.tif");
+            grass.SetAlbedoTexture(grassAlbedo);
+            grass.SetAlphaMap(grassAlpha);
+
+            res.Add(grass);
             //res.Add(water);
             return res;
         }

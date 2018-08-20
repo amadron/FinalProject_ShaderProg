@@ -137,5 +137,14 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Shader\Deferred\deferred_water.frag" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Foliage\Grass_512_albedo.tif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Foliage\Grass_512_alpha.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Foliage\tGrass_512_alpha.tif" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

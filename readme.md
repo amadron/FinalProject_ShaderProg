@@ -7,6 +7,7 @@ Based on [Zenseless Framework](https://github.com/danielscherzer/Zenseless) by D
 Current first person Controls are:
 
 * Camera Movement:
+    * Left Shift - Faster Camera Movement Speed ("Running mode")
     * W - Forward in Camera Direction
     * A - Left Strafe
     * D - Right Strafe
@@ -14,6 +15,7 @@ Current first person Controls are:
     * Q - Vertical Down
     * E - Vertical Up
 * Camera Rotation:
+    * Mousclick and Drag to Rotate the camera
     * Left/Right Arrows - Rotate Horizontal Direction
     * Up/Down Arrows - Rotate Vertical Direction
 
