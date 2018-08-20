@@ -55,6 +55,10 @@ namespace Example.src.controller
         Vector2 mouseClickedPos;
         Vector2 mouseSpeed = new Vector2(0.5f, 0.5f);
         Vector3 movementSpeed = new Vector3(1f, 1f, 1f);
+        RenderMode currentRenderMode = RenderMode.deferred;
+        float shiftSpeedFactor = 3f;
+        enum RenderMode { deferred, postion, color, normal, pointlight, shadow, directional };
+
         private void UpdateControl(float deltatime)
         {
             OpenTK.Vector4 dirVec = new OpenTK.Vector4(0, 0, 1, 1);
@@ -97,7 +101,7 @@ namespace Example.src.controller
             Vector3 tmpMovementSpeed = movementSpeed;
             if(kstate.IsKeyDown(Key.ShiftLeft))
             {
-                tmpMovementSpeed *= 2f;
+                tmpMovementSpeed *= shiftSpeedFactor;
             }
             if (kstate.IsKeyDown(Key.A))
             {
@@ -139,7 +143,34 @@ namespace Example.src.controller
             {
                 RotateCam(new Vector2(0, rotSpeedY * deltatime));
             }
-
+            if (kstate.IsKeyDown(Key.F1))
+            {
+                Console.WriteLine("Camera Positon: " + campos + "\nCamera Rotation: " + camrot);
+            }
+            if (kstate.IsKeyDown(Key.F4))
+            {
+                currentRenderMode = RenderMode.deferred;
+            }
+            if (kstate.IsKeyDown(Key.F5))
+            {
+                currentRenderMode = RenderMode.postion;
+            }
+            if (kstate.IsKeyDown(Key.F6))
+            {
+                currentRenderMode = RenderMode.color;
+            }
+            if(kstate.IsKeyDown(Key.F7))
+            {
+                currentRenderMode = RenderMode.normal;
+            }
+            if (kstate.IsKeyDown(Key.F8))
+            {
+                currentRenderMode = RenderMode.shadow;
+            }
+            if(kstate.IsKeyDown(Key.F9))
+            {
+                currentRenderMode = RenderMode.pointlight;
+            }
         }
 
         private void MoveCam(Vector3 move)
@@ -203,11 +234,31 @@ namespace Example.src.controller
             renderer.FinishGeometryPass();
             
             renderer.PointLightPass(GetCameraMatrix(), campos, camDir);
-            //TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
-            //TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
-            //TextureDebugger.Draw(renderer.pointLightFBO.Textures[0]);
+            if (currentRenderMode == RenderMode.deferred)
+            {
+                renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight(), camDir);
+            }
+            if (currentRenderMode == RenderMode.color)
+            {
+                TextureDebugger.Draw(renderer.mainFBO.Textures[1]);
+            }
+            if (currentRenderMode == RenderMode.postion)
+            {
+                TextureDebugger.Draw(renderer.mainFBO.Textures[0]);
+            }
+            if (currentRenderMode == RenderMode.normal)
+            {
+                TextureDebugger.Draw(renderer.mainFBO.Textures[2]);
+            }
+            if (currentRenderMode == RenderMode.pointlight)
+            {
+                TextureDebugger.Draw(renderer.pointLightFBO.Textures[0]);
+            }
+            if (currentRenderMode == RenderMode.shadow)
+            {
+                TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
+            }
             //TextureDebugger.Draw(renderer.mainFBO.Textures[1]);
-            renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight(), camDir);
         }
     }
 }

@@ -19,6 +19,16 @@ Current first person Controls are:
     * Left/Right Arrows - Rotate Horizontal Direction
     * Up/Down Arrows - Rotate Vertical Direction
 
+* Draw Passes
+    * F1 - Print camera Position and Rotation
+    * F4 - Deferred Pass (All assembled)
+    * F5 - Position Pass
+    * F6 - Color/Albedo Pass
+    * F7 - Normal Pass
+    * F8 - Shadow Map Pass
+    * F9 - Point Light Pass
+
+
 ## Implementations
 
 The following features/techniques are implemented:
@@ -62,7 +72,6 @@ The following features/techniques are implemented:
 ### To do
 
 Known Issues:
-* Shadow Maps:
-    * Refine Shadowmap filtering
-    * Implementation of Soft Shadows
+    * Maybe Point Light Falloff Rework
+    * Recalculate normals on Heightmap
 

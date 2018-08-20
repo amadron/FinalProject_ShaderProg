@@ -39,7 +39,7 @@ void main()
 	vec4 n = vec4(normalize(normalSum),1);
 	n.a = alpha;
 	normal = n;
-
+	normal = vec4(inData.normal,1);
 	vec3 viewDir = normalize(inData.position.xyz - cameraPosition);
 	vec3 comb = normalize((viewDir + -cameraDirection)/2);
 	vec4 environment = getEnvironment(viewDir, n.xyz, environmentSampler) * reflectionFactor;

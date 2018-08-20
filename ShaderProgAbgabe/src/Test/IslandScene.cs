@@ -35,8 +35,8 @@ namespace Example.src.Test
         List<PointLight> GetPointLights()
         {
             List<PointLight> lightList = new List<PointLight>();
-            PointLight l = new PointLight(new Vector3(-0.5f, 0.4f, -0.5f), new Vector4(Color.Green.ToVector3(), 1), 1f, 4f, new Vector4(1), 255, 0f);
-            PointLight l2 = new PointLight(new Vector3(0.8f, 0.4f, 0.5f), new Vector4(Color.Red.ToVector3(), 1), 1f, 3f);
+            PointLight l = new PointLight(new Vector3(-0.5f, 2f, -0.5f), new Vector4(Color.Green.ToVector3(), 1), 3f, 0.8f, new Vector4(1), 80, 0.1f);
+            PointLight l2 = new PointLight(new Vector3(0.7f, 4f, 1f), new Vector4(Color.Red.ToVector3(), 1), 3f, 0.8f);
             lightList.Add(l);
             lightList.Add(l2);
             return lightList;
@@ -51,7 +51,9 @@ namespace Example.src.Test
             VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.defaultMesh);
             isle.SetMesh(isleDrawable, defaultShader);
             ITexture2D isleAlbedo = contentLoader.Load<ITexture2D>("testTexture.png");
+            ITexture2D isleNormal = contentLoader.Load<ITexture2D>("normalTest1.jpg");
             isle.SetAlbedoTexture(isleAlbedo);
+            isle.SetNormalMap(isleNormal);
             ITexture2D isleHeightmap = contentLoader.Load<ITexture2D>("heightmap.png");
             isle.SetHeightMap(isleHeightmap);
             isle.heightScaleFactor = 55f;
@@ -74,7 +76,7 @@ namespace Example.src.Test
             grass.SetAlbedoTexture(grassAlbedo);
             grass.SetAlphaMap(grassAlpha);
 
-            res.Add(grass);
+            //res.Add(grass);
             //res.Add(water);
             return res;
         }

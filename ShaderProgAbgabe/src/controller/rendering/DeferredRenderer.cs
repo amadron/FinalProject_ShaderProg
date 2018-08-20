@@ -554,10 +554,10 @@ namespace Example.src.model.graphics.rendering
             GL.BindTexture(TextureTarget.Texture2D, shadowMapFBO.Texture.ID);
 
             //Pass Parameters
+            deferredPost.Uniform("ambientColor", ambientColor);
             deferredPost.Uniform("camPos", cameraPosition);
             deferredPost.Uniform("camDir", cameraDirection);
 
-            deferredPost.Uniform("ambientColor", ambientColor);
 
             deferredPost.Uniform("dirLightDir", dirLight.direction);
             deferredPost.Uniform("dirLightCol", dirLight.lightColor);

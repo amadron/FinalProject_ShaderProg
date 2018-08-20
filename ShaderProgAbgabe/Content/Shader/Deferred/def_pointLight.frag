@@ -49,9 +49,10 @@ void main()
 
 	float falloff = clamp(inData.radius - dist, 0, inData.radius);
 	//Specular
-	vec3 viewDir = scnPosition - cameraPosition;
-	vec4 specular = getSpecular(viewDir, scnNormal, ldir, inData.specularColor, inData.specFactor, inData.specIntensity);
+	vec3 viewDir = normalize(scnPosition - cameraPosition);
+	vec4 specular = getSpecular(viewDir, scnNormal, ldir, inData.specularColor, inData.specFactor, inData.specIntensity);// * falloff;
+	specular = clamp(specular, 0, 1);
 	//color = diffuse;
-	vec4 result = falloff * diffuse;
+	vec4 result = falloff * (diffuse + specular);
 	color = result;
 }
