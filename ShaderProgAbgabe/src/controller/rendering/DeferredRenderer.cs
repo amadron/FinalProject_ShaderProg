@@ -20,7 +20,8 @@ namespace Example.src.model.graphics.rendering
         #region SetUp
         public enum DrawableType
         {
-            defaultMesh
+            defaultMesh,
+            particle
         }
 
         public DeferredRenderer(IContentLoader contentLoader, IRenderState renderState)
@@ -34,6 +35,7 @@ namespace Example.src.model.graphics.rendering
             this.renderState = renderState;
             this.contentLoader = contentLoader;
             deferredGeometryShader = contentLoader.Load<IShaderProgram>("deferred_geometry.*");
+            deferredParticleShader = contentLoader.Load<IShaderProgram>("deferred_particle.*");
 
             deferredPost = contentLoader.LoadPixelShader("deferred_post");
             pointLightShader = contentLoader.Load<IShaderProgram>("def_pointLight.*");
@@ -143,6 +145,10 @@ namespace Example.src.model.graphics.rendering
         public IShaderProgram GetShader(DrawableType type)
         {
             IShaderProgram shader = deferredGeometryShader;
+            if(type == DrawableType.particle)
+            {
+                shader = deferredParticleShader;
+            }
             return shader;
         }
         #endregion
@@ -259,21 +265,16 @@ namespace Example.src.model.graphics.rendering
                 GL.Enable(EnableCap.Blend);
             }
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-            deferredGeometryShader.Activate();
+            deferredParticleShader.Activate();
 
-
-            deferredGeometryShader.Uniform("camera", cameraMatrix);
-            deferredGeometryShader.Uniform("cameraPosition", cameraPosition);
-            deferredGeometryShader.Uniform("cameraDirection", cameraDirection);
-            deferredGeometryShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
-            deferredGeometryShader.Uniform("hasNormalMap", geometry.hasNormalMap);
-            deferredGeometryShader.Uniform("hasHeightMap", geometry.hasHeightMap);
-            deferredGeometryShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
-            deferredGeometryShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
-            deferredGeometryShader.Uniform("hasEnvironmentMap", geometry.hasEnvironmentMap);
-            deferredGeometryShader.Uniform("reflectionFactor", geometry.reflectivity);
-
-
+            deferredParticleShader.Uniform("camera", cameraMatrix);
+            deferredParticleShader.Uniform("cameraPosition", cameraPosition);
+            deferredParticleShader.Uniform("cameraDirection", cameraDirection);
+            deferredParticleShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
+            deferredParticleShader.Uniform("hasNormalMap", geometry.hasNormalMap);
+            deferredParticleShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
+            deferredParticleShader.Uniform("hasEnvironmentMap", geometry.hasEnvironmentMap);
+            deferredParticleShader.Uniform("reflectionFactor", geometry.reflectivity);
 
             //Activate Textures of FBO
             int textAmount = mainFBO.Textures.Count; //Number of Texture Channels of FBO
@@ -291,16 +292,14 @@ namespace Example.src.model.graphics.rendering
 
             GL.DrawBuffers(textAmount, buffers);
 
-            int albedoText = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "albedoSampler");
-            int normalMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "normalSampler");
-            int heightMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "heightSampler");
-            int alphaMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "alphaSampler");
-            int environMap = GL.GetUniformLocation(deferredGeometryShader.ProgramID, "environmentSampler");
+            int albedoText = GL.GetUniformLocation(deferredParticleShader.ProgramID, "albedoSampler");
+            int normalMap = GL.GetUniformLocation(deferredParticleShader.ProgramID, "normalSampler");
+            int alphaMap = GL.GetUniformLocation(deferredParticleShader.ProgramID, "alphaSampler");
+            int environMap = GL.GetUniformLocation(deferredParticleShader.ProgramID, "environmentSampler");
             GL.Uniform1(albedoText, 0);
             GL.Uniform1(normalMap, 1);
-            GL.Uniform1(heightMap, 2);
-            GL.Uniform1(alphaMap, 3);
-            GL.Uniform1(environMap, 4);
+            GL.Uniform1(alphaMap, 2);
+            GL.Uniform1(environMap, 3);
             GL.ActiveTexture(TextureUnit.Texture0);
             if (geometry.albedoTexture != null)
             {
@@ -313,16 +312,11 @@ namespace Example.src.model.graphics.rendering
                 GL.BindTexture(TextureTarget.Texture2D, geometry.normalMap.ID);
             }
             GL.ActiveTexture(TextureUnit.Texture2);
-            if (geometry.heightMap != null)
-            {
-                GL.BindTexture(TextureTarget.Texture2D, geometry.heightMap.ID);
-            }
-            GL.ActiveTexture(TextureUnit.Texture3);
             if (geometry.alphaMap != null)
             {
                 GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
             }
-            GL.ActiveTexture(TextureUnit.Texture4);
+            GL.ActiveTexture(TextureUnit.Texture3);
             if (geometry.environmentMap != null)
             {
                 GL.BindTexture(TextureTarget.Texture2D, geometry.environmentMap.ID);
@@ -336,7 +330,7 @@ namespace Example.src.model.graphics.rendering
                 GL.ActiveTexture(TextureUnit.Texture0 + i);
                 mainFBO.Textures[i].Deactivate();
             }
-            deferredGeometryShader.Deactivate();
+            deferredParticleShader.Deactivate();
             GL.Disable(EnableCap.Blend);
         }
 
@@ -407,6 +401,8 @@ namespace Example.src.model.graphics.rendering
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
         }
+
+
 
         public void FinishLightViewPass()
         {

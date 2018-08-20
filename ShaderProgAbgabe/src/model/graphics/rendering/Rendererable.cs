@@ -84,14 +84,16 @@ namespace Example.src.model.graphics.rendering
             this.shader = shader;
         }
 
-        public VAO GetMesh()
+        public ref VAO GetMesh()
         {
-            return mesh;
+            return ref mesh;
         }
 
         public IShaderProgram GetShader()
         {
             return shader;
         }
+
+        
     }
 }

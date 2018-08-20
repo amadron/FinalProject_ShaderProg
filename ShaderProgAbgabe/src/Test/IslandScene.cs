@@ -28,7 +28,7 @@ namespace Example.src.Test
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
             directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 20, height: 20);
             ParticleSystem system = new ParticleSystem(renderer, contentLoader);
-            system.transform.position = new Vector3(0, 0.3f, 0);
+            system.transform.position = new Vector3(0.7f, 4f, 1f);
             AddParticleSystem(system);
         }
 

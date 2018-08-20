@@ -68,10 +68,17 @@ The following features/techniques are implemented:
     * Deferred Pass processes Directional Light and adds Point Light Data.
     * Shadow pass will be also composed.
     
+* Particles
+    * Particles can be configured by Range parameters
+    * Particles are rendered using Instancing
 
 ### To do
 
 Known Issues:
     * Maybe Point Light Falloff Rework
+    * Merge ShadowMap pass into Geometry Pass
     * Recalculate normals on Heightmap
+    * Particles are currently basically be rendered and not be considered in Shadow Mapping.  So if they are not in front of other objects, they are not visible.
+    * Billboard Rendering on Particles/ One Axis alignment
+    * Particles alpha clipping, when overlapping
 

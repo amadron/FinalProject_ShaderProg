@@ -9,6 +9,7 @@ using Zenseless.Geometry;
 using OpenTK.Graphics.OpenGL4;
 using Zenseless.OpenGL;
 using Zenseless.HLGL;
+using Example.src.controller.util;
 
 namespace Example.src.model.entitys
 {
@@ -18,44 +19,47 @@ namespace Example.src.model.entitys
         {
             random = new Random();
             Renderable defaultRenderer = new Renderable();
-            var plane = Meshes.CreatePlane(1, 1, 1, 1).Transform(Transformation.Rotation(90,Axis.Z));
-            IShaderProgram shader = renderer.GetShader(DeferredRenderer.DrawableType.defaultMesh);
-            VAO planeVao = renderer.GetDrawable(plane, DeferredRenderer.DrawableType.defaultMesh);
+            var plane = Meshes.CreatePlane(1, 1, 1, 1).Transform(Transformation.Rotation(-90,Axis.X));
+            IShaderProgram shader = renderer.GetShader(DeferredRenderer.DrawableType.particle);
+            VAO planeVao = renderer.GetDrawable(plane, DeferredRenderer.DrawableType.particle);
             defaultRenderer.SetMesh(planeVao, shader);
             ITexture2D defaultAlpha = contentLoader.Load<ITexture2D>("particleDefault.png");
             defaultRenderer.SetAlphaMap(defaultAlpha);
             defaultRenderer.faceCullingMode = FaceCullingMode.NONE;
             renderable = defaultRenderer;
-
+            keepScaleRatio = true;
+            scaleAspect = new AspectRatio3D(AspectRatio3D.Axis.XAxis, 1);
             particlePoolList = new List<Particle>();
             spawnedParticleList = new List<Particle>();
             particleRemoveList = new List<Particle>();
             SetMaxParticles(100);
-            spawnIntervall = 1f;
+            spawnArea = new Range3D(new Vector3(-0.1f, 0, -0.1f), new Vector3(0.1f, 0, 0.1f));
+            spawnScale = new Range3D(new Vector3(0.2f, 0.2f, 0.2f), new Vector3(0.25f, 0.25f, 0.25f));
+            spawnAcceleration = new Range3D(new Vector3(0, 0.1f, 0), new Vector3(0, 5f, 0));
+            spawnIntervallRange = new Range(0.1f, 0.5f);
+            spawnIntervall = spawnIntervallRange.GetRandomValue(random);
+            spawnRate = new Range(1, 3);
             lifeTimeRange.min = 10.0f;
             lifeTimeRange.max = 10.0f;
-            initAcceleration = new Vector3(0, 1f, 0);
+            initAcceleration = spawnAcceleration.GetRandomValue(random);
         }
 
         Random random;
         Renderable renderable;
 
         //Parameters
-        int spawnRate;
+        Range spawnRate;
         float spawnIntervall;
+        Range spawnIntervallRange;
         int maxParticles;
-        Vector3 spawnArea;
-        Vector3 minimumBounds;
-        Vector3 spawnScale;
+        Range3D spawnArea;
+        Range3D spawnScale;
+        bool keepScaleRatio;
+        AspectRatio3D scaleAspect;
+        Range3D spawnAcceleration;
         Range lifeTimeRange;
         float lastSpawn;
         Vector3 initAcceleration;
-
-        struct Range
-        {
-            public float min;
-            public float max;
-        }
 
         struct Particle
         {
@@ -94,7 +98,12 @@ namespace Example.src.model.entitys
         {
             p.lifeTime = GetRandomRangeValue(lifeTimeRange);
             p.acceleration = initAcceleration;
-            p.position = GetPositionInRange();
+            p.scale = spawnScale.GetRandomValue(random);
+            if(keepScaleRatio)
+            {
+                p.scale = scaleAspect.GetAspectRatio(p.scale);
+            }
+            p.position = spawnArea.GetRandomValue(random);
             p.position += transform.position;
         }
 
@@ -116,21 +125,9 @@ namespace Example.src.model.entitys
             spawnedParticleList.Clear();
         }
 
-        private Vector3 GetPositionInRange()
-        {
-            double x = random.NextDouble() * spawnArea.X;
-            double y = random.NextDouble() * spawnArea.Y;
-            double z = random.NextDouble() * spawnArea.Z;
-            x -= minimumBounds.X;
-            y -= minimumBounds.Y;
-            z -= minimumBounds.Z;
-            return new Vector3((float)x,(float) y, (float)z);
-        }
-
-        public void SetSpawnArea(Vector3 area)
+        public void SetSpawnArea(Range3D area)
         {
             spawnArea = area;
-            minimumBounds = area / 2;
         }
 
         public void Update(float deltatime)
@@ -138,19 +135,26 @@ namespace Example.src.model.entitys
             lastSpawn += deltatime;
             if(lastSpawn >= spawnIntervall)
             {
-                AddParticle();
+                spawnIntervall = spawnIntervallRange.GetRandomValue(random);
+                int toSpawn = (int) spawnRate.GetRandomValue(random);
+                for (int i = 0; i < toSpawn; i++)
+                {
+                    AddParticle();
+                }
             }
             int spawnedListLength = spawnedParticleList.Count;
             particleRemoveList.Clear();
             for(int i = 0; i < spawnedListLength; i++)
             {
-                UpdateParticle(deltatime, spawnedParticleList[i], ref particleRemoveList);
+                Particle tmpP1 = spawnedParticleList[i];
+                UpdateParticle(deltatime, ref tmpP1, ref particleRemoveList);
+                spawnedParticleList[i] = tmpP1;
             }
             int toRemoveAmount = particleRemoveList.Count;
             for(int j = 0; j < toRemoveAmount; j++)
             {
-                Particle p = particleRemoveList[j];
-                RemoveParticle(p);
+                Particle tmpP2 = particleRemoveList[j];
+                RemoveParticle(tmpP2);
             }
             UpdateParticleData();
         }
@@ -178,7 +182,7 @@ namespace Example.src.model.entitys
             }
         }
 
-        private void UpdateParticle(float deltatime, Particle particle, ref List<Particle> removeList)
+        private void UpdateParticle(float deltatime, ref Particle particle, ref List<Particle> removeList)
         {
             particle.lifeTime -= deltatime;
             if(particle.lifeTime < 0)
@@ -217,9 +221,10 @@ namespace Example.src.model.entitys
             if (spawnedParticleList.Count > 0)
             {
                 ParticleParameters particleParams = GetParticleParameters();
-                renderable.GetMesh().SetAttribute(renderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instancePosition"), particleParams.position, true);
-                renderable.GetMesh().SetAttribute(renderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceScale"), particleParams.scale, true);
-                renderable.GetMesh().SetAttribute(renderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceRotation"), particleParams.rotation, true);
+                IShaderProgram shader = renderable.GetShader();
+                renderable.GetMesh().SetAttribute(shader.GetResourceLocation(ShaderResourceType.Attribute, "instancePosition"), particleParams.position, true);
+                renderable.GetMesh().SetAttribute(shader.GetResourceLocation(ShaderResourceType.Attribute, "instanceScale"), particleParams.scale, true);
+                renderable.GetMesh().SetAttribute(shader.GetResourceLocation(ShaderResourceType.Attribute, "instanceRotation"), particleParams.rotation, true);
             }
         }
 
