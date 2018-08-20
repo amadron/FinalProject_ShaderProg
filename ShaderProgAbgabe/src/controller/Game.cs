@@ -169,6 +169,10 @@ namespace Example.src.controller
             }
             if(kstate.IsKeyDown(Key.F9))
             {
+                currentRenderMode = RenderMode.directional;
+            }
+            if(kstate.IsKeyDown(Key.F10))
+            {
                 currentRenderMode = RenderMode.pointlight;
             }
         }
@@ -257,6 +261,10 @@ namespace Example.src.controller
             if (currentRenderMode == RenderMode.shadow)
             {
                 TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
+            }
+            if (currentRenderMode == RenderMode.directional)
+            {
+                TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
             }
             //TextureDebugger.Draw(renderer.mainFBO.Textures[1]);
         }

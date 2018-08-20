@@ -27,7 +27,7 @@ namespace Example.src.Test
             geometryList = GetGeometry(renderer);
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
             directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 10, height: 10);
-            ParticleSystem system = new ParticleSystem(renderer);
+            ParticleSystem system = new ParticleSystem(renderer, contentLoader);
         }
 
         List<PointLight> GetPointLights()

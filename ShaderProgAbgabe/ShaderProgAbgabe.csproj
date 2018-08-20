@@ -117,7 +117,7 @@
     <EmbeddedResource Include="Content\Models\suzanne.obj" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Textures\alphaTest.png" />
+    <EmbeddedResource Include="Content\Textures\Engine\particleDefault.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Shader\Deferred\util.glsl" />

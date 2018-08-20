@@ -17,6 +17,7 @@ namespace Example.src.model.graphics.rendering
 {
     class DeferredRenderer
     {
+        #region SetUp
         public enum DrawableType
         {
             defaultMesh
@@ -64,26 +65,9 @@ namespace Example.src.model.graphics.rendering
 
         int shadowExponent = 20;
 
-        public VAO GetDrawable(DefaultMesh mesh, DrawableType type)
-        {
-            MeshAttribute uvs = mesh.GetAttribute("uv");
-            
-            int elems = uvs.ToArray().Length;
-            if(elems == 0)
-            {
-                mesh.SetConstantUV(new Vector2(0, 0));
-            }
-            IShaderProgram shader = GetShader(type);
-            VAO res = VAOLoader.FromMesh(mesh, shader);
-            return res;
-        }
+        
 
-        public IShaderProgram GetShader(DrawableType type)
-        {
-            IShaderProgram shader = deferredGeometryShader;
-            return shader;
-        }
-
+        
         public void Resize(int width, int height)
         {
             mainFBO = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
@@ -139,8 +123,31 @@ namespace Example.src.model.graphics.rendering
             pointLightSphere.SetAttribute(GL.GetAttribLocation(pointLightShader.ProgramID, "instanceSpecularIntensity"), instSpecIntensity, true);
             pointLightAmount = pointLights.Count;
         }
+        #endregion
 
+        #region Getter/Setter
+        public VAO GetDrawable(DefaultMesh mesh, DrawableType type)
+        {
+            MeshAttribute uvs = mesh.GetAttribute("uv");
 
+            int elems = uvs.ToArray().Length;
+            if (elems == 0)
+            {
+                mesh.SetConstantUV(new Vector2(0, 0));
+            }
+            IShaderProgram shader = GetShader(type);
+            VAO res = VAOLoader.FromMesh(mesh, shader);
+            return res;
+        }
+
+        public IShaderProgram GetShader(DrawableType type)
+        {
+            IShaderProgram shader = deferredGeometryShader;
+            return shader;
+        }
+        #endregion
+
+        #region GeometryPass
         public void StartGeometryPass()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -342,7 +349,9 @@ namespace Example.src.model.graphics.rendering
             mainFBO.Deactivate();
             
         }
+        #endregion
 
+        #region LightViewPass
         public void StartLightViewPass()
         {
             //Create ShadowMap
@@ -407,6 +416,9 @@ namespace Example.src.model.graphics.rendering
             satFilter.FilterTexture(lightViewFBO.Texture);
         }
 
+        #endregion
+
+        #region ShadowMapPass
         public void StartShadowMapPass()
         {
             shadowMapFBO.Activate();
@@ -477,6 +489,9 @@ namespace Example.src.model.graphics.rendering
             shadowMapFBO.Deactivate();
         }
 
+        #endregion
+
+        #region PointLightPass
         public void PointLightPass(Matrix4x4 cameraMatrix, Vector3 cameraPosition, Vector3 cameraDirection)
         {
             pointLightFBO.Activate();
@@ -524,7 +539,9 @@ namespace Example.src.model.graphics.rendering
             renderState.Set(new DepthTest(false));
             pointLightFBO.Deactivate();
         }
+        #endregion
 
+        #region FinalPass
         public void FinalPass(Vector3 cameraPosition, Vector4 ambientColor, DirectionalLight dirLight, Vector3 cameraDirection)
         {
             deferredPost.Activate();
@@ -572,6 +589,6 @@ namespace Example.src.model.graphics.rendering
             deferredPost.Deactivate();
             renderState.Set(BlendStates.Opaque);
         }
-        
+        #endregion
     }
 }

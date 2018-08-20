@@ -32,14 +32,14 @@ void main()
 
 	float alpha = getAlpha(hasAlphaMap, alphaSampler, inData.uv);
 	vec4 pos = inData.position / inData.position.w;
-	pos.a = 1 - step(alpha, 1);
+	pos.a = 1 - step(alpha, 0.9);
 	position = pos;
 	vec3 inNormal = normalize(inData.normal);
 	vec3 normalSum = inNormal * (1 - hasNormalMap) +  -(texture(normalSampler, inData.uv).rgb * 2f - 1f) * hasNormalMap;
 	vec4 n = vec4(normalize(normalSum),1);
 	n.a = alpha;
 	normal = n;
-	normal = vec4(inData.normal,1);
+	//normal = vec4(inData.normal,1);
 	vec3 viewDir = normalize(inData.position.xyz - cameraPosition);
 	vec3 comb = normalize((viewDir + -cameraDirection)/2);
 	vec4 environment = getEnvironment(viewDir, n.xyz, environmentSampler) * reflectionFactor;

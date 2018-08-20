@@ -14,14 +14,16 @@ namespace Example.src.model.entitys
 {
     class ParticleSystem : Entity
     {
-        public ParticleSystem(DeferredRenderer renderer)
+        public ParticleSystem(DeferredRenderer renderer, IContentLoader contentLoader)
         {
             random = new Random();
             Renderable defaultRenderer = new Renderable();
-            var plane = Meshes.CreatePlane(1, 1, 1, 1);
+            var plane = Meshes.CreatePlane(1, 1, 1, 1).Transform(Transformation.Rotation(90,Axis.Z));
             IShaderProgram shader = renderer.GetShader(DeferredRenderer.DrawableType.defaultMesh);
             VAO planeVao = renderer.GetDrawable(plane, DeferredRenderer.DrawableType.defaultMesh);
             defaultRenderer.SetMesh(planeVao, shader);
+            ITexture2D defaultAlpha = contentLoader.Load<ITexture2D>("particleDefault.png");
+            defaultRenderer.SetAlphaMap(defaultAlpha);
             defaultRenderer.faceCullingMode = FaceCullingMode.NONE;
             renderable = defaultRenderer;
 
