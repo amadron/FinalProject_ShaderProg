@@ -18,10 +18,11 @@ namespace Example.src.model.entitys
         public ParticleSystem(DeferredRenderer renderer, IContentLoader contentLoader)
         {
             random = new Random();
+            this.renderer = renderer;
             Renderable defaultRenderer = new Renderable();
             var plane = Meshes.CreatePlane(1, 1, 1, 1).Transform(Transformation.Rotation(-90,Axis.X));
-            IShaderProgram shader = renderer.GetShader(DeferredRenderer.DrawableType.particle);
-            VAO planeVao = renderer.GetDrawable(plane, DeferredRenderer.DrawableType.particle);
+            IShaderProgram shader = renderer.GetShader(DeferredRenderer.DrawableType.particleMesh);
+            VAO planeVao = renderer.GetDrawable(plane, DeferredRenderer.DrawableType.particleMesh);
             defaultRenderer.SetMesh(planeVao, shader);
             ITexture2D defaultAlpha = contentLoader.Load<ITexture2D>("particleDefault.png");
             defaultRenderer.SetAlphaMap(defaultAlpha);
@@ -44,6 +45,7 @@ namespace Example.src.model.entitys
             initAcceleration = spawnAcceleration.GetRandomValue(random);
         }
 
+        DeferredRenderer renderer;
         Random random;
         Renderable renderable;
 
@@ -60,6 +62,8 @@ namespace Example.src.model.entitys
         Range lifeTimeRange;
         float lastSpawn;
         Vector3 initAcceleration;
+
+        ParticleParameters currentParameters;
 
         struct Particle
         {
@@ -220,13 +224,20 @@ namespace Example.src.model.entitys
         {
             if (spawnedParticleList.Count > 0)
             {
-                ParticleParameters particleParams = GetParticleParameters();
-                IShaderProgram shader = renderable.GetShader();
-                renderable.GetMesh().SetAttribute(shader.GetResourceLocation(ShaderResourceType.Attribute, "instancePosition"), particleParams.position, true);
-                renderable.GetMesh().SetAttribute(shader.GetResourceLocation(ShaderResourceType.Attribute, "instanceScale"), particleParams.scale, true);
-                renderable.GetMesh().SetAttribute(shader.GetResourceLocation(ShaderResourceType.Attribute, "instanceRotation"), particleParams.rotation, true);
+                currentParameters = GetParticleParameters();
             }
         }
+
+        public void RegisterParticleData(IShaderProgram program)
+        {
+            if(spawnedParticleList.Count > 0)
+            {
+                renderable.GetMesh().SetAttribute(program.GetResourceLocation(ShaderResourceType.Attribute, "instancePosition"), currentParameters.position, true);
+                renderable.GetMesh().SetAttribute(program.GetResourceLocation(ShaderResourceType.Attribute, "instanceScale"), currentParameters.scale, true);
+                renderable.GetMesh().SetAttribute(program.GetResourceLocation(ShaderResourceType.Attribute, "instanceRotation"), currentParameters.rotation, true);
+            }
+        }
+        
 
         public int GetSpawnedParticles()
         {

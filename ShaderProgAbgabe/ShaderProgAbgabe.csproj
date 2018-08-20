@@ -168,5 +168,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Shader\Deferred\shadowMapParticle.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\FX\smoke.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

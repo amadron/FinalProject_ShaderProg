@@ -216,12 +216,22 @@ namespace Example.src.controller
             {
                 renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i]);
             }
+            for (int j = 0; j < particleSystem.Count; j++)
+            {
+                particleSystem[j].RegisterParticleData(renderer.GetShader(DeferredRenderer.DrawableType.particleShadowLightView));
+                renderer.DrawShadowLightViewParticle(activeScene.GetDirectionalLightCamera(), particleSystem[j].GetRenderable(), particleSystem[j].GetSpawnedParticles());
+            }
             renderer.FinishLightViewPass();
             
             renderer.StartShadowMapPass();
             for (int i = 0; i < geometry.Count; i++)
             {
                 renderer.CreateShadowMap(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), geometry[i], activeScene.getDirectionalLight().direction);
+            }
+            for (int j = 0; j < particleSystem.Count; j++)
+            {
+                particleSystem[j].RegisterParticleData(renderer.GetShader(DeferredRenderer.DrawableType.particleShadowMap));
+                renderer.CreateShadowMapParticle(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), particleSystem[j].GetRenderable(), activeScene.getDirectionalLight().direction, particleSystem[j].GetSpawnedParticles());
             }
             renderer.FinishShadowMassPass();
             
@@ -233,6 +243,7 @@ namespace Example.src.controller
             }
             for(int j = 0; j < particleSystem.Count; j++)
             {
+                particleSystem[j].RegisterParticleData(renderer.GetShader(DeferredRenderer.DrawableType.particleMesh));
                 renderer.DrawDeferredParticle(particleSystem[j].GetRenderable(), GetCameraMatrix(), campos, camDir, particleSystem[j].GetSpawnedParticles());
             }
             renderer.FinishGeometryPass();

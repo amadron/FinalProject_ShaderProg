@@ -27,7 +27,10 @@ namespace Example.src.Test
             geometryList = GetGeometry(renderer);
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
             directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 20, height: 20);
+            ITexture2D particleText = contentLoader.Load<ITexture2D>("smoke.jpg");
             ParticleSystem system = new ParticleSystem(renderer, contentLoader);
+            system.GetRenderable().SetAlbedoTexture(particleText);
+            system.GetRenderable().SetAlphaMap(particleText);
             system.transform.position = new Vector3(0.7f, 4f, 1f);
             AddParticleSystem(system);
         }
@@ -44,11 +47,11 @@ namespace Example.src.Test
 
         private List<Renderable> GetGeometry(DeferredRenderer renderer)
         {
-            IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.defaultMesh);
+            IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh);
             List<Renderable> res = new List<Renderable>();
             Renderable isle = new Renderable();
             var islePlane = Meshes.CreatePlane(10, 10, 60, 60);
-            VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.defaultMesh);
+            VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             isle.SetMesh(isleDrawable, defaultShader);
             ITexture2D isleAlbedo = contentLoader.Load<ITexture2D>("testTexture.png");
             ITexture2D isleNormal = contentLoader.Load<ITexture2D>("normalTest1.jpg");
@@ -62,15 +65,15 @@ namespace Example.src.Test
 
             Renderable water = new Renderable();
             var waterplane = Meshes.CreatePlane(20, 20, 70, 70).Transform(Transformation.Translation(0, 0.5f, 0));
-            VAO waterDrawable = renderer.GetDrawable(waterplane, DeferredRenderer.DrawableType.defaultMesh);
+            VAO waterDrawable = renderer.GetDrawable(waterplane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             water.SetMesh(waterDrawable, defaultShader);
             water.SetAlbedoTexture(isleAlbedo);
 
             Renderable grass = new Renderable();
             grass.faceCullingMode = FaceCullingMode.NONE;
             var grassPlane = Meshes.CreatePlane(1, 1, 2, 2).Transform(Transformation.Rotation(-90, Axis.X)).Transform(Transformation.Translation(0, 1.8f, -2f));
-            VAO grassMesh = renderer.GetDrawable(grassPlane, DeferredRenderer.DrawableType.defaultMesh);
-            grass.SetMesh(grassMesh, renderer.GetShader(DeferredRenderer.DrawableType.defaultMesh));
+            VAO grassMesh = renderer.GetDrawable(grassPlane, DeferredRenderer.DrawableType.deferredDefaultMesh);
+            grass.SetMesh(grassMesh, renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh));
             ITexture2D grassAlbedo = contentLoader.Load<ITexture2D>("Grass_512_albedo.tif");
             ITexture2D grassAlpha = contentLoader.Load<ITexture2D>("tGrass_512_alpha.tif");
             grass.SetAlbedoTexture(grassAlbedo);

@@ -42,7 +42,7 @@ namespace Example.src.Test
 
         private List<Renderable> GetGeometry(DeferredRenderer renderer)
         {
-            IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.defaultMesh);
+            IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh);
             List<Renderable> res = new List<Renderable>();
             var mesh = Meshes.CreatePlane(10, 10, 10, 10);
             var sphere = Meshes.CreateSphere(1, 2).Transform(Transformation.Translation(new Vector3(1f, 0.5f, -1f)));
@@ -51,12 +51,12 @@ namespace Example.src.Test
             sphere.Add(sphere2.Transform(Transformation.Translation(new Vector3(-1f, 0.5f, 1f))));
             var cube = Meshes.CreateCubeWithNormals(1);
             sphere.Add(cube.Transform(Transformation.Translation(new Vector3(-0.5f, 0.5f, -1.5f))));
-            VAO sphereDraw = renderer.GetDrawable(sphere, DeferredRenderer.DrawableType.defaultMesh);
+            VAO sphereDraw = renderer.GetDrawable(sphere, DeferredRenderer.DrawableType.deferredDefaultMesh);
             Renderable sphereRend = new Renderable();
             sphereRend.SetMesh(sphereDraw, defaultShader);
 
 
-            VAO planeDraw = renderer.GetDrawable(mesh, DeferredRenderer.DrawableType.defaultMesh);
+            VAO planeDraw = renderer.GetDrawable(mesh, DeferredRenderer.DrawableType.deferredDefaultMesh);
             Renderable planeRend = new Renderable();
             planeRend.SetMesh(planeDraw, defaultShader);
             ITexture2D text = contentLoader.Load<ITexture2D>("testTexture.png");
@@ -76,7 +76,7 @@ namespace Example.src.Test
             var mesh2 = Meshes.CreatePlane(2, 2, 30, 30).Transform(Transformation.Translation(0, 1, 0));
 
             Renderable plane2Rend = new Renderable();
-            VAO plane2Draw = renderer.GetDrawable(mesh2, DeferredRenderer.DrawableType.defaultMesh);
+            VAO plane2Draw = renderer.GetDrawable(mesh2, DeferredRenderer.DrawableType.deferredDefaultMesh);
             plane2Rend.SetMesh(plane2Draw, defaultShader);
             //plane2Rend.SetAlbedoTexture(text);
             plane2Rend.SetNormalMap(normal);
@@ -85,7 +85,7 @@ namespace Example.src.Test
             plane2Rend.heightScaleFactor = 20;
 
             var refSphere = contentLoader.Load<DefaultMesh>("sphere.obj").Transform(Transformation.Translation(0,2.5f,0));
-            VAO refSphereDrawable = renderer.GetDrawable(refSphere, DeferredRenderer.DrawableType.defaultMesh);
+            VAO refSphereDrawable = renderer.GetDrawable(refSphere, DeferredRenderer.DrawableType.deferredDefaultMesh);
             Renderable sphereRenderable = new Renderable();
             sphereRenderable.SetMesh(refSphereDrawable, defaultShader);
             sphereRenderable.SetAlbedoTexture(text);
@@ -96,7 +96,7 @@ namespace Example.src.Test
             var suzanne = contentLoader.Load<DefaultMesh>("suzanne.obj").Transform(Transformation.Translation(0,1,0));
             suzanne.Transform(Transformation.Scale(0.05f));
             Renderable suzRend = new Renderable();
-            VAO suzanneDraw = renderer.GetDrawable(suzanne, DeferredRenderer.DrawableType.defaultMesh);
+            VAO suzanneDraw = renderer.GetDrawable(suzanne, DeferredRenderer.DrawableType.deferredDefaultMesh);
             suzRend.SetMesh(suzanneDraw, defaultShader);
             suzRend.SetNormalMap(normal);
             

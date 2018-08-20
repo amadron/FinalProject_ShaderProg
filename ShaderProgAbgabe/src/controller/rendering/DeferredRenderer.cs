@@ -20,8 +20,10 @@ namespace Example.src.model.graphics.rendering
         #region SetUp
         public enum DrawableType
         {
-            defaultMesh,
-            particle
+            deferredDefaultMesh,
+            particleMesh,
+            particleShadowLightView,
+            particleShadowMap
         }
 
         public DeferredRenderer(IContentLoader contentLoader, IRenderState renderState)
@@ -34,8 +36,12 @@ namespace Example.src.model.graphics.rendering
 
             this.renderState = renderState;
             this.contentLoader = contentLoader;
-            deferredGeometryShader = contentLoader.Load<IShaderProgram>("deferred_geometry.*");
+
             deferredParticleShader = contentLoader.Load<IShaderProgram>("deferred_particle.*");
+            shadowMapShaderParticle = contentLoader.Load<IShaderProgram>("shadowMapParticle.*");
+            shadowLightViewShaderParticle = contentLoader.Load<IShaderProgram>("shadowLightViewParticle.*");
+
+            deferredGeometryShader = contentLoader.Load<IShaderProgram>("deferred_geometry.*");
 
             deferredPost = contentLoader.LoadPixelShader("deferred_post");
             pointLightShader = contentLoader.Load<IShaderProgram>("def_pointLight.*");
@@ -55,8 +61,11 @@ namespace Example.src.model.graphics.rendering
         public IRenderSurface shadowMapFBO;
         public IRenderSurface lightViewFBO;
 
-        IShaderProgram deferredGeometryShader;
         IShaderProgram deferredParticleShader;
+        IShaderProgram shadowMapShaderParticle;
+        IShaderProgram shadowLightViewShaderParticle;
+
+        IShaderProgram deferredGeometryShader;
 
         IShaderProgram deferredPost;
         IShaderProgram pointLightShader;
@@ -66,8 +75,6 @@ namespace Example.src.model.graphics.rendering
         SATGpuFilter satFilter;
 
         int shadowExponent = 20;
-
-        
 
         
         public void Resize(int width, int height)
@@ -145,10 +152,19 @@ namespace Example.src.model.graphics.rendering
         public IShaderProgram GetShader(DrawableType type)
         {
             IShaderProgram shader = deferredGeometryShader;
-            if(type == DrawableType.particle)
+            switch(type)
             {
-                shader = deferredParticleShader;
+                case DrawableType.particleMesh:
+                    shader = deferredParticleShader;
+                    break;
+                case DrawableType.particleShadowLightView:
+                    shader = shadowLightViewShaderParticle;
+                    break;
+                case DrawableType.particleShadowMap:
+                    shader = shadowMapShaderParticle;
+                    break;
             }
+            
             return shader;
         }
         #endregion
@@ -402,6 +418,40 @@ namespace Example.src.model.graphics.rendering
             renderState.Set(new DepthTest(false));
         }
 
+        public void DrawShadowLightViewParticle(Camera camera, Renderable geometry, int instances)
+        {
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            if (geometry.hasAlphaMap == 1)
+            {
+                GL.Enable(EnableCap.Blend);
+            }
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            shadowLightViewShaderParticle.Activate();
+            //GL.ActiveTexture(TextureUnit.Texture0);
+            lightViewFBO.Texture.Activate();
+            //Render
+
+            shadowLightViewShaderParticle.Uniform("shadowMapExponent", shadowExponent);
+            shadowLightViewShaderParticle.Uniform("lightCamera", camera.GetMatrix());
+
+            int alphaMap = GL.GetUniformLocation(shadowLightViewShaderParticle.ProgramID, "alphaSampler");
+            GL.Uniform1(alphaMap, 1);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            if (geometry.alphaMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
+            }
+
+            geometry.GetMesh().Draw(instances);
+            //GL.ActiveTexture(TextureUnit.Texture0);
+            lightViewFBO.Texture.Deactivate();
+            shadowLightViewShaderParticle.Deactivate();
+            GL.Disable(EnableCap.Blend);
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
+        }
+
 
 
         public void FinishLightViewPass()
@@ -473,6 +523,47 @@ namespace Example.src.model.graphics.rendering
             //lightViewFBO.Textures[0].Deactivate();
             //satFilter.GetFilterTexture().Deactivate();
             shadowMapShader.Deactivate();
+            GL.Disable(EnableCap.Blend);
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new DepthTest(false));
+        }
+
+        public void CreateShadowMapParticle(Matrix4x4 cameraMatrix, Camera lightViewCamera, Renderable geometry, Vector3 lightDir, int instances)
+        {
+            renderState.Set(new DepthTest(true));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            if (geometry.hasAlphaMap == 1)
+            {
+                GL.Enable(EnableCap.Blend);
+            }
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            shadowMapShaderParticle.Activate();
+
+            satFilter.GetFilterTexture().Activate();
+            shadowMapShaderParticle.Uniform("shadowMapExponent", shadowExponent);
+            shadowMapShaderParticle.Uniform("camera", cameraMatrix);
+            shadowMapShaderParticle.Uniform("lightCamera", lightViewCamera.GetMatrix());
+            shadowMapShaderParticle.Uniform("lightDirection", lightDir);
+
+            int normalMap = GL.GetUniformLocation(shadowMapShaderParticle.ProgramID, "normalSampler");
+            GL.Uniform1(normalMap, 1);
+            GL.ActiveTexture(TextureUnit.Texture1);
+            GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[2].ID);
+
+            int alphaMap = GL.GetUniformLocation(shadowMapShaderParticle.ProgramID, "alphaSampler");
+            GL.Uniform1(alphaMap, 2);
+            GL.ActiveTexture(TextureUnit.Texture2);
+            if (geometry.alphaMap != null)
+            {
+                GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
+            }
+
+            geometry.GetMesh().Draw(instances);
+
+            //GL.ActiveTexture(TextureUnit.Texture0);
+            //lightViewFBO.Textures[0].Deactivate();
+            //satFilter.GetFilterTexture().Deactivate();
+            shadowMapShaderParticle.Deactivate();
             GL.Disable(EnableCap.Blend);
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
