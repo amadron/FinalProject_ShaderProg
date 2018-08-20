@@ -26,7 +26,8 @@ Current first person Controls are:
     * F6 - Color/Albedo Pass
     * F7 - Normal Pass
     * F8 - Shadow Map Pass
-    * F9 - Point Light Pass
+    * F9 - Directional Pass
+    * F10 - Point Light Pass
 
 
 ## Implementations
@@ -74,7 +75,7 @@ The following features/techniques are implemented:
 
 ### To do
 
-Known Issues:
+* Known Issues
     * Maybe Point Light Falloff Rework
     * Merge ShadowMap pass into Geometry Pass
     * Recalculate normals on Heightmap
