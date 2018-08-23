@@ -79,7 +79,7 @@ The following features/techniques are implemented:
     * Maybe Point Light Falloff Rework
     * Merge ShadowMap pass into Geometry Pass
     * Recalculate normals on Heightmap
-    * Particles are currently basically be rendered and not be considered in Shadow Mapping.  So if they are not in front of other objects, they are not visible.
+    * Particles are not included in PointLight Pass
     * Billboard Rendering on Particles/ One Axis alignment
     * Particles alpha clipping, when overlapping
 
