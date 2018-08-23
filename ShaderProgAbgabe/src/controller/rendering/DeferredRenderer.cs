@@ -271,16 +271,18 @@ namespace Example.src.model.graphics.rendering
             GL.Disable(EnableCap.Blend);
         }
 
-        public void DrawDeferredParticle(Renderable geometry, Matrix4x4 cameraMatrix, Vector3 cameraPosition, Vector3 cameraDirection, int instances)
+        public void DrawDeferredParticle(Renderable geometry, Matrix4x4 cameraMatrix, Vector3 cameraPosition, Vector3 cameraDirection, ParticleSystem paricleSystem)
         {
 
-            renderState.Set(new DepthTest(true));
+            renderState.Set(new DepthTest(false));
             renderState.Set(new FaceCullingModeState(geometry.faceCullingMode));
+            
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
             }
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            
             deferredParticleShader.Activate();
 
             deferredParticleShader.Uniform("camera", cameraMatrix);
@@ -337,9 +339,9 @@ namespace Example.src.model.graphics.rendering
             {
                 GL.BindTexture(TextureTarget.Texture2D, geometry.environmentMap.ID);
             }
-
+            //paricleSystem.RegisterParticleData(deferredParticleShader);
             //Draw Gemetry
-            geometry.GetMesh().Draw(instances);
+            geometry.GetMesh().Draw(paricleSystem.NumberOfSpawnedParticles());
             //Deactivate Textures of FBO
             for (int i = textAmount - 1; i >= 0; i--)
             {
@@ -375,11 +377,11 @@ namespace Example.src.model.graphics.rendering
         {
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
             }
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             shadowLightViewShader.Activate();
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Activate();
@@ -418,15 +420,16 @@ namespace Example.src.model.graphics.rendering
             renderState.Set(new DepthTest(false));
         }
 
-        public void DrawShadowLightViewParticle(Camera camera, Renderable geometry, int instances)
+        public void DrawShadowLightViewParticle(Camera camera, Renderable geometry, ParticleSystem particleSystem)
         {
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            GL.DepthMask(false);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
             }
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             shadowLightViewShaderParticle.Activate();
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Activate();
@@ -434,6 +437,7 @@ namespace Example.src.model.graphics.rendering
 
             shadowLightViewShaderParticle.Uniform("shadowMapExponent", shadowExponent);
             shadowLightViewShaderParticle.Uniform("lightCamera", camera.GetMatrix());
+            shadowLightViewShaderParticle.Uniform("hasAlphaMap", geometry.hasAlphaMap);
 
             int alphaMap = GL.GetUniformLocation(shadowLightViewShaderParticle.ProgramID, "alphaSampler");
             GL.Uniform1(alphaMap, 1);
@@ -443,11 +447,13 @@ namespace Example.src.model.graphics.rendering
                 GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
             }
 
-            geometry.GetMesh().Draw(instances);
+            //particleSystem.RegisterParticleData(shadowLightViewShaderParticle);
+            geometry.GetMesh().Draw(particleSystem.NumberOfSpawnedParticles());
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Deactivate();
             shadowLightViewShaderParticle.Deactivate();
             GL.Disable(EnableCap.Blend);
+            GL.DepthMask(true);
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
         }
@@ -518,19 +524,16 @@ namespace Example.src.model.graphics.rendering
             }
 
             geometry.GetMesh().Draw();
-
-            //GL.ActiveTexture(TextureUnit.Texture0);
-            //lightViewFBO.Textures[0].Deactivate();
-            //satFilter.GetFilterTexture().Deactivate();
             shadowMapShader.Deactivate();
             GL.Disable(EnableCap.Blend);
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
         }
 
-        public void CreateShadowMapParticle(Matrix4x4 cameraMatrix, Camera lightViewCamera, Renderable geometry, Vector3 lightDir, int instances)
+        public void CreateShadowMapParticle(Matrix4x4 cameraMatrix, Camera lightViewCamera, Renderable geometry, Vector3 lightDir, ParticleSystem particleSystem)
         {
             renderState.Set(new DepthTest(true));
+            GL.DepthMask(false);
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             if (geometry.hasAlphaMap == 1)
             {
@@ -545,6 +548,8 @@ namespace Example.src.model.graphics.rendering
             shadowMapShaderParticle.Uniform("lightCamera", lightViewCamera.GetMatrix());
             shadowMapShaderParticle.Uniform("lightDirection", lightDir);
 
+            shadowMapShaderParticle.Uniform("hasAlphaMap", geometry.hasAlphaMap);
+
             int normalMap = GL.GetUniformLocation(shadowMapShaderParticle.ProgramID, "normalSampler");
             GL.Uniform1(normalMap, 1);
             GL.ActiveTexture(TextureUnit.Texture1);
@@ -558,12 +563,14 @@ namespace Example.src.model.graphics.rendering
                 GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
             }
 
-            geometry.GetMesh().Draw(instances);
+            //particleSystem.RegisterParticleData(shadowMapShaderParticle);
+            geometry.GetMesh().Draw(particleSystem.NumberOfSpawnedParticles());
 
             //GL.ActiveTexture(TextureUnit.Texture0);
             //lightViewFBO.Textures[0].Deactivate();
             //satFilter.GetFilterTexture().Deactivate();
             shadowMapShaderParticle.Deactivate();
+            GL.DepthMask(true);
             GL.Disable(EnableCap.Blend);
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));

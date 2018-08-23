@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Zenseless.Geometry;
 using Zenseless.HLGL;
 using Zenseless.OpenGL;
+using Example.src.util;
 
 namespace Example.src.Test
 {
@@ -29,9 +30,16 @@ namespace Example.src.Test
             directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 20, height: 20);
             ITexture2D particleText = contentLoader.Load<ITexture2D>("smoke.jpg");
             ParticleSystem system = new ParticleSystem(renderer, contentLoader);
-            system.GetRenderable().SetAlbedoTexture(particleText);
-            system.GetRenderable().SetAlphaMap(particleText);
+            system.GetDeferredRenderable().SetAlbedoTexture(particleText);
+            system.GetDeferredRenderable().SetAlphaMap(particleText);
+            system.GetShadowRenderable().SetAlbedoTexture(particleText);
+            system.GetShadowRenderable().SetAlphaMap(particleText);
             system.transform.position = new Vector3(0.7f, 4f, 1f);
+            system.spawnIntervallRange = new Range(0.1f,0.5f);
+            system.lifeTimeRange = new Range(3, 5);
+            system.spawnArea = new Range3D(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, 0.5f));
+            system.spawnAcceleration = new Range3D(new Vector3(0, 0.1f, 0), new Vector3(0, 0.2f, 0));
+            system.spawnScale = new Range3D(new Vector3(1f, 1f, 1f), new Vector3(1.5f, 1.5f, 1));
             AddParticleSystem(system);
         }
 

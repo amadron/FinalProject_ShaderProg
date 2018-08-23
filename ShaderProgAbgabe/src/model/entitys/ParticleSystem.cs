@@ -9,7 +9,7 @@ using Zenseless.Geometry;
 using OpenTK.Graphics.OpenGL4;
 using Zenseless.OpenGL;
 using Zenseless.HLGL;
-using Example.src.controller.util;
+using Example.src.util;
 
 namespace Example.src.model.entitys
 {
@@ -19,15 +19,22 @@ namespace Example.src.model.entitys
         {
             random = new Random();
             this.renderer = renderer;
-            Renderable defaultRenderer = new Renderable();
+            deferredRenderable = new Renderable();
             var plane = Meshes.CreatePlane(1, 1, 1, 1).Transform(Transformation.Rotation(-90,Axis.X));
             IShaderProgram shader = renderer.GetShader(DeferredRenderer.DrawableType.particleMesh);
             VAO planeVao = renderer.GetDrawable(plane, DeferredRenderer.DrawableType.particleMesh);
-            defaultRenderer.SetMesh(planeVao, shader);
+            deferredRenderable.SetMesh(planeVao, shader);
             ITexture2D defaultAlpha = contentLoader.Load<ITexture2D>("particleDefault.png");
-            defaultRenderer.SetAlphaMap(defaultAlpha);
-            defaultRenderer.faceCullingMode = FaceCullingMode.NONE;
-            renderable = defaultRenderer;
+            deferredRenderable.SetAlbedoTexture(defaultAlpha);
+            deferredRenderable.SetAlphaMap(defaultAlpha);
+            deferredRenderable.faceCullingMode = FaceCullingMode.NONE;
+            VAO shadowPlaneVao = renderer.GetDrawable(plane ,DeferredRenderer.DrawableType.particleShadowLightView);
+            IShaderProgram shadowShader = renderer.GetShader(DeferredRenderer.DrawableType.particleShadowLightView);
+            shadowRenderable = new Renderable();
+            shadowRenderable.SetMesh(shadowPlaneVao, shadowShader);
+            shadowRenderable.SetAlbedoTexture(defaultAlpha);
+            shadowRenderable.SetAlphaMap(defaultAlpha);
+            shadowRenderable.faceCullingMode = FaceCullingMode.NONE;
             keepScaleRatio = true;
             scaleAspect = new AspectRatio3D(AspectRatio3D.Axis.XAxis, 1);
             particlePoolList = new List<Particle>();
@@ -35,33 +42,33 @@ namespace Example.src.model.entitys
             particleRemoveList = new List<Particle>();
             SetMaxParticles(100);
             spawnArea = new Range3D(new Vector3(-0.1f, 0, -0.1f), new Vector3(0.1f, 0, 0.1f));
-            spawnScale = new Range3D(new Vector3(0.2f, 0.2f, 0.2f), new Vector3(0.25f, 0.25f, 0.25f));
+            spawnScale = new Range3D(new Vector3(0f, 0f, 0f), new Vector3(1f, 1f, 1f));
             spawnAcceleration = new Range3D(new Vector3(0, 0.1f, 0), new Vector3(0, 5f, 0));
-            spawnIntervallRange = new Range(0.1f, 0.5f);
+            spawnIntervallRange = new Range(0f, 1f);
             spawnIntervall = spawnIntervallRange.GetRandomValue(random);
-            spawnRate = new Range(1, 3);
-            lifeTimeRange.min = 10.0f;
-            lifeTimeRange.max = 10.0f;
+            spawnRate = new Range(1, 1);
+            lifeTimeRange = new Range(10.0f);
             initAcceleration = spawnAcceleration.GetRandomValue(random);
         }
 
         DeferredRenderer renderer;
         Random random;
-        Renderable renderable;
+        Renderable shadowRenderable;
+        Renderable deferredRenderable;
 
         //Parameters
-        Range spawnRate;
+        public Range spawnRate;
         float spawnIntervall;
-        Range spawnIntervallRange;
-        int maxParticles;
-        Range3D spawnArea;
-        Range3D spawnScale;
-        bool keepScaleRatio;
-        AspectRatio3D scaleAspect;
-        Range3D spawnAcceleration;
-        Range lifeTimeRange;
-        float lastSpawn;
-        Vector3 initAcceleration;
+        public Range spawnIntervallRange;
+        public int maxParticles;
+        public Range3D spawnArea;
+        public Range3D spawnScale;
+        public bool keepScaleRatio;
+        public AspectRatio3D scaleAspect;
+        public Range3D spawnAcceleration;
+        public Range lifeTimeRange;
+        public float lastSpawn;
+        public Vector3 initAcceleration;
 
         ParticleParameters currentParameters;
 
@@ -225,28 +232,39 @@ namespace Example.src.model.entitys
             if (spawnedParticleList.Count > 0)
             {
                 currentParameters = GetParticleParameters();
+                RegisterParticleData();
             }
         }
 
-        public void RegisterParticleData(IShaderProgram program)
+        public void RegisterParticleData()
         {
             if(spawnedParticleList.Count > 0)
             {
-                renderable.GetMesh().SetAttribute(program.GetResourceLocation(ShaderResourceType.Attribute, "instancePosition"), currentParameters.position, true);
-                renderable.GetMesh().SetAttribute(program.GetResourceLocation(ShaderResourceType.Attribute, "instanceScale"), currentParameters.scale, true);
-                renderable.GetMesh().SetAttribute(program.GetResourceLocation(ShaderResourceType.Attribute, "instanceRotation"), currentParameters.rotation, true);
+                
+                deferredRenderable.GetMesh().SetAttribute(deferredRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instancePosition"), currentParameters.position, true);
+                shadowRenderable.GetMesh().SetAttribute(shadowRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instancePosition"), currentParameters.position, true);
+                deferredRenderable.GetMesh().SetAttribute(deferredRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceScale"), currentParameters.scale, true);
+                shadowRenderable.GetMesh().SetAttribute(shadowRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceScale"), currentParameters.scale, true);
+                deferredRenderable.GetMesh().SetAttribute(deferredRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceRotation"), currentParameters.rotation, true);
+                shadowRenderable.GetMesh().SetAttribute(shadowRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceRotation"), currentParameters.rotation, true);
+
             }
         }
         
 
-        public int GetSpawnedParticles()
+        public int NumberOfSpawnedParticles()
         {
             return spawnedParticleList.Count;
         }
 
-        public Renderable GetRenderable()
+        public Renderable GetDeferredRenderable()
         {
-            return renderable;
+            return deferredRenderable;
+        }
+
+        public Renderable GetShadowRenderable()
+        {
+            return shadowRenderable;
         }
 
         private float GetRandomRangeValue(Range range)

@@ -43,11 +43,11 @@
     <Compile Include="Program.cs" />
     <Compile Include="src\controller\Game.cs" />
     <Compile Include="src\controller\SATGpuFilter.cs" />
-    <Compile Include="src\controller\util\AspectRatio3D.cs" />
-    <Compile Include="src\controller\util\AspectRatio2D.cs" />
-    <Compile Include="src\controller\util\MathUtil.cs" />
-    <Compile Include="src\controller\util\Range.cs" />
-    <Compile Include="src\controller\util\Range3D.cs" />
+    <Compile Include="src\util\AspectRatio3D.cs" />
+    <Compile Include="src\util\AspectRatio2D.cs" />
+    <Compile Include="src\util\MathUtil.cs" />
+    <Compile Include="src\util\Range.cs" />
+    <Compile Include="src\util\Range3D.cs" />
     <Compile Include="src\model\entitys\Entity.cs" />
     <Compile Include="src\model\entitys\ParticleSystem.cs" />
     <Compile Include="src\model\entitys\Transform.cs" />

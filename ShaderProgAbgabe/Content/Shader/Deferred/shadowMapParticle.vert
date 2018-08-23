@@ -1,6 +1,4 @@
 ﻿#version 430 core
-uniform mat4 camera;
-uniform mat4 lightCamera;
 
 in vec3 position;
 in vec3 normal;
@@ -9,6 +7,9 @@ in vec2 uv;
 in vec3 instancePosition;
 in vec3 instanceScale;
 in vec3 instanceRotation;
+
+uniform mat4 camera;
+uniform mat4 lightCamera;
 
 out vec4 lightPosition;
 out vec4 viewPosition;

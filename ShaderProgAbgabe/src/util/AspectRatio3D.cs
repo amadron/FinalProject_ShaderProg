@@ -5,27 +5,32 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Example.src.controller.util
+namespace Example.src.util
 {
-    struct AspectRatio2D
+    struct AspectRatio3D
     {
-        public enum Axis { XAxis, YAxis };
+        public enum Axis { XAxis, YAxis, ZAxis };
         Axis axis;
-        public AspectRatio2D(Axis axis, float ratio)
+        public AspectRatio3D(Axis axis, float ratio)
         {
             this.axis = axis;
             this.ratio = ratio;
         }
         
-        public Vector2 GetAspectRatio(Vector2 vec)
+        public Vector3 GetAspectRatio(Vector3 vec)
         {
             if (axis == Axis.XAxis)
             {
-              vec.Y = vec.X * ratio;
+              vec.Y = vec.Z = vec.X * ratio;
+              
+            }
+            else if(axis == Axis.YAxis)
+            {
+              vec.X = vec.Z = vec.Y * ratio;
             }
             else
             {
-              vec.X = vec.Y * ratio;
+                vec.X = vec.Y = vec.Z * ratio;
             }
             return vec;
         }

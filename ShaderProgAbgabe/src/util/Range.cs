@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Example.src.controller.util
+namespace Example.src.util
 {
     struct Range
     {

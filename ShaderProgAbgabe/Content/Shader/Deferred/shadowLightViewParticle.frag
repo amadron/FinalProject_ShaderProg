@@ -17,5 +17,7 @@ void main()
 	float k = shadowMapExponent;
 	float res = exp(k * dist);
 	float alpha = getAlpha(hasAlphaMap, alphaSampler, passUv);
+	
 	color = vec4(vec3(res), alpha);
+	color = vec4(alpha);
 }

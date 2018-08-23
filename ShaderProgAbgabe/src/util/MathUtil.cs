@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Example.src.controller.util
+namespace Example.src.util
 {
     class MathUtil
     {

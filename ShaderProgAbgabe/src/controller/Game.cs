@@ -218,8 +218,7 @@ namespace Example.src.controller
             }
             for (int j = 0; j < particleSystem.Count; j++)
             {
-                particleSystem[j].RegisterParticleData(renderer.GetShader(DeferredRenderer.DrawableType.particleShadowLightView));
-                renderer.DrawShadowLightViewParticle(activeScene.GetDirectionalLightCamera(), particleSystem[j].GetRenderable(), particleSystem[j].GetSpawnedParticles());
+                renderer.DrawShadowLightViewParticle(activeScene.GetDirectionalLightCamera(), particleSystem[j].GetShadowRenderable(), particleSystem[j]);
             }
             renderer.FinishLightViewPass();
             
@@ -230,8 +229,7 @@ namespace Example.src.controller
             }
             for (int j = 0; j < particleSystem.Count; j++)
             {
-                particleSystem[j].RegisterParticleData(renderer.GetShader(DeferredRenderer.DrawableType.particleShadowMap));
-                renderer.CreateShadowMapParticle(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), particleSystem[j].GetRenderable(), activeScene.getDirectionalLight().direction, particleSystem[j].GetSpawnedParticles());
+                renderer.CreateShadowMapParticle(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), particleSystem[j].GetShadowRenderable(), activeScene.getDirectionalLight().direction, particleSystem[j]);
             }
             renderer.FinishShadowMassPass();
             
@@ -243,8 +241,7 @@ namespace Example.src.controller
             }
             for(int j = 0; j < particleSystem.Count; j++)
             {
-                particleSystem[j].RegisterParticleData(renderer.GetShader(DeferredRenderer.DrawableType.particleMesh));
-                renderer.DrawDeferredParticle(particleSystem[j].GetRenderable(), GetCameraMatrix(), campos, camDir, particleSystem[j].GetSpawnedParticles());
+                renderer.DrawDeferredParticle(particleSystem[j].GetDeferredRenderable(), GetCameraMatrix(), campos, camDir, particleSystem[j]);
             }
             renderer.FinishGeometryPass();
             

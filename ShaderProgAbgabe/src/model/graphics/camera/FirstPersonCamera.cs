@@ -1,4 +1,4 @@
-﻿using Example.src.controller.util;
+﻿using Example.src.util;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -32,7 +32,7 @@ void main()
 
 	float alpha = getAlpha(hasAlphaMap, alphaSampler, inData.uv);
 	vec4 pos = inData.position / inData.position.w;
-	pos.a = 1 - step(alpha, 0.9);
+	pos.a = alpha;
 	position = pos;
 	vec3 inNormal = normalize(inData.normal);
 	vec3 normalSum = inNormal * (1 - hasNormalMap) +  -(texture(normalSampler, inData.uv).rgb * 2f - 1f) * hasNormalMap;
@@ -45,6 +45,7 @@ void main()
 
 	vec4 color = vec4(materials[inData.material],1) * (1 - hasAlbedo) +	texture(albedoSampler, inData.uv) * hasAlbedo;
 	color = mix(color, environment, reflectionFactor);
+	//color = vec4(vec3(0.5), 1);
 	color.a = alpha;
 	albedo = clamp(color, 0, 1);
 }
