@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Example.src.model.graphics.rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -20,8 +21,10 @@ namespace Example.src.model.entitys
             transform.rotation = Vector3.Zero;
             transform.scale = Vector3.One;
         }
+
+        public string name;
         public bool enabled;
         public bool visible;
-       
+        public Renderable renderable;
     }
 }

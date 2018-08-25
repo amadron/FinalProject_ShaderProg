@@ -17,7 +17,7 @@ namespace Example.src.model
     {
         protected List<PointLight> pointLightList;
         protected DirectionalLight directionalLight;
-        protected List<Renderable> geometryList;
+        protected List<Entity> entityList;
         protected List<ParticleSystem> particleSystems;
         protected Vector4 ambientColor;
         protected Camera directionalLightCamera;
@@ -25,7 +25,7 @@ namespace Example.src.model
         public Scene()
         {
             pointLightList = new List<PointLight>();
-            geometryList = new List<Renderable>();
+            entityList = new List<Entity>();
             particleSystems = new List<ParticleSystem>();
         }
 
@@ -37,6 +37,19 @@ namespace Example.src.model
             }
         }
 
+        public Entity GetEntityByName(string name)
+        {
+            Entity result = null;
+            for(int i = 0; i < entityList.Count; i++)
+            {
+                Entity tmp = entityList[i];
+                if(tmp.name == name)
+                {
+                    result = tmp;
+                }
+            }
+            return result;
+        }
 
         public List<PointLight> getPointLights()
         {
@@ -48,9 +61,9 @@ namespace Example.src.model
             return directionalLight;
         }
 
-        public List<Renderable> getGeometry()
+        public List<Entity> getGeometry()
         {
-            return geometryList;
+            return entityList;
         }
 
         public void AddPointLight(PointLight light)
@@ -58,9 +71,9 @@ namespace Example.src.model
             pointLightList.Add(light);
         }
 
-        public void AddGeometry(Renderable drawable)
+        public void AddGeometry(Entity entity)
         {
-            geometryList.Add(drawable);
+            entityList.Add(entity);
         }
 
         public void SetAmbientColor(Vector4 color)

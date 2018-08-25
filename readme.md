@@ -73,13 +73,15 @@ The following features/techniques are implemented:
     * Particles can be configured by Range parameters
     * Particles are rendered using Instancing
 
+* Water Simulation
+    * Creates Depthmap using Gerster Waves
 ### To do
 
 * Known Issues
+    * Issues with shadow calculation of particles
     * Maybe Point Light Falloff Rework
     * Merge ShadowMap pass into Geometry Pass
     * Recalculate normals on Heightmap
-    * Particles are not included in PointLight Pass
     * Billboard Rendering on Particles/ One Axis alignment
     * Particles alpha clipping, when overlapping
 

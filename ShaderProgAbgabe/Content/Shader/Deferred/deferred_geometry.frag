@@ -1,5 +1,5 @@
 ﻿#version 430 core
-#include "util.glsl"
+#include "deferredutil.glsl"
 
 uniform vec3 cameraPosition;
 uniform vec3 cameraDirection;

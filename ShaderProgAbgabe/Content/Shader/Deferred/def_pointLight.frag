@@ -1,5 +1,5 @@
 ﻿#version 430 core
-#include "util.glsl"
+#include "deferredutil.glsl"
 
 uniform sampler2D positionSampler;
 uniform sampler2D albedoSampler;

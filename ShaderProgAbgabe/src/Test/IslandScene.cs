@@ -25,7 +25,7 @@ namespace Example.src.Test
             this.contentLoader = contentLoader;
             pointLightList = GetPointLights();
             ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
-            geometryList = GetGeometry(renderer);
+            entityList = GetGeometry(renderer);
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
             directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 20, height: 20);
             ITexture2D particleText = contentLoader.Load<ITexture2D>("smoke.jpg");
@@ -53,10 +53,10 @@ namespace Example.src.Test
             return lightList;
         }
 
-        private List<Renderable> GetGeometry(DeferredRenderer renderer)
+        private List<Entity> GetGeometry(DeferredRenderer renderer)
         {
             IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh);
-            List<Renderable> res = new List<Renderable>();
+            List<Entity> res = new List<Entity>();
             Renderable isle = new Renderable();
             var islePlane = Meshes.CreatePlane(10, 10, 60, 60);
             VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.deferredDefaultMesh);
@@ -68,14 +68,19 @@ namespace Example.src.Test
             ITexture2D isleHeightmap = contentLoader.Load<ITexture2D>("heightmap.png");
             isle.SetHeightMap(isleHeightmap);
             isle.heightScaleFactor = 55f;
-
-            res.Add(isle);
+            Entity isleEntity = new Entity();
+            isleEntity.name = "isle";
+            isleEntity.renderable = isle;
+            res.Add(isleEntity);
 
             Renderable water = new Renderable();
-            var waterplane = Meshes.CreatePlane(20, 20, 70, 70).Transform(Transformation.Translation(0, 0.5f, 0));
+            var waterplane = Meshes.CreatePlane(50, 50, 70, 70).Transform(Transformation.Translation(0, 0.5f, 0));
             VAO waterDrawable = renderer.GetDrawable(waterplane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             water.SetMesh(waterDrawable, defaultShader);
             water.SetAlbedoTexture(isleAlbedo);
+            Entity waterEntity = new Entity();
+            waterEntity.name = "water";
+            waterEntity.renderable = water;
 
             Renderable grass = new Renderable();
             grass.faceCullingMode = FaceCullingMode.NONE;
@@ -88,7 +93,7 @@ namespace Example.src.Test
             grass.SetAlphaMap(grassAlpha);
 
             //res.Add(grass);
-            //res.Add(water);
+            res.Add(waterEntity);
             return res;
         }
     }

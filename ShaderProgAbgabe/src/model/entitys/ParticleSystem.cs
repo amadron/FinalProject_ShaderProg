@@ -57,6 +57,7 @@ namespace Example.src.model.entitys
         Renderable deferredRenderable;
 
         //Parameters
+        public bool billboardRendering;
         public Range spawnRate;
         float spawnIntervall;
         public Range spawnIntervallRange;

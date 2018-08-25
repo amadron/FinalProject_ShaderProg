@@ -24,7 +24,7 @@ namespace Example.src.Test
             this.contentLoader = contentLoader;
             pointLightList = GetPointLights();
             ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
-            geometryList = GetGeometry(renderer);
+            entityList = GetGeometry(renderer);
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
             directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 10, height: 10);
             ParticleSystem system = new ParticleSystem(renderer, contentLoader);
@@ -40,10 +40,10 @@ namespace Example.src.Test
             return lightList;
         }
 
-        private List<Renderable> GetGeometry(DeferredRenderer renderer)
+        private List<Entity> GetGeometry(DeferredRenderer renderer)
         {
             IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh);
-            List<Renderable> res = new List<Renderable>();
+            List<Entity> res = new List<Entity>();
             var mesh = Meshes.CreatePlane(10, 10, 10, 10);
             var sphere = Meshes.CreateSphere(1, 2).Transform(Transformation.Translation(new Vector3(1f, 0.5f, -1f)));
             var sphere2 = Meshes.CreateSphere(1, 2);
@@ -54,7 +54,7 @@ namespace Example.src.Test
             VAO sphereDraw = renderer.GetDrawable(sphere, DeferredRenderer.DrawableType.deferredDefaultMesh);
             Renderable sphereRend = new Renderable();
             sphereRend.SetMesh(sphereDraw, defaultShader);
-
+            Entity sphereEntity = new Entity();
 
             VAO planeDraw = renderer.GetDrawable(mesh, DeferredRenderer.DrawableType.deferredDefaultMesh);
             Renderable planeRend = new Renderable();
@@ -69,7 +69,8 @@ namespace Example.src.Test
             planeRend.SetAlbedoTexture(text);
             planeRend.SetNormalMap(normal);
             planeRend.SetAlphaMap(alpha);
-            
+            Entity planeEntity = new Entity();
+            planeEntity.renderable = planeRend;
             
             
             
@@ -92,6 +93,8 @@ namespace Example.src.Test
             sphereRenderable.SetEnvironmentMap(environment);
             sphereRenderable.reflectivity = 1f;
             //sphereRenderable.SetNormalMap(normal);
+            Entity sphereEntity2 = new Entity();
+            sphereEntity2.renderable = sphereRenderable;
 
             var suzanne = contentLoader.Load<DefaultMesh>("suzanne.obj").Transform(Transformation.Translation(0,1,0));
             suzanne.Transform(Transformation.Scale(0.05f));
@@ -100,11 +103,11 @@ namespace Example.src.Test
             suzRend.SetMesh(suzanneDraw, defaultShader);
             suzRend.SetNormalMap(normal);
             
-            res.Add(planeRend);
-            res.Add(sphereRend);
+            res.Add(planeEntity);
+            res.Add(sphereEntity);
             //res.Add(plane2Rend);
             //res.Add(suzRend);
-            res.Add(sphereRenderable);
+            res.Add(sphereEntity2);
             return res;
         }
     }

@@ -1,5 +1,5 @@
 ﻿#version 430 core
-#include "util.glsl"
+#include "deferredutil.glsl"
 uniform int shadowMapExponent;
 uniform sampler2D lightViewSampler;
 uniform sampler2D normalSampler;

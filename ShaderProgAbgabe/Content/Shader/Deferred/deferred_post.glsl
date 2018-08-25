@@ -1,5 +1,5 @@
 ﻿#version 430 core
-#include "util.glsl"
+#include "deferredutil.glsl"
 
 uniform vec4 ambientColor;
 uniform vec3 camPos;

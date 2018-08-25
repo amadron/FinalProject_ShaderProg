@@ -1,5 +1,5 @@
 ﻿#version 430 core
-#include "util.glsl"
+#include "deferredutil.glsl"
 uniform int shadowMapExponent;
 uniform int hasAlphaMap;
 uniform sampler2D alphaSampler;

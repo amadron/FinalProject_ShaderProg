@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -31,7 +32,9 @@ namespace Example.src.controller
         //Vector2 camrot = new Vector2(25, 180);
         float rotSpeedY = 40;
         float rotSpeedX = 40;
-        
+        DateTime startTime;
+        Water water;
+        Entity waterEntity;
 
         public Game(IContentLoader contentManager, IRenderState renderState)
         {
@@ -39,8 +42,12 @@ namespace Example.src.controller
             this.contentLoader = contentManager;
             renderer = new DeferredRenderer(contentManager, renderState);
             activeScene = new IslandScene(contentManager, renderer);
+            waterEntity = activeScene.GetEntityByName("water");
+            waterEntity.renderable.heightScaleFactor = 0.03f;
             renderer.SetPointLights(activeScene.getPointLights());
             activeCam = new FirstPersonCamera(campos, camrot.X, camrot.Y, Camera.ProjectionType.Perspective, fov:1f, width:20, height:20);
+            startTime = DateTime.Now;
+            water = new Water(contentLoader);
         }
 
 
@@ -191,7 +198,14 @@ namespace Example.src.controller
 
         public void Render()
         {
+            DateTime dtCurr = DateTime.Now;
+            TimeSpan diff = dtCurr - startTime;
+            float diffsecs = (float)(diff.TotalMilliseconds) / (float)(1000);
+            water.CreateMaps(diffsecs);
+            waterEntity.renderable.SetHeightMap(water.GetTexture());
+            //TextureDebugger.Draw(water.GetTexture());
             RenderDeferred();
+
         }
         
         public void Resize(int width, int height)
@@ -208,13 +222,16 @@ namespace Example.src.controller
 
         private void RenderDeferred()
         {
-            List<Renderable> geometry = activeScene.getGeometry();
+            List<Entity> geometry = activeScene.getGeometry();
             List<ParticleSystem> particleSystem = activeScene.GetParticleSystems();
             Vector3 camDir = activeCam.GetDirection();
             renderer.StartLightViewPass();
             for(int i = 0; i < geometry.Count; i++)
             {
-                renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i]);
+                if (geometry[i].renderable != null)
+                {
+                    renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i].renderable);
+                }
             }
             for (int j = 0; j < particleSystem.Count; j++)
             {
@@ -225,7 +242,10 @@ namespace Example.src.controller
             renderer.StartShadowMapPass();
             for (int i = 0; i < geometry.Count; i++)
             {
-                renderer.CreateShadowMap(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), geometry[i], activeScene.getDirectionalLight().direction);
+                if (geometry[i].renderable != null)
+                {
+                    renderer.CreateShadowMap(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), geometry[i].renderable, activeScene.getDirectionalLight().direction);
+                }
             }
             for (int j = 0; j < particleSystem.Count; j++)
             {
@@ -237,7 +257,10 @@ namespace Example.src.controller
             renderer.StartGeometryPass();
             for (int i = 0; i < geometry.Count; i++)
             {
-                renderer.DrawDeferredGeometry(geometry[i], GetCameraMatrix(), campos, camDir);
+                if (geometry[i].renderable != null)
+                {
+                    renderer.DrawDeferredGeometry(geometry[i].renderable, GetCameraMatrix(), campos, camDir);
+                }
             }
             for(int j = 0; j < particleSystem.Count; j++)
             {
