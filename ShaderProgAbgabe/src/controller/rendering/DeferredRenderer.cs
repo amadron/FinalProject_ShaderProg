@@ -89,11 +89,11 @@ namespace Example.src.model.graphics.rendering
             pointLightFBO = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
             pointLightFBO.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
 
-            lightViewFBO = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
-            lightViewFBO.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
+            lightViewFBO = new FBOwithDepth(Texture2dGL.Create(height, width, 4, true));
+            lightViewFBO.Texture.WrapFunction = TextureWrapFunction.Repeat;
 
             shadowMapFBO = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
-            shadowMapFBO.Texture.WrapFunction = TextureWrapFunction.MirroredRepeat;
+            shadowMapFBO.Texture.WrapFunction = TextureWrapFunction.Repeat;
 
             satFilter = new SATGpuFilter(contentLoader, renderState, 32, 32, width, height, 4, 4);
         }
@@ -274,13 +274,13 @@ namespace Example.src.model.graphics.rendering
         public void DrawDeferredParticle(Renderable geometry, Matrix4x4 cameraMatrix, Vector3 cameraPosition, Vector3 cameraDirection, ParticleSystem paricleSystem)
         {
 
-            renderState.Set(new DepthTest(false));
+            renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(geometry.faceCullingMode));
-            
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
+                GL.DepthMask(false);
             }
             
             deferredParticleShader.Activate();
@@ -350,6 +350,7 @@ namespace Example.src.model.graphics.rendering
             }
             deferredParticleShader.Deactivate();
             GL.Disable(EnableCap.Blend);
+            GL.DepthMask(true);
         }
 
         public void FinishGeometryPass()
@@ -370,13 +371,13 @@ namespace Example.src.model.graphics.rendering
             lightViewFBO.Activate();
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.FRONT_SIDE));
         }
 
         public void DrawShadowLightView(Camera camera, Renderable geometry)
         {
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             if (geometry.hasAlphaMap == 1)
             {
@@ -423,13 +424,14 @@ namespace Example.src.model.graphics.rendering
         public void DrawShadowLightViewParticle(Camera camera, Renderable geometry, ParticleSystem particleSystem)
         {
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
-            GL.DepthMask(false);
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+            renderState.Set(new FaceCullingModeState(geometry.faceCullingMode));
+            //GL.DepthMask(false);
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
+                GL.DepthMask(false);
             }
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             shadowLightViewShaderParticle.Activate();
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Activate();
@@ -482,7 +484,7 @@ namespace Example.src.model.graphics.rendering
         public void CreateShadowMap(Matrix4x4 cameraMatrix, Camera lightViewCamera, Renderable geometry, Vector3 lightDir)
         {
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
@@ -533,11 +535,11 @@ namespace Example.src.model.graphics.rendering
         public void CreateShadowMapParticle(Matrix4x4 cameraMatrix, Camera lightViewCamera, Renderable geometry, Vector3 lightDir, ParticleSystem particleSystem)
         {
             renderState.Set(new DepthTest(true));
-            GL.DepthMask(false);
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new FaceCullingModeState(geometry.faceCullingMode));
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
+                GL.DepthMask(false);
             }
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             shadowMapShaderParticle.Activate();

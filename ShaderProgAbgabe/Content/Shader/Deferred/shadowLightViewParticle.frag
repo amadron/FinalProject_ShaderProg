@@ -19,5 +19,5 @@ void main()
 	float alpha = getAlpha(hasAlphaMap, alphaSampler, passUv);
 	
 	color = vec4(vec3(res), alpha);
-	color = vec4(alpha);
+	//color = vec4(alpha);
 }

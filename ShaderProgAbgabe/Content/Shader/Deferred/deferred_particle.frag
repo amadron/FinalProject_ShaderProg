@@ -34,6 +34,7 @@ void main()
 	vec4 pos = inData.position / inData.position.w;
 	pos.a = alpha;
 	position = pos;
+
 	vec3 inNormal = normalize(inData.normal);
 	vec3 normalSum = inNormal * (1 - hasNormalMap) +  -(texture(normalSampler, inData.uv).rgb * 2f - 1f) * hasNormalMap;
 	vec4 n = vec4(normalize(normalSum),1);

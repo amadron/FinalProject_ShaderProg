@@ -48,7 +48,6 @@ namespace Example.src.model.entitys
             spawnIntervall = spawnIntervallRange.GetRandomValue(random);
             spawnRate = new Range(1, 1);
             lifeTimeRange = new Range(10.0f);
-            initAcceleration = spawnAcceleration.GetRandomValue(random);
         }
 
         DeferredRenderer renderer;
@@ -69,7 +68,7 @@ namespace Example.src.model.entitys
         public Range3D spawnAcceleration;
         public Range lifeTimeRange;
         public float lastSpawn;
-        public Vector3 initAcceleration;
+
 
         ParticleParameters currentParameters;
 
@@ -109,7 +108,7 @@ namespace Example.src.model.entitys
         private void InitParticle(ref Particle p)
         {
             p.lifeTime = GetRandomRangeValue(lifeTimeRange);
-            p.acceleration = initAcceleration;
+            p.acceleration = spawnAcceleration.GetRandomValue(random);
             p.scale = spawnScale.GetRandomValue(random);
             if(keepScaleRatio)
             {

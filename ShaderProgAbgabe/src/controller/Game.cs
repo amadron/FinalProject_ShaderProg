@@ -26,7 +26,7 @@ namespace Example.src.controller
         Camera activeCam;
         Scene activeScene;
 
-        Vector3 campos = new Vector3(0, 3, -5f);
+        Vector3 campos = new Vector3(0, 10, -5f);
         Vector2 camrot = new Vector2(0, 180);
         //Vector3 campos = new Vector3(0, 1, 10f);
         //Vector2 camrot = new Vector2(25, 180);
@@ -189,6 +189,8 @@ namespace Example.src.controller
         {
             campos += move;
             activeCam.SetPosition(campos);
+            //Vector3 nCamPos = new Vector3(campos.X, campos.Y + 1, campos.Z - 5f);
+            //activeScene.GetDirectionalLightCamera().SetPosition(nCamPos);
         }
 
         private void RotateCam(Vector2 rot)

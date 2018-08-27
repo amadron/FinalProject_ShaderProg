@@ -27,19 +27,20 @@ namespace Example.src.Test
             ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
             entityList = GetGeometry(renderer);
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
-            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 1, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 20, height: 20);
+            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 2, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 50, height: 50, zPlaneNear:0.1f, zPlaneFar:500);
+            
             ITexture2D particleText = contentLoader.Load<ITexture2D>("smoke.jpg");
             ParticleSystem system = new ParticleSystem(renderer, contentLoader);
             system.GetDeferredRenderable().SetAlbedoTexture(particleText);
             system.GetDeferredRenderable().SetAlphaMap(particleText);
             system.GetShadowRenderable().SetAlbedoTexture(particleText);
             system.GetShadowRenderable().SetAlphaMap(particleText);
-            system.transform.position = new Vector3(0.7f, 4f, 1f);
+            system.transform.position = new Vector3(2f, 10f, 3f);
             system.spawnIntervallRange = new Range(0.1f,0.5f);
-            system.lifeTimeRange = new Range(3, 5);
-            system.spawnArea = new Range3D(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, 0.5f));
-            system.spawnAcceleration = new Range3D(new Vector3(0, 0.1f, 0), new Vector3(0, 0.2f, 0));
-            system.spawnScale = new Range3D(new Vector3(1f, 1f, 1f), new Vector3(1.5f, 1.5f, 1));
+            system.lifeTimeRange = new Range(8, 10);
+            system.spawnArea = new Range3D(Vector3.Zero); //new Range3D(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, 0.5f));
+            system.spawnAcceleration = new Range3D(new Vector3(0, 1.5f, 0), new Vector3(0, 2f, 0));
+            system.spawnScale = new Range3D(new Vector3(2f, 2f, 1f), new Vector3(3f, 3f, 1));
             AddParticleSystem(system);
         }
 
@@ -58,7 +59,7 @@ namespace Example.src.Test
             IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh);
             List<Entity> res = new List<Entity>();
             Renderable isle = new Renderable();
-            var islePlane = Meshes.CreatePlane(10, 10, 70, 70);
+            var islePlane = Meshes.CreatePlane(30, 30, 70, 70);
             VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             isle.SetMesh(isleDrawable, defaultShader);
             ITexture2D isleAlbedo = contentLoader.Load<ITexture2D>("testTexture.png");
@@ -67,14 +68,14 @@ namespace Example.src.Test
             //isle.SetNormalMap(isleNormal);
             ITexture2D isleHeightmap = contentLoader.Load<ITexture2D>("heightmap.png");
             isle.SetHeightMap(isleHeightmap);
-            isle.heightScaleFactor = 55f;
+            isle.heightScaleFactor = 150f;
             Entity isleEntity = new Entity();
             isleEntity.name = "isle";
             isleEntity.renderable = isle;
             res.Add(isleEntity);
 
             Renderable water = new Renderable();
-            var waterplane = Meshes.CreatePlane(50, 50, 225, 225).Transform(Transformation.Translation(0, 0.5f, 0));
+            var waterplane = Meshes.CreatePlane(50, 50, 225, 225).Transform(Transformation.Translation(0, 1f, 0));
             VAO waterDrawable = renderer.GetDrawable(waterplane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             water.SetMesh(waterDrawable, defaultShader);
             ITexture2D waterEnvironment = contentLoader.Load<ITexture2D>("sky1.jpg");

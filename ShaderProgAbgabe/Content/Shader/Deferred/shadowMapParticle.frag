@@ -35,7 +35,7 @@ void main()
 	float k = -shadowMapExponent;
 	float vexp = exp(k * vdepth);
 	float lexp = texture(lightViewSampler, lpos.xy * 0.5 + 0.5).r;
-	float shadowFact = vexp * lexp;
+	float shadowFact =  vexp * lexp;
 	float shadow  = clamp(shadowFact, 0, 1); 
 	color = vec4(vec3(shadowFact), alpha);
 	//color = vec4(vec3(vdepth), alpha);
