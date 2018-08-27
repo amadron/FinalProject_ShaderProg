@@ -23,7 +23,7 @@ in Data {
 } inData;
 
 out vec4 color;
-
+out vec4 normal;
 void main()
 {
 	vec3 inpos = inData.position;
@@ -38,7 +38,8 @@ void main()
 	sumPosVector.x += inData.position.x;
 	sumPosVector.y += inData.position.y;
 
-	float value = waves[0].amplitude * 10;
-	//pos.z *= cos(pos.y * freq);
+	
+	
 	color = vec4(vec3(sumPosVector.z),1 );
+	
 }

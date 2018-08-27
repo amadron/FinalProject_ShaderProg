@@ -1,4 +1,5 @@
 ﻿#version 430 core
+#include "deferredutil.glsl"
 
 uniform mat4 camera;
 uniform int hasHeightMap;
@@ -25,8 +26,9 @@ void main()
 	npos += normal * height;
 	vec4 transPos = camera * vec4(npos, 1);
 	gl_Position = transPos;
+	vec3 heightNorm = getHeightMapNormal(heightSampler, uv, heightScaleFactor) * hasHeightMap;
 	outdata.position = vec4(npos,1);
-	outdata.normal = normal;
+	outdata.normal = normal * (1 - hasHeightMap) + heightNorm;
 	outdata.material = uint(uv.x);;
 	outdata.uv = uv;
 	outdata.transPos = transPos;

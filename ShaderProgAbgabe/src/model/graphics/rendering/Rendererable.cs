@@ -24,7 +24,7 @@ namespace Example.src.model.graphics.rendering
         public int hasEnvironmentMap;
         public FaceCullingMode faceCullingMode;
         public int instances;
-
+        public bool unlit;
         private VAO mesh;
         private IShaderProgram shader;
 
@@ -44,6 +44,7 @@ namespace Example.src.model.graphics.rendering
             reflectivity = 0;
             faceCullingMode = FaceCullingMode.BACK_SIDE;
             instances = 0;
+            unlit = false ;
         }
 
         public void SetAlbedoTexture(ITexture2D texture)

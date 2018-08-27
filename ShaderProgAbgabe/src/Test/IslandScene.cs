@@ -58,11 +58,11 @@ namespace Example.src.Test
             IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh);
             List<Entity> res = new List<Entity>();
             Renderable isle = new Renderable();
-            var islePlane = Meshes.CreatePlane(10, 10, 60, 60);
+            var islePlane = Meshes.CreatePlane(10, 10, 70, 70);
             VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             isle.SetMesh(isleDrawable, defaultShader);
             ITexture2D isleAlbedo = contentLoader.Load<ITexture2D>("testTexture.png");
-            ITexture2D isleNormal = contentLoader.Load<ITexture2D>("normalTest1.jpg");
+            //ITexture2D isleNormal = contentLoader.Load<ITexture2D>("normalTest1.jpg");
             isle.SetAlbedoTexture(isleAlbedo);
             //isle.SetNormalMap(isleNormal);
             ITexture2D isleHeightmap = contentLoader.Load<ITexture2D>("heightmap.png");
@@ -74,10 +74,13 @@ namespace Example.src.Test
             res.Add(isleEntity);
 
             Renderable water = new Renderable();
-            var waterplane = Meshes.CreatePlane(50, 50, 70, 70).Transform(Transformation.Translation(0, 0.5f, 0));
+            var waterplane = Meshes.CreatePlane(50, 50, 225, 225).Transform(Transformation.Translation(0, 0.5f, 0));
             VAO waterDrawable = renderer.GetDrawable(waterplane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             water.SetMesh(waterDrawable, defaultShader);
-            water.SetAlbedoTexture(isleAlbedo);
+            ITexture2D waterEnvironment = contentLoader.Load<ITexture2D>("sky1.jpg");
+            water.SetEnvironmentMap(waterEnvironment);
+            water.reflectivity = 1;
+            //water.SetAlbedoTexture(isleAlbedo);
             Entity waterEntity = new Entity();
             waterEntity.name = "water";
             waterEntity.renderable = water;
@@ -92,8 +95,30 @@ namespace Example.src.Test
             grass.SetAlbedoTexture(grassAlbedo);
             grass.SetAlphaMap(grassAlpha);
 
+            Renderable skydome = new Renderable();
+            skydome.faceCullingMode = FaceCullingMode.FRONT_SIDE;
+            var skysphere = Meshes.CreateSphere(15, 2);
+            skysphere.SwitchTriangleMeshWinding();
+            VAO skyMesh = renderer.GetDrawable(skysphere, DeferredRenderer.DrawableType.deferredDefaultMesh);
+            skydome.SetMesh(skyMesh, renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh));
+            skydome.unlit = true;
+            Entity skyEntity = new Entity();
+            skyEntity.renderable = skydome;
+            skyEntity.name = "skydome";
+
+            Renderable sphere = new Renderable();
+            var msphere = Meshes.CreateSphere(1, 2).Transform(Transformation.Translation(0,2,0));
+            VAO spVao = renderer.GetDrawable(msphere, DeferredRenderer.DrawableType.deferredDefaultMesh);
+            sphere.SetMesh(spVao, renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh));
+            sphere.SetEnvironmentMap(waterEnvironment);
+            Entity spEntity = new Entity();
+            spEntity.name = "sphere";
+            spEntity.renderable = sphere;
+
             //res.Add(grass);
             res.Add(waterEntity);
+            //res.Add(spEntity);
+            //res.Add(skyEntity);
             return res;
         }
     }

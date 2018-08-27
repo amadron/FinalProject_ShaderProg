@@ -38,4 +38,5 @@ void main()
 	float shadowFact = vexp * lexp;
 	float shadow  = clamp(shadowFact, 0, 1); 
 	color = vec4(vec3(shadowFact), alpha);
+	//color = vec4(vec3(vdepth), alpha);
 }

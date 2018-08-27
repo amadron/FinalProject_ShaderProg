@@ -43,7 +43,8 @@ namespace Example.src.controller
             renderer = new DeferredRenderer(contentManager, renderState);
             activeScene = new IslandScene(contentManager, renderer);
             waterEntity = activeScene.GetEntityByName("water");
-            waterEntity.renderable.heightScaleFactor = 0.03f;
+            if(waterEntity != null)
+                waterEntity.renderable.heightScaleFactor = 0.03f;
             renderer.SetPointLights(activeScene.getPointLights());
             activeCam = new FirstPersonCamera(campos, camrot.X, camrot.Y, Camera.ProjectionType.Perspective, fov:1f, width:20, height:20);
             startTime = DateTime.Now;
@@ -202,8 +203,12 @@ namespace Example.src.controller
             TimeSpan diff = dtCurr - startTime;
             float diffsecs = (float)(diff.TotalMilliseconds) / (float)(1000);
             water.CreateMaps(diffsecs);
-            waterEntity.renderable.SetHeightMap(water.GetTexture());
-            //TextureDebugger.Draw(water.GetTexture());
+            if (waterEntity != null)
+            {
+                waterEntity.renderable.SetHeightMap(water.GetTexture());
+                //waterEntity.renderable.SetNormalMap(water.GetNormalMap());
+            }
+            //TextureDebugger.Draw(water.GetNormalMap());
             RenderDeferred();
 
         }

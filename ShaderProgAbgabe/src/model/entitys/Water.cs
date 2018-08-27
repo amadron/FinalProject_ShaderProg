@@ -27,6 +27,7 @@ namespace Example.src.model.entitys
             random = new Random();
             waterMapShader = contentLoader.Load<IShaderProgram>("WaterMap.*");
             mapFBO = new FBO(Texture2dGL.Create(256, 256, 4, true));
+            mapFBO.Attach(Texture2dGL.Create(256, 256, 4, true));
             mapFBO.Textures[0].WrapFunction = TextureWrapFunction.MirroredRepeat;
             numberOfWaves = 12;
             SetSteepness(new Range(1));
@@ -63,10 +64,32 @@ namespace Example.src.model.entitys
             int buffer = waterMapShader.GetResourceLocation(ShaderResourceType.RWBuffer, "WavesBuffer");
 
             waveBuffer.ActivateBind(buffer);
-            
+
+            //Activate Textures of FBO
+            int textAmount = mapFBO.Textures.Count; //Number of Texture Channels of FBO
+            for (int i = 0; i < textAmount; i++)
+            {
+                GL.ActiveTexture(TextureUnit.Texture0 + i);
+                mapFBO.Textures[i].Activate();
+            }
+
+            DrawBuffersEnum[] buffers = new DrawBuffersEnum[textAmount];
+            for (int i = 0; i < textAmount; i++)
+            {
+                buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
+            }
+
+            GL.DrawBuffers(textAmount, buffers);
+
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
 
             waveBuffer.Deactivate();
+
+            for (int i = textAmount - 1; i >= 0; i--)
+            {
+                GL.ActiveTexture(TextureUnit.Texture0 + i);
+                mapFBO.Textures[i].Deactivate();
+            }
 
             waterMapShader.Deactivate();
 
@@ -75,7 +98,12 @@ namespace Example.src.model.entitys
 
         public ITexture2D GetTexture()
         {
-            return mapFBO.Texture;
+            return mapFBO.Textures[0];
+        }
+
+        public ITexture2D GetNormalMap()
+        {
+            return mapFBO.Textures[1];
         }
 
         public void SetAmplitude(Range value)

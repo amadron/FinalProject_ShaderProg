@@ -129,7 +129,7 @@
     <EmbeddedResource Include="Content\Shader\Deferred\deferredutil.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Textures\beach.jpg" />
+    <EmbeddedResource Include="Content\Textures\Environment\beach.jpg" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Models\sphere.obj" />
@@ -177,6 +177,9 @@
     <EmbeddedResource Include="Content\Shader\Water\WaterMap.frag" />
     <EmbeddedResource Include="Content\Shader\Water\WaterMap.vert" />
     <EmbeddedResource Include="Content\Shader\Water\waterutil.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Environment\sky1.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

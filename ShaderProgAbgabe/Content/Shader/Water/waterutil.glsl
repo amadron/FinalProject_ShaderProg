@@ -24,11 +24,12 @@ vec3 getTangent(vec3 wavepos, float steepness, vec2 direction, float WA, float s
 	return vec3(x,y,z);
 }
 
-vec3 getNormal(vec3 wavepos, float steepness, vec2 direction, float WA, float s, float c)
+vec3 getWaveNormal(float steepness, vec2 direction, float WA, float s, float c)
 {
-	float x = -(direction.x * WA * c);
-	float y = -(direction.y * WA * c);
-	float z = 1 - (steepness * WA * s);
+	float x = direction.x * WA * c;
+	float y = direction.y * WA * c;
+	float z = steepness * WA * s;
 
 	return vec3(x,y,z);
 }
+
