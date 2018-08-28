@@ -37,6 +37,7 @@ The following features/techniques are implemented:
 * Main
     * Resizing of Window is supported
 * Phong Shading
+* Unlit Shading
 * Textures
     * Albedo/Diffuse
     * Normal/Bump Maps

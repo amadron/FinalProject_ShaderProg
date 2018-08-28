@@ -45,15 +45,16 @@ float mapDepthToRange(float value, float nearPlane, float farPlane)
 	return value * part;
 }
 
-vec3 getHeightMapNormal(sampler2D heightmap, vec2 uv, float heightScale)
+vec3 getHeightMapNormal(sampler2D heightmap, vec2 uv, float scale)
 {
+	
 	float h0 = textureOffset(heightmap, uv, ivec2(0, -1)).r - 0.5;
 	float h1 = textureOffset(heightmap, uv, ivec2(-1, 0)).r - 0.5;
 	float h2 = textureOffset(heightmap, uv, ivec2(1, 0)).r - 0.5;
 	float h3 = textureOffset(heightmap, uv, ivec2(0, 1)).r - 0.5;
 	vec3 n;
-	n.z = h0 - h3;
-	n.x = h1 - h2;
-	n.y = heightScale;
+	n.z = (h0 - h3) * scale;
+	n.x = (h1 - h2) * scale;
+	n.y = 2;
 	return normalize(n);
 }

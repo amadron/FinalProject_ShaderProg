@@ -17,6 +17,7 @@ uniform sampler2D albedoSampler;
 uniform sampler2D normalSampler;
 uniform sampler2D pointLightSampler;
 uniform sampler2D shadowSampler;
+uniform sampler2D unlitSampler;
 
 in vec2 uv;
 
@@ -29,6 +30,7 @@ void main()
 	vec4 albedo = texture2D(albedoSampler, uv);
 	vec3 normal = texture2D(normalSampler, uv).rgb;
 	vec4 shadows = texture2D(shadowSampler, uv);
+	vec4 unlit = texture2D(unlitSampler, uv);
 	vec3 ambient = ambientColor.rgb;
 	vec4 diffuse = getDiffuse(dirLightDir, normal, dirLightCol, albedo, dirIntensity);
 	vec3 viewDir = normalize(position - camPos);
@@ -36,5 +38,5 @@ void main()
 	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor, dirSpecIntensity);
 	vec4 col = diffuse + specular + vec4(ambient, 1);
 	vec4 plightColor = texture(pointLightSampler, uv);
-	color = plightColor + (col * shadows);
+	color = plightColor + (col * shadows) + unlit;
 }

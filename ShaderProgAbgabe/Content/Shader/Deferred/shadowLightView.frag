@@ -3,7 +3,7 @@
 uniform int shadowMapExponent;
 uniform int hasAlphaMap;
 uniform sampler2D alphaSampler;
-
+uniform float isUnlit;
 
 in vec4 lightPosition;
 in vec2 passUv;

@@ -82,6 +82,8 @@ namespace Example.src.model.graphics.rendering
             mainFBO = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
             mainFBO.Attach(Texture2dGL.Create(width, height, 4, true));
             mainFBO.Attach(Texture2dGL.Create(width, height, 4, true));
+            mainFBO.Attach(Texture2dGL.Create(width, height, 4, true));
+            mainFBO.Attach(Texture2dGL.Create(width, height, 4, true));
             foreach (ITexture2D text in mainFBO.Textures)
             {
                 text.WrapFunction = TextureWrapFunction.MirroredRepeat;
@@ -204,6 +206,7 @@ namespace Example.src.model.graphics.rendering
             deferredGeometryShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
             deferredGeometryShader.Uniform("hasEnvironmentMap", geometry.hasEnvironmentMap);
             deferredGeometryShader.Uniform("reflectionFactor", geometry.reflectivity);
+            deferredGeometryShader.Uniform("isUnlit", geometry.unlit);
             
 
             //Activate Textures of FBO
@@ -377,7 +380,7 @@ namespace Example.src.model.graphics.rendering
         public void DrawShadowLightView(Camera camera, Renderable geometry)
         {
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+            renderState.Set(new FaceCullingModeState(geometry.faceCullingMode));
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             if (geometry.hasAlphaMap == 1)
             {
@@ -394,6 +397,7 @@ namespace Example.src.model.graphics.rendering
             shadowLightViewShader.Uniform("hasHeightMap", geometry.hasHeightMap);
             shadowLightViewShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
             shadowLightViewShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
+            shadowLightViewShader.Uniform("isUnlit", geometry.unlit);
 
             int heightMap = GL.GetUniformLocation(shadowLightViewShader.ProgramID, "heightSampler");
             
@@ -484,7 +488,7 @@ namespace Example.src.model.graphics.rendering
         public void CreateShadowMap(Matrix4x4 cameraMatrix, Camera lightViewCamera, Renderable geometry, Vector3 lightDir)
         {
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
+            renderState.Set(new FaceCullingModeState(geometry.faceCullingMode));
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
@@ -501,7 +505,7 @@ namespace Example.src.model.graphics.rendering
             shadowMapShader.Uniform("hasHeightMap", geometry.hasHeightMap);
             shadowMapShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
             shadowMapShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
-
+            shadowMapShader.Uniform("isUnlit", geometry.unlit);
             
             int heightMap = GL.GetUniformLocation(shadowMapShader.ProgramID, "heightSampler");
 
@@ -648,12 +652,14 @@ namespace Example.src.model.graphics.rendering
             int normal = GL.GetUniformLocation(deferredPost.ProgramID, "normalSampler");
             int lights = GL.GetUniformLocation(deferredPost.ProgramID, "pointLightSampler");
             int shadows = GL.GetUniformLocation(deferredPost.ProgramID, "shadowSampler");
+            int unlit = GL.GetUniformLocation(deferredPost.ProgramID, "unlitSampler");
 
             GL.Uniform1(position, 0);
             GL.Uniform1(albedo, 1);
             GL.Uniform1(normal, 2);
             GL.Uniform1(lights, 3);
             GL.Uniform1(shadows, 4);
+            GL.Uniform1(unlit, 5);
 
             GL.ActiveTexture(TextureUnit.Texture0);
             GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[0].ID);
@@ -665,6 +671,8 @@ namespace Example.src.model.graphics.rendering
             GL.BindTexture(TextureTarget.Texture2D, pointLightFBO.Textures[0].ID);
             GL.ActiveTexture(TextureUnit.Texture4);
             GL.BindTexture(TextureTarget.Texture2D, shadowMapFBO.Texture.ID);
+            GL.ActiveTexture(TextureUnit.Texture5);
+            GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[4].ID);
 
             //Pass Parameters
             deferredPost.Uniform("ambientColor", ambientColor);

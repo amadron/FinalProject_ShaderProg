@@ -5,6 +5,7 @@ uniform sampler2D lightViewSampler;
 uniform sampler2D normalSampler;
 uniform int hasAlphaMap;
 uniform sampler2D alphaSampler;
+uniform float isUnlit;
 
 uniform vec3 lightDirection;
 
@@ -37,5 +38,5 @@ void main()
 	float lexp = texture(lightViewSampler, lpos.xy * 0.5 + 0.5).r;
 	float shadowFact = vexp * lexp;
 	float shadow  = clamp(shadowFact, 0, 1); 
-	color = vec4(vec3(shadowFact), alpha);
+	color = vec4(vec3(shadowFact), alpha) * (1 - isUnlit);
 }

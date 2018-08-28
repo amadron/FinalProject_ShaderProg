@@ -46,7 +46,7 @@ namespace Example.src.controller
             if(waterEntity != null)
                 waterEntity.renderable.heightScaleFactor = 0.03f;
             renderer.SetPointLights(activeScene.getPointLights());
-            activeCam = new FirstPersonCamera(campos, camrot.X, camrot.Y, Camera.ProjectionType.Perspective, fov:1f, width:20, height:20);
+            activeCam = new FirstPersonCamera(campos, camrot.X, camrot.Y, Camera.ProjectionType.Perspective, fov:1f, width:20, height:20, zPlaneFar: 100f);
             startTime = DateTime.Now;
             water = new Water(contentLoader);
         }
@@ -273,6 +273,7 @@ namespace Example.src.controller
             {
                 renderer.DrawDeferredParticle(particleSystem[j].GetDeferredRenderable(), GetCameraMatrix(), campos, camDir, particleSystem[j]);
             }
+
             renderer.FinishGeometryPass();
             
             renderer.PointLightPass(GetCameraMatrix(), campos, camDir);

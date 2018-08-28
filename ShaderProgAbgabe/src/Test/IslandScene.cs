@@ -40,17 +40,19 @@ namespace Example.src.Test
             system.lifeTimeRange = new Range(8, 10);
             system.spawnArea = new Range3D(Vector3.Zero); //new Range3D(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, 0.5f));
             system.spawnAcceleration = new Range3D(new Vector3(0, 1.5f, 0), new Vector3(0, 2f, 0));
-            system.spawnScale = new Range3D(new Vector3(2f, 2f, 1f), new Vector3(3f, 3f, 1));
+            system.spawnScale = new Range3D(new Vector3(2f, 2f, 1f), new Vector3(5f, 5f, 1));
             AddParticleSystem(system);
         }
 
         List<PointLight> GetPointLights()
         {
             List<PointLight> lightList = new List<PointLight>();
-            PointLight l = new PointLight(new Vector3(-0.5f, 2f, -0.5f), new Vector4(Color.Green.ToVector3(), 1), 3f, 0.8f, new Vector4(1), 80, 0.1f);
-            PointLight l2 = new PointLight(new Vector3(0.7f, 4f, 1f), new Vector4(Color.Red.ToVector3(), 1), 3f, 0.8f);
+            PointLight l = new PointLight(new Vector3(-0.5f, 10f, -0.5f), new Vector4(Color.Green.ToVector3(), 1), 2f, 0.8f, new Vector4(1), 80, 0.1f);
+            PointLight l2 = new PointLight(new Vector3(1.5f, 9.5f, 3.5f), new Vector4(Color.Yellow.ToVector3(), 1), 4f,1f);
+            PointLight l3 = new PointLight(new Vector3(1.5f, 9.5f, 3.5f), new Vector4(Color.Red.ToVector3(), 1), 4f, 1f);
             lightList.Add(l);
             lightList.Add(l2);
+            lightList.Add(l3);
             return lightList;
         }
 
@@ -59,7 +61,7 @@ namespace Example.src.Test
             IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh);
             List<Entity> res = new List<Entity>();
             Renderable isle = new Renderable();
-            var islePlane = Meshes.CreatePlane(30, 30, 70, 70);
+            var islePlane = Meshes.CreatePlane(30, 30, 120, 120);
             VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             isle.SetMesh(isleDrawable, defaultShader);
             ITexture2D isleAlbedo = contentLoader.Load<ITexture2D>("testTexture.png");
@@ -98,11 +100,12 @@ namespace Example.src.Test
 
             Renderable skydome = new Renderable();
             skydome.faceCullingMode = FaceCullingMode.FRONT_SIDE;
-            var skysphere = Meshes.CreateSphere(15, 2);
+            var skysphere = Meshes.CreateSphere(40, 2);
             skysphere.SwitchTriangleMeshWinding();
             VAO skyMesh = renderer.GetDrawable(skysphere, DeferredRenderer.DrawableType.deferredDefaultMesh);
             skydome.SetMesh(skyMesh, renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh));
-            skydome.unlit = true;
+            skydome.unlit = 1;
+            skydome.SetAlbedoTexture(waterEnvironment);
             Entity skyEntity = new Entity();
             skyEntity.renderable = skydome;
             skyEntity.name = "skydome";
@@ -119,7 +122,7 @@ namespace Example.src.Test
             //res.Add(grass);
             res.Add(waterEntity);
             //res.Add(spEntity);
-            //res.Add(skyEntity);
+            res.Add(skyEntity);
             return res;
         }
     }
