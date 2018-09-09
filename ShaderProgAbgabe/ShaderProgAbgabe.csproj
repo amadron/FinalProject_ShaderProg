@@ -43,6 +43,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="src\controller\Game.cs" />
     <Compile Include="src\controller\SATGpuFilter.cs" />
+    <Compile Include="src\model\entitys\particle\modules\global\PModuleAddScale.cs" />
+    <Compile Include="src\model\entitys\particle\modules\global\PModuleApplyWind.cs" />
+    <Compile Include="src\model\entitys\particle\Particle.cs" />
+    <Compile Include="src\model\entitys\particle\ParticleModule.cs" />
     <Compile Include="src\model\entitys\Water.cs" />
     <Compile Include="src\model\entitys\Wave.cs" />
     <Compile Include="src\util\AspectRatio3D.cs" />
@@ -51,7 +55,7 @@
     <Compile Include="src\util\Range.cs" />
     <Compile Include="src\util\Range3D.cs" />
     <Compile Include="src\model\entitys\Entity.cs" />
-    <Compile Include="src\model\entitys\ParticleSystem.cs" />
+    <Compile Include="src\model\entitys\particle\ParticleSystem.cs" />
     <Compile Include="src\model\entitys\Transform.cs" />
     <Compile Include="src\model\graphics\camera\Camera.cs" />
     <Compile Include="src\model\graphics\camera\FirstPersonCamera.cs" />

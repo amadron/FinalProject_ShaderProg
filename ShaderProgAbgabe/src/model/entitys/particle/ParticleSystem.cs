@@ -10,6 +10,7 @@ using OpenTK.Graphics.OpenGL4;
 using Zenseless.OpenGL;
 using Zenseless.HLGL;
 using Example.src.util;
+using Example.src.model.entitys.particle;
 
 namespace Example.src.model.entitys
 {
@@ -18,6 +19,7 @@ namespace Example.src.model.entitys
         public ParticleSystem(DeferredRenderer renderer, IContentLoader contentLoader)
         {
             random = new Random();
+            //Rendering
             this.renderer = renderer;
             deferredRenderable = new Renderable();
             var plane = Meshes.CreatePlane(1, 1, 1, 1).Transform(Transformation.Rotation(-90,Axis.X));
@@ -35,6 +37,10 @@ namespace Example.src.model.entitys
             shadowRenderable.SetAlbedoTexture(defaultAlpha);
             shadowRenderable.SetAlphaMap(defaultAlpha);
             shadowRenderable.faceCullingMode = FaceCullingMode.NONE;
+            //ParticleSystemSetup
+            globalModules = new List<ParticleModule>();
+            perParticleModules = new List<ParticleModule>();
+            particleColor = new Range3D(new Vector3(1, 1, 1));
             keepScaleRatio = true;
             scaleAspect = new AspectRatio3D(AspectRatio3D.Axis.XAxis, 1);
             particlePoolList = new List<Particle>();
@@ -60,26 +66,39 @@ namespace Example.src.model.entitys
         public Range spawnRate;
         float spawnIntervall;
         public Range spawnIntervallRange;
-        public int maxParticles;
+        private int maxParticles;
         public Range3D spawnArea;
         public Range3D spawnScale;
         public bool keepScaleRatio;
         public AspectRatio3D scaleAspect;
         public Range3D spawnAcceleration;
+        public Range3D particleColor;
         public Range lifeTimeRange;
         public float lastSpawn;
 
+        List<ParticleModule> globalModules;
+        List<ParticleModule> perParticleModules;
 
         ParticleParameters currentParameters;
 
-        struct Particle
+        public void AddParticleGlobalModule(ParticleModule module)
         {
-            public bool visible;
-            public Vector3 position;
-            public Vector3 scale;
-            public Vector3 rotation;
-            public Vector3 acceleration;
-            public float lifeTime;
+            globalModules.Add(module);
+        }
+
+        public void RemoveParticleGlobalModule(ParticleModule module)
+        {
+            globalModules.Remove(module);
+        }
+
+        public void AddPerParticleModule(ParticleModule module)
+        {
+            perParticleModules.Add(module);
+        }
+
+        public void RemovePerParticleModule(ParticleModule module)
+        {
+            perParticleModules.Remove(module);
         }
 
         public struct ParticleParameters
@@ -90,8 +109,10 @@ namespace Example.src.model.entitys
                 parameter.position = new Vector3[amount];
                 parameter.scale = new Vector3[amount];
                 parameter.rotation = new Vector3[amount];
+                parameter.color = new Vector3[amount];
                 return parameter;
             }
+            public Vector3[] color;
             public Vector3[] position;
             public Vector3[] scale;
             public Vector3[] rotation;
@@ -109,6 +130,7 @@ namespace Example.src.model.entitys
         {
             p.lifeTime = GetRandomRangeValue(lifeTimeRange);
             p.acceleration = spawnAcceleration.GetRandomValue(random);
+            p.startAcceleration = p.acceleration;
             p.scale = spawnScale.GetRandomValue(random);
             if(keepScaleRatio)
             {
@@ -116,6 +138,15 @@ namespace Example.src.model.entitys
             }
             p.position = spawnArea.GetRandomValue(random);
             p.position += transform.position;
+            p.startPosition = p.position;
+            
+            p.color = particleColor.GetRandomValue(random);
+            for(int i = 0; i < perParticleModules.Count; i++)
+            {
+                ParticleModule mod = perParticleModules[i].Clone();
+                mod.InstanceInit(ref p);
+                p.AddModule(mod);
+            }
         }
 
         public void SetMaxParticles(int amount)
@@ -204,6 +235,12 @@ namespace Example.src.model.entitys
             {
                 Vector3 vel = GetVelocity(particle, deltatime);
                 particle.position += vel;
+                particle.movementAmount += vel;
+                particle.Update(deltatime);
+                for(int i = 0; i < globalModules.Count; i++)
+                {
+                    globalModules[i].Update(deltatime, ref particle);
+                }
             }
         }
 
@@ -223,6 +260,7 @@ namespace Example.src.model.entitys
                 parameters.position[i] = tmp.position;
                 parameters.rotation[i] = tmp.rotation;
                 parameters.scale[i] = tmp.scale;
+                parameters.color[i] = tmp.color;
             }
             return parameters;
         }
@@ -247,6 +285,8 @@ namespace Example.src.model.entitys
                 shadowRenderable.GetMesh().SetAttribute(shadowRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceScale"), currentParameters.scale, true);
                 deferredRenderable.GetMesh().SetAttribute(deferredRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceRotation"), currentParameters.rotation, true);
                 shadowRenderable.GetMesh().SetAttribute(shadowRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceRotation"), currentParameters.rotation, true);
+                deferredRenderable.GetMesh().SetAttribute(deferredRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceColor"), currentParameters.color, true);
+                //shadowRenderable.GetMesh().SetAttribute(shadowRenderable.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "instanceColor"), currentParameters.rotation, true);
 
             }
         }

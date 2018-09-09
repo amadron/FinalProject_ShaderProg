@@ -35,5 +35,11 @@ namespace Example.src.util
                      vector.Z * (double)matrix.M34 +
                      vector.W * (double)matrix.M44));
         }
+
+        public static float Lerp(float x1, float y1, float x2, float y2, float desiredX)
+        {
+            float res = y1 + ((desiredX - x1) / (x2 - x1)) * (y2 - y1);
+            return res;
+        }
     }
 }

@@ -10,6 +10,7 @@ in vec2 uv;
 in vec3 instancePosition;
 in vec3 instanceScale;
 in vec3 instanceRotation;
+in vec3 instanceColor;
 
 out Data {
 	vec4 position;
@@ -17,6 +18,7 @@ out Data {
 	vec3 normal;
 	flat uint material;
 	vec2 uv;
+	vec4 color;
 } outdata;
 
 void main()
@@ -30,4 +32,5 @@ void main()
 	outdata.material = uint(uv.x);;
 	outdata.uv = uv;
 	outdata.transPos = transPos;
+	outdata.color = vec4(instanceColor,1);
 }

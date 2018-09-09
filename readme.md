@@ -73,6 +73,10 @@ The following features/techniques are implemented:
 * Particles
     * Particles can be configured by Range parameters
     * Particles are rendered using Instancing
+    * Modules - Are Function used to Manipulating Spawned Particles. For  Example: Changing Scale over lifetime, Changin Color.
+        * Two Types are Supported
+            * Global Modules - One Module for all Particles
+            * Per Particle Modul - Each Particle can have its own Module.
 
 * Water Simulation
     * Creates Depthmap using Gerster Waves

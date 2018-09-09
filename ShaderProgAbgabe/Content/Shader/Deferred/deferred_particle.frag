@@ -20,6 +20,7 @@ in Data {
 	vec3 normal;
 	flat uint material;
 	vec2 uv;
+	vec4 color;
 } inData;
 
 out vec4 position;
@@ -44,7 +45,7 @@ void main()
 	vec3 comb = normalize((viewDir + -cameraDirection)/2);
 	vec4 environment = getEnvironment(viewDir, n.xyz, environmentSampler) * reflectionFactor;
 
-	vec4 color = vec4(materials[inData.material],1) * (1 - hasAlbedo) +	texture(albedoSampler, inData.uv) * hasAlbedo;
+	vec4 color = vec4(materials[inData.material],1) * (1 - hasAlbedo) +	texture(albedoSampler, inData.uv) * hasAlbedo * inData.color;
 	color = mix(color, environment, reflectionFactor);
 	//color = vec4(vec3(0.5), 1);
 	color.a = alpha;

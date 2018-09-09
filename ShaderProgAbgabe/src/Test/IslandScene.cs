@@ -14,6 +14,7 @@ using Zenseless.Geometry;
 using Zenseless.HLGL;
 using Zenseless.OpenGL;
 using Example.src.util;
+using Example.src.model.entitys.particle.modules.global;
 
 namespace Example.src.Test
 {
@@ -31,6 +32,7 @@ namespace Example.src.Test
             
             ITexture2D particleText = contentLoader.Load<ITexture2D>("smoke.jpg");
             ParticleSystem system = new ParticleSystem(renderer, contentLoader);
+            //system.SetMaxParticles(1);
             system.GetDeferredRenderable().SetAlbedoTexture(particleText);
             system.GetDeferredRenderable().SetAlphaMap(particleText);
             system.GetShadowRenderable().SetAlbedoTexture(particleText);
@@ -41,6 +43,10 @@ namespace Example.src.Test
             system.spawnArea = new Range3D(Vector3.Zero); //new Range3D(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, 0.5f));
             system.spawnAcceleration = new Range3D(new Vector3(0, 1.5f, 0), new Vector3(0, 2f, 0));
             system.spawnScale = new Range3D(new Vector3(2f, 2f, 1f), new Vector3(5f, 5f, 1));
+            PModuleAddScale scaleModule = new PModuleAddScale(0.7f);
+            system.AddParticleGlobalModule(scaleModule);
+            PModuleApplyWind windModule = new PModuleApplyWind(0.1f, new Vector3(0, 0, -1f));
+            system.AddPerParticleModule(windModule);
             AddParticleSystem(system);
         }
 
