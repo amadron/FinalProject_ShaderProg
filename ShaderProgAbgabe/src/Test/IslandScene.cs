@@ -15,6 +15,7 @@ using Zenseless.HLGL;
 using Zenseless.OpenGL;
 using Example.src.util;
 using Example.src.model.entitys.particle.modules.global;
+using Example.src.model.entitys.particle.modules.particlewise;
 
 namespace Example.src.Test
 {
@@ -45,7 +46,7 @@ namespace Example.src.Test
             system.spawnScale = new Range3D(new Vector3(2f, 2f, 1f), new Vector3(5f, 5f, 1));
             PModuleAddScale scaleModule = new PModuleAddScale(0.7f);
             system.AddParticleGlobalModule(scaleModule);
-            PModuleApplyWind windModule = new PModuleApplyWind(0.1f, new Vector3(0, 0, -1f));
+            PModuleApplyWind windModule = new PModuleApplyWind(2f, new Vector3(0, 0.3f, 1f), 2);
             system.AddPerParticleModule(windModule);
             AddParticleSystem(system);
         }

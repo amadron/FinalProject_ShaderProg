@@ -44,7 +44,7 @@
     <Compile Include="src\controller\Game.cs" />
     <Compile Include="src\controller\SATGpuFilter.cs" />
     <Compile Include="src\model\entitys\particle\modules\global\PModuleAddScale.cs" />
-    <Compile Include="src\model\entitys\particle\modules\global\PModuleApplyWind.cs" />
+    <Compile Include="src\model\entitys\particle\modules\particlewise\PModuleApplyWind.cs" />
     <Compile Include="src\model\entitys\particle\Particle.cs" />
     <Compile Include="src\model\entitys\particle\ParticleModule.cs" />
     <Compile Include="src\model\entitys\Water.cs" />

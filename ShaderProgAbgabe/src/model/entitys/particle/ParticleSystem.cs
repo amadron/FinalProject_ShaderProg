@@ -141,11 +141,12 @@ namespace Example.src.model.entitys
             p.startPosition = p.position;
             
             p.color = particleColor.GetRandomValue(random);
+            p.ClearModules();
             for(int i = 0; i < perParticleModules.Count; i++)
             {
-                ParticleModule mod = perParticleModules[i].Clone();
-                mod.InstanceInit(ref p);
-                p.AddModule(mod);
+                ParticleModule module = perParticleModules[i].Clone();
+                module.InstanceInit(ref p);
+                p.AddModule(module);
             }
         }
 

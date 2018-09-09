@@ -37,6 +37,11 @@ namespace Example.src.model.entitys.particle
             modules.Remove(module);
         }
 
+        public void ClearModules()
+        {
+            modules.Clear();
+        }
+
         public void Update(float deltatime)
         {
             for(int i = 0; i < modules.Count; i++)
