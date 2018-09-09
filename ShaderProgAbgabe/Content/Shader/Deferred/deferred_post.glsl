@@ -38,5 +38,6 @@ void main()
 	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor, dirSpecIntensity);
 	vec4 col = diffuse + specular + vec4(ambient, 1);
 	vec4 plightColor = texture(pointLightSampler, uv);
-	color = plightColor + (col * shadows) + unlit;
+	vec4 res = plightColor + (col * shadows) + unlit;
+	color = clamp(res, 0, 1);
 }
