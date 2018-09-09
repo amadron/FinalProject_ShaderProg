@@ -12,6 +12,7 @@ namespace Example.src.model.graphics.camera
         public enum ProjectionType { Perspective, Orthographic };
         public abstract Matrix4x4 GetMatrix();
         public abstract Matrix4x4 GetRotationMatrix();
+        public abstract Matrix4x4 GetViewMatrix();
         public abstract Vector3 GetDirection();
         public abstract Vector3 GetPosition();
         public abstract void SetPosition(Vector3 position);

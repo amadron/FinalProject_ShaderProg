@@ -92,5 +92,10 @@ namespace Example.src.model.graphics.camera
             aspectRatio = (float)width/(float)height;
             InitProjection();
         }
+
+        public override Matrix4x4 GetViewMatrix()
+        {
+            return cam.CalcViewMatrix();
+        }
     }
 }

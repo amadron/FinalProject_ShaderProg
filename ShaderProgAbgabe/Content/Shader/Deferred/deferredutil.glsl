@@ -58,3 +58,18 @@ vec3 getHeightMapNormal(sampler2D heightmap, vec2 uv, float scale)
 	n.y = 2;
 	return normalize(n);
 }
+
+vec3 getCameraUpVector(mat4 camera)
+{
+	return vec3(camera[0][1],camera[1][1], camera[2][1]);
+}
+
+vec3 getCameraRightVector(mat4 camera)
+{
+	return vec3(camera[0][0], camera[1][0], camera[2][0]);
+}
+
+vec3 getBillboardPosition(vec3 position, vec3 scale, vec3 up, vec3 right)
+{
+	return up * position.y * scale.y  + right * position.x * scale.x;
+}

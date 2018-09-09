@@ -87,6 +87,4 @@ The following features/techniques are implemented:
     * Maybe Point Light Falloff Rework
     * Merge ShadowMap pass into Geometry Pass
     * Recalculate normals on Heightmap
-    * Billboard Rendering on Particles/ One Axis alignment
-    * Particles alpha clipping, when overlapping
 

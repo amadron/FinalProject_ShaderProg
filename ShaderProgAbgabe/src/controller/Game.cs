@@ -222,11 +222,6 @@ namespace Example.src.controller
             activeScene.Resize(width, height);
         }
 
-        private Matrix4x4 GetCameraMatrix()
-        {
-            return activeCam.GetMatrix();
-        }
-
         private void RenderDeferred()
         {
             List<Entity> geometry = activeScene.getGeometry();
@@ -251,12 +246,12 @@ namespace Example.src.controller
             {
                 if (geometry[i].renderable != null)
                 {
-                    renderer.CreateShadowMap(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), geometry[i].renderable, activeScene.getDirectionalLight().direction);
+                    renderer.CreateShadowMap(activeCam.GetMatrix(), activeScene.GetDirectionalLightCamera(), geometry[i].renderable, activeScene.getDirectionalLight().direction);
                 }
             }
             for (int j = 0; j < particleSystem.Count; j++)
             {
-                renderer.CreateShadowMapParticle(GetCameraMatrix(), activeScene.GetDirectionalLightCamera(), particleSystem[j].GetShadowRenderable(), activeScene.getDirectionalLight().direction, particleSystem[j]);
+                renderer.CreateShadowMapParticle(activeCam, activeScene.GetDirectionalLightCamera(), particleSystem[j].GetShadowRenderable(), activeScene.getDirectionalLight().direction, particleSystem[j]);
             }
             renderer.FinishShadowMassPass();
             
@@ -266,17 +261,17 @@ namespace Example.src.controller
             {
                 if (geometry[i].renderable != null)
                 {
-                    renderer.DrawDeferredGeometry(geometry[i].renderable, GetCameraMatrix(), campos, camDir);
+                    renderer.DrawDeferredGeometry(geometry[i].renderable, activeCam.GetMatrix(), campos, camDir);
                 }
             }
             for(int j = 0; j < particleSystem.Count; j++)
             {
-                renderer.DrawDeferredParticle(particleSystem[j].GetDeferredRenderable(), GetCameraMatrix(), campos, camDir, particleSystem[j]);
+                renderer.DrawDeferredParticle(particleSystem[j].GetDeferredRenderable(), activeCam, campos, camDir, particleSystem[j]);
             }
 
             renderer.FinishGeometryPass();
             
-            renderer.PointLightPass(GetCameraMatrix(), campos, camDir);
+            renderer.PointLightPass(activeCam.GetMatrix(), campos, camDir);
             if (currentRenderMode == RenderMode.deferred)
             {
                 renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight(), camDir);

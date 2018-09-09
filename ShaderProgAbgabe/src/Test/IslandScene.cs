@@ -39,12 +39,12 @@ namespace Example.src.Test
             system.GetShadowRenderable().SetAlbedoTexture(particleText);
             system.GetShadowRenderable().SetAlphaMap(particleText);
             system.transform.position = new Vector3(2f, 10f, 3f);
-            system.spawnIntervallRange = new Range(0.1f,0.5f);
+            system.spawnIntervallRange = new Range(0.5f,0.5f);
             system.lifeTimeRange = new Range(8, 10);
             system.spawnArea = new Range3D(Vector3.Zero); //new Range3D(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, 0.5f));
             system.spawnAcceleration = new Range3D(new Vector3(0, 1.5f, 0), new Vector3(0, 2f, 0));
-            system.spawnScale = new Range3D(new Vector3(2f, 2f, 1f), new Vector3(5f, 5f, 1));
-            PModuleAddScale scaleModule = new PModuleAddScale(0.7f);
+            system.spawnScale = new Range3D(new Vector3(1f, 1f, 1f), new Vector3(2f, 2f, 1));
+            PModuleAddScale scaleModule = new PModuleAddScale(0.2f);
             system.AddParticleGlobalModule(scaleModule);
             PModuleApplyWind windModule = new PModuleApplyWind(2f, new Vector3(0, 0.3f, 1f), 2);
             system.AddPerParticleModule(windModule);
@@ -81,7 +81,6 @@ namespace Example.src.Test
             Entity isleEntity = new Entity();
             isleEntity.name = "isle";
             isleEntity.renderable = isle;
-            res.Add(isleEntity);
 
             Renderable water = new Renderable();
             var waterplane = Meshes.CreatePlane(50, 50, 225, 225).Transform(Transformation.Translation(0, 1f, 0));
@@ -127,6 +126,7 @@ namespace Example.src.Test
             spEntity.renderable = sphere;
 
             //res.Add(grass);
+            res.Add(isleEntity);
             res.Add(waterEntity);
             //res.Add(spEntity);
             res.Add(skyEntity);

@@ -274,7 +274,7 @@ namespace Example.src.model.graphics.rendering
             GL.Disable(EnableCap.Blend);
         }
 
-        public void DrawDeferredParticle(Renderable geometry, Matrix4x4 cameraMatrix, Vector3 cameraPosition, Vector3 cameraDirection, ParticleSystem paricleSystem)
+        public void DrawDeferredParticle(Renderable geometry, Camera camera, Vector3 cameraPosition, Vector3 cameraDirection, ParticleSystem paricleSystem)
         {
 
             renderState.Set(new DepthTest(true));
@@ -288,7 +288,8 @@ namespace Example.src.model.graphics.rendering
             
             deferredParticleShader.Activate();
 
-            deferredParticleShader.Uniform("camera", cameraMatrix);
+            deferredParticleShader.Uniform("camera", camera.GetMatrix());
+            deferredParticleShader.Uniform("viewMatrix", camera.GetViewMatrix());
             deferredParticleShader.Uniform("cameraPosition", cameraPosition);
             deferredParticleShader.Uniform("cameraDirection", cameraDirection);
             deferredParticleShader.Uniform("hasAlbedo", geometry.hasAlbedoTexture);
@@ -443,6 +444,7 @@ namespace Example.src.model.graphics.rendering
 
             shadowLightViewShaderParticle.Uniform("shadowMapExponent", shadowExponent);
             shadowLightViewShaderParticle.Uniform("lightCamera", camera.GetMatrix());
+            shadowLightViewShaderParticle.Uniform("lightViewMatrix", camera.GetViewMatrix());
             shadowLightViewShaderParticle.Uniform("hasAlphaMap", geometry.hasAlphaMap);
 
             int alphaMap = GL.GetUniformLocation(shadowLightViewShaderParticle.ProgramID, "alphaSampler");
@@ -536,7 +538,7 @@ namespace Example.src.model.graphics.rendering
             renderState.Set(new DepthTest(false));
         }
 
-        public void CreateShadowMapParticle(Matrix4x4 cameraMatrix, Camera lightViewCamera, Renderable geometry, Vector3 lightDir, ParticleSystem particleSystem)
+        public void CreateShadowMapParticle(Camera camera, Camera lightViewCamera, Renderable geometry, Vector3 lightDir, ParticleSystem particleSystem)
         {
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(geometry.faceCullingMode));
@@ -550,8 +552,10 @@ namespace Example.src.model.graphics.rendering
 
             satFilter.GetFilterTexture().Activate();
             shadowMapShaderParticle.Uniform("shadowMapExponent", shadowExponent);
-            shadowMapShaderParticle.Uniform("camera", cameraMatrix);
+            shadowMapShaderParticle.Uniform("camera", camera.GetMatrix());
+            shadowMapShaderParticle.Uniform("cameraViewMatrix", camera.GetViewMatrix());
             shadowMapShaderParticle.Uniform("lightCamera", lightViewCamera.GetMatrix());
+            shadowMapShaderParticle.Uniform("lightViewMatrix", lightViewCamera.GetViewMatrix());
             shadowMapShaderParticle.Uniform("lightDirection", lightDir);
 
             shadowMapShaderParticle.Uniform("hasAlphaMap", geometry.hasAlphaMap);
