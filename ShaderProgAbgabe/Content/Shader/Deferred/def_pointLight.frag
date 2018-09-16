@@ -40,24 +40,28 @@ void main()
 	vec3 ldir = scnPosition - lpos;
 	//Taken anuttation from Example
 	float dist = length(ldir);
+	float validDist = step(dist, inData.radius);
+	dist = dist;
 	ldir = normalize(ldir);
 	scnNormal = normalize(scnNormal);
-	float falloff = clamp(inData.radius - dist, 0, inData.radius);
-	//scnAlbedo = clamp(scnAlbedo, 0,1);
+	float radFact = 1/inData.radius;
+	float distFact = dist * radFact;
+	float negVal = 1 - distFact;
+	float falloff = (negVal);// * validDist;
+	falloff = clamp(falloff, 0, 1);
 	float intensity = inData.intensity;
-	intensity = intensity * falloff;
+	//intensity = intensity * falloff;
 	vec4 diffuse = getDiffuse(ldir, scnNormal, inData.lightColor, scnAlbedo, intensity);
 	diffuse = clamp(diffuse, 0, 1);
-	//Check if ScenePosition is within range of lightsource
-
 	
 	//Specular
 	vec3 viewDir = normalize(scnPosition - cameraPosition);
-	vec4 specular = getSpecular(viewDir, scnNormal, ldir, inData.specularColor, inData.specFactor, inData.specIntensity);// * falloff;
-	specular = falloff * clamp(specular, 0, 1);
-	vec4 sum = diffuse;// + specular;
+	vec4 specular = getSpecular(viewDir, scnNormal, ldir, inData.specularColor, inData.specFactor, inData.specIntensity);
+	specular = clamp(specular, 0, 1);
+	vec4 sum = diffuse + specular;
 	sum = clamp(sum, 0, 1);
 	//color = diffuse;
-	vec4 result = falloff * sum;
+	vec4 result = sum * falloff;
 	color = result;
+	//color = vec4(negVal);
 }

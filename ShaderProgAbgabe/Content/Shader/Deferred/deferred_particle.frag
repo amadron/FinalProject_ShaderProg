@@ -34,6 +34,7 @@ void main()
 	float alpha = getAlpha(hasAlphaMap, alphaSampler, inData.uv);
 	vec4 pos = inData.position / inData.position.w;
 	pos.a = alpha;
+	pos.a = 1 - step(alpha, 0.5);
 	position = pos;
 
 	vec3 inNormal = normalize(inData.normal);
