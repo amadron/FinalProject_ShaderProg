@@ -71,7 +71,7 @@ namespace Example.src.Test
             var islePlane = Meshes.CreatePlane(30, 30, 120, 120);
             VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             isle.SetMesh(isleDrawable, defaultShader);
-            ITexture2D isleAlbedo = contentLoader.Load<ITexture2D>("testTexture.png");
+            ITexture2D isleAlbedo = contentLoader.Load<ITexture2D>("terrain.png");
             //ITexture2D isleNormal = contentLoader.Load<ITexture2D>("normalTest1.jpg");
             isle.SetAlbedoTexture(isleAlbedo);
             //isle.SetNormalMap(isleNormal);

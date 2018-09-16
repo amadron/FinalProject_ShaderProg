@@ -119,7 +119,7 @@
     <EmbeddedResource Include="Content\Shader\Util\FullQuad.vert" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Textures\heightmap.png" />
+    <EmbeddedResource Include="Content\Textures\Terrain\heightmap.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Textures\normalTest1.jpg" />
@@ -187,6 +187,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Textures\Environment\sky1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Terrain\terrain.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
