@@ -191,5 +191,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Textures\Terrain\terrain.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Terrain\hmapUnity.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

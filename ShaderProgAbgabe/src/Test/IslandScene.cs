@@ -29,7 +29,7 @@ namespace Example.src.Test
             ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
             entityList = GetGeometry(renderer);
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
-            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 2, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 50, height: 50, zPlaneNear:0.1f, zPlaneFar:500);
+            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 5f, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 70, height: 70, zPlaneNear:0.1f, zPlaneFar:500);
             
             ITexture2D particleText = contentLoader.Load<ITexture2D>("smoke.jpg");
             ParticleSystem system = new ParticleSystem(renderer, contentLoader);
@@ -38,13 +38,13 @@ namespace Example.src.Test
             system.GetDeferredRenderable().SetAlphaMap(particleText);
             system.GetShadowRenderable().SetAlbedoTexture(particleText);
             system.GetShadowRenderable().SetAlphaMap(particleText);
-            system.transform.position = new Vector3(2f, 10f, 3f);
+            system.transform.position = new Vector3(-7.288709f, 12f, 5.872631f);
             system.spawnIntervallRange = new Range(0.5f,0.5f);
             system.lifeTimeRange = new Range(8, 10);
             system.spawnArea = new Range3D(Vector3.Zero); //new Range3D(new Vector3(-0.5f, 0, -0.5f), new Vector3(0.5f, 0, 0.5f));
             system.spawnAcceleration = new Range3D(new Vector3(0, 1.5f, 0), new Vector3(0, 2f, 0));
-            system.spawnScale = new Range3D(new Vector3(1f, 1f, 1f), new Vector3(2f, 2f, 1));
-            PModuleAddScale scaleModule = new PModuleAddScale(0.2f);
+            system.spawnScale = new Range3D(new Vector3(3f, 3f, 3f), new Vector3(5f, 5f, 5));
+            PModuleAddScale scaleModule = new PModuleAddScale(1f);
             system.AddParticleGlobalModule(scaleModule);
             PModuleApplyWind windModule = new PModuleApplyWind(2f, new Vector3(0, 0.3f, 1f), 2);
             system.AddPerParticleModule(windModule);
@@ -68,16 +68,18 @@ namespace Example.src.Test
             IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh);
             List<Entity> res = new List<Entity>();
             Renderable isle = new Renderable();
-            var islePlane = Meshes.CreatePlane(30, 30, 120, 120);
+            float islandScale = 30f;
+            var islePlane = Meshes.CreatePlane(30, 30, 120, 120).Transform(Transformation.Translation(0, islandScale/2, 0)).Transform(Transformation.Rotation(180, Axis.Y));
             VAO isleDrawable = renderer.GetDrawable(islePlane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             isle.SetMesh(isleDrawable, defaultShader);
             ITexture2D isleAlbedo = contentLoader.Load<ITexture2D>("terrain.png");
+            isleAlbedo.Filter = TextureFilterMode.Linear;
             //ITexture2D isleNormal = contentLoader.Load<ITexture2D>("normalTest1.jpg");
             isle.SetAlbedoTexture(isleAlbedo);
             //isle.SetNormalMap(isleNormal);
-            ITexture2D isleHeightmap = contentLoader.Load<ITexture2D>("heightmap.png");
+            ITexture2D isleHeightmap = contentLoader.Load<ITexture2D>("hmapUnity.png");
             isle.SetHeightMap(isleHeightmap);
-            isle.heightScaleFactor = 150f;
+            isle.heightScaleFactor = islandScale;
             Entity isleEntity = new Entity();
             isleEntity.name = "isle";
             isleEntity.renderable = isle;
