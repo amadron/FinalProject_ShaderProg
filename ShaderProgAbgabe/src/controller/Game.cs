@@ -16,6 +16,7 @@ using OpenTK.Input;
 using Zenseless.Geometry;
 using Zenseless.HLGL;
 using Zenseless.OpenGL;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Example.src.controller
 {
@@ -39,6 +40,8 @@ namespace Example.src.controller
         Water water;
         Entity waterEntity;
         UI ui;
+        Vector2 windowRes;
+        Vector2 mousePos;
 
         public Game(IContentLoader contentLoader, IRenderState renderState)
         {
@@ -65,6 +68,7 @@ namespace Example.src.controller
 
         bool mouseClicked = false;
         Vector2 mouseClickedPos;
+        Vector2 mouseDelta;
         Vector2 mouseSpeed = new Vector2(0.5f, 0.5f);
         Vector3 movementSpeed = new Vector3(1f, 1f, 1f);
         RenderMode currentRenderMode = RenderMode.deferred;
@@ -90,23 +94,10 @@ namespace Example.src.controller
             Vector3 rightVecConvert = new Vector3(rightVec.X, rightVec.Y, rightVec.Z);
 
             MouseState mstate = Mouse.GetState();
-            Vector2 mpos = new Vector2(mstate.Y, mstate.X);
-            if (mstate.IsButtonDown(MouseButton.Left))
+            if (mouseClicked)
             {
-                if (!mouseClicked)
-                {
-                    mouseClicked = true;
-                    mouseClickedPos = new Vector2(mstate.Y, mstate.X);
-                }
-                Vector2 mDiff = mpos - mouseClickedPos;
-                RotateCam(mDiff * deltatime * mouseSpeed);
-            }
-            else
-            {
-                if(mouseClicked)
-                {
-                    mouseClicked = false;
-                }
+                Vector2 mDiff = (mousePos - mouseClickedPos);
+                RotateCam(new Vector2(mDiff.Y, mDiff.X) * deltatime * mouseSpeed);
             }
 
             KeyboardState kstate = Keyboard.GetState();
@@ -189,6 +180,26 @@ namespace Example.src.controller
             }
         }
 
+        public void GameWindow_MouseMove(object sender, OpenTK.Input.MouseMoveEventArgs e)
+        {
+            mousePos = new Vector2(e.X, e.Y);
+            mouseDelta.X = e.XDelta;
+            mouseDelta.Y = e.YDelta;
+        }
+
+        public void GameWindow_MouseDown(object sender, OpenTK.Input.MouseButtonEventArgs e)
+        {
+            mouseClicked = true;
+            mouseClickedPos = new Vector2(e.X, e.Y);
+            Vector2 glPos = ScreenPositionToGLViewport(e.X, e.Y);
+            Console.WriteLine("GL Viewport: " + glPos);
+        }
+
+        public void GameWindow_MouseUp(object sender, OpenTK.Input.MouseButtonEventArgs e)
+        {
+            mouseClicked = false;
+        }
+
         private void MoveCam(Vector3 move)
         {
             campos += move;
@@ -219,12 +230,21 @@ namespace Example.src.controller
             RenderUI(renderer.GetFinalPassTexture(), ui);
 
         }
+
+        public Vector2 ScreenPositionToGLViewport(int x, int y)
+        {
+            float posX = (2 / windowRes.X) * x - 1;
+            float posY = (2 / windowRes.Y) * -y + 1;
+            return new Vector2(posX, posY) ;
+        }
         
         public void Resize(int width, int height)
         {
             renderer.Resize(width, height);
             activeCam.Resize(width, height);
             activeScene.Resize(width, height);
+            windowRes.X = width;
+            windowRes.Y = height;
         }
 
         private void RenderDeferred()

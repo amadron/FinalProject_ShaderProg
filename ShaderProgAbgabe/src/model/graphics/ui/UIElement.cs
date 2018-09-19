@@ -13,9 +13,11 @@ namespace Example.src.model.graphics.ui
     {
         public UIElement()
         {
+            clickable = false;
             color = new Vector4(1);
             texture = null;
         }
+
         public Vector4 color;
         public ITexture2D texture;
     }

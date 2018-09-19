@@ -12,13 +12,11 @@ namespace Example
             window.Render += () => game.Render();
             window.Update += (dt) => game.Update(dt);
             window.Resize += (width, height) => game.Resize(width, height);
+            window.GameWindow.MouseMove += game.GameWindow_MouseMove;
+            window.GameWindow.MouseDown += game.GameWindow_MouseDown;
+            window.GameWindow.MouseUp += game.GameWindow_MouseUp;
             window.Run();
 
-        }
-
-        private static void Window_Update(float updatePeriod)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }
