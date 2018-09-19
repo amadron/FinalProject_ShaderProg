@@ -1,4 +1,5 @@
 ﻿using Example.src.model.graphics.ui;
+using Example.src.Test.ui;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,6 +19,8 @@ namespace Example.src.Test
             logo.texture = contentLoader.Load<ITexture2D>("logo.*");
             logo.transform.scale = new Vector3(0.5f, 0.5f, 1);
             logo.transform.position = new Vector3(0.75f, -0.75f, 1);
+            logo.clickable = true;
+            logo.action = new ButtonTestAction();
             UIElement element2 = new UIElement();
             //element2.texture = contentLoader.Load<ITexture2D>("testTexture.*");
             element2.color = new Vector4(Color.Aqua.R, Color.Aqua.G, Color.Aqua.B, 0.1f);

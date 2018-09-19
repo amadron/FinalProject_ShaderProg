@@ -192,7 +192,7 @@ namespace Example.src.controller
             mouseClicked = true;
             mouseClickedPos = new Vector2(e.X, e.Y);
             Vector2 glPos = ScreenPositionToGLViewport(e.X, e.Y);
-            Console.WriteLine("GL Viewport: " + glPos);
+            ui.Click(glPos.X, glPos.Y);
         }
 
         public void GameWindow_MouseUp(object sender, OpenTK.Input.MouseButtonEventArgs e)

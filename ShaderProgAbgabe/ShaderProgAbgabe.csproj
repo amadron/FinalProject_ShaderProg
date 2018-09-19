@@ -42,9 +42,11 @@
     <Compile Include="AssemblyConfig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="src\controller\Game.cs" />
+    <Compile Include="src\controller\logic\IAction.cs" />
     <Compile Include="src\controller\physics\PhysicsManager.cs" />
     <Compile Include="src\controller\rendering\UIRenderer.cs" />
     <Compile Include="src\controller\SATGpuFilter.cs" />
+    <Compile Include="src\controller\logic\IState.cs" />
     <Compile Include="src\model\entitys\particle\modules\global\PModuleAddScale.cs" />
     <Compile Include="src\model\entitys\particle\modules\particlewise\PModuleApplyWind.cs" />
     <Compile Include="src\model\entitys\particle\Particle.cs" />
@@ -56,7 +58,9 @@
     <Compile Include="src\model\graphics\ui\UIElement.cs" />
     <Compile Include="src\model\physics\BoxCollider.cs" />
     <Compile Include="src\model\physics\SphereCollider.cs" />
-    <Compile Include="src\Test\IslandUI.cs" />
+    <Compile Include="src\model\Terrain\TerrainLayer.cs" />
+    <Compile Include="src\Test\ui\ButtonTestAction.cs" />
+    <Compile Include="src\Test\ui\IslandUI.cs" />
     <Compile Include="src\util\AspectRatio3D.cs" />
     <Compile Include="src\util\AspectRatio2D.cs" />
     <Compile Include="src\util\MathUtil.cs" />
