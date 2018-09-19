@@ -55,8 +55,8 @@ namespace Example.src.Test
         {
             List<PointLight> lightList = new List<PointLight>();
             PointLight l = new PointLight(new Vector3(-0.5f, 10f, -0.5f), new Vector4(Color.Green.ToVector3(), 1), 2f, 1f, new Vector4(1), 80, 0.1f);
-            PointLight l2 = new PointLight(new Vector3(1.5f, 9.5f, 3.5f), new Vector4(Color.Yellow.ToVector3(), 1), 4f,5f);
-            PointLight l3 = new PointLight(new Vector3(1.5f, 9.5f, 3.5f), new Vector4(Color.Red.ToVector3(), 1), 4f, 5f);
+            PointLight l2 = new PointLight(new Vector3(-7.288709f, 12f, 6f), new Vector4(Color.Yellow.ToVector3(), 1), 3f,5f);
+            PointLight l3 = new PointLight(new Vector3(-7.288709f, 12f, 6f), new Vector4(Color.Red.ToVector3(), 1), 3f, 5f);
             //lightList.Add(l);
             lightList.Add(l2);
             lightList.Add(l3);

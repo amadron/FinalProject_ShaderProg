@@ -3,8 +3,9 @@ uniform sampler2D inputTexture;
 
 in vec2 uv;
 
+out vec4 color;
 void main()
 {
-	gl_FragColor = texture(inputTexture, uv);
+	color = texture(inputTexture, uv);
 	//gl_FragColor = vec4(0.5);
 }

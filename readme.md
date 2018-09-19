@@ -80,6 +80,9 @@ The following features/techniques are implemented:
 
 * Water Simulation
     * Creates Depthmap using Gerster Waves
+
+* UI
+    * Z Value of Element sets the order, of Rendering/ Layer
 ### To do
 
 * Known Issues

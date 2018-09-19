@@ -52,9 +52,11 @@
     <Compile Include="src\model\entitys\Terrain.cs" />
     <Compile Include="src\model\entitys\Water.cs" />
     <Compile Include="src\model\entitys\Wave.cs" />
+    <Compile Include="src\model\graphics\ui\UI.cs" />
     <Compile Include="src\model\graphics\ui\UIElement.cs" />
     <Compile Include="src\model\physics\BoxCollider.cs" />
     <Compile Include="src\model\physics\SphereCollider.cs" />
+    <Compile Include="src\Test\IslandUI.cs" />
     <Compile Include="src\util\AspectRatio3D.cs" />
     <Compile Include="src\util\AspectRatio2D.cs" />
     <Compile Include="src\util\MathUtil.cs" />
@@ -196,6 +198,13 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Content\Textures\Terrain\hmapUnity.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\UI\UIElement.frag" />
+    <EmbeddedResource Include="Content\Shader\UI\UIElement.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\UI\logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

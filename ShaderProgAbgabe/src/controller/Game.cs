@@ -5,10 +5,12 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Example.src.controller.rendering;
 using Example.src.model;
 using Example.src.model.entitys;
 using Example.src.model.graphics.camera;
 using Example.src.model.graphics.rendering;
+using Example.src.model.graphics.ui;
 using Example.src.Test;
 using OpenTK.Input;
 using Zenseless.Geometry;
@@ -20,6 +22,7 @@ namespace Example.src.controller
     class Game
     {
         DeferredRenderer renderer;
+        UIRenderer uiRenderer;
         IContentLoader contentLoader;
         IRenderState renderState;
 
@@ -35,23 +38,24 @@ namespace Example.src.controller
         DateTime startTime;
         Water water;
         Entity waterEntity;
+        UI ui;
 
-        public Game(IContentLoader contentManager, IRenderState renderState)
+        public Game(IContentLoader contentLoader, IRenderState renderState)
         {
+            ui = new IslandUI(contentLoader);
             this.renderState = renderState;
-            this.contentLoader = contentManager;
-            renderer = new DeferredRenderer(contentManager, renderState);
-            activeScene = new IslandScene(contentManager, renderer);
+            this.contentLoader = contentLoader;
+            renderer = new DeferredRenderer(contentLoader, renderState);
+            uiRenderer = new UIRenderer(contentLoader, renderState);
+            activeScene = new IslandScene(contentLoader, renderer);
             waterEntity = activeScene.GetEntityByName("water");
             if(waterEntity != null)
                 waterEntity.renderable.heightScaleFactor = 0.03f;
             renderer.SetPointLights(activeScene.getPointLights());
             activeCam = new FirstPersonCamera(campos, camrot.X, camrot.Y, Camera.ProjectionType.Perspective, fov:1f, width:20, height:20, zPlaneFar: 100f);
             startTime = DateTime.Now;
-            water = new Water(contentLoader);
+            water = new Water(this.contentLoader);
         }
-
-
 
         public void Update(float deltatime)
         {
@@ -212,6 +216,7 @@ namespace Example.src.controller
             }
             //TextureDebugger.Draw(water.GetNormalMap());
             RenderDeferred();
+            RenderUI(renderer.GetFinalPassTexture(), ui);
 
         }
         
@@ -274,7 +279,7 @@ namespace Example.src.controller
             renderer.PointLightPass(activeCam.GetMatrix(), campos, camDir);
             if (currentRenderMode == RenderMode.deferred)
             {
-                renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight(), camDir);
+                renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight(), camDir, true);
             }
             if (currentRenderMode == RenderMode.color)
             {
@@ -301,6 +306,11 @@ namespace Example.src.controller
                 TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
             }
             //TextureDebugger.Draw(renderer.mainFBO.Textures[1]);
+        }
+
+        private void RenderUI(ITexture2D texture, UI ui)
+        {
+            uiRenderer.Render(texture, ui.GetUIElements());
         }
     }
 }

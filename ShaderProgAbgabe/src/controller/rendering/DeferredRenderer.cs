@@ -60,6 +60,7 @@ namespace Example.src.model.graphics.rendering
         public IRenderSurface pointLightFBO;
         public IRenderSurface shadowMapFBO;
         public IRenderSurface lightViewFBO;
+        public IRenderSurface finalPassFBO;
 
         IShaderProgram deferredParticleShader;
         IShaderProgram shadowMapShaderParticle;
@@ -96,6 +97,8 @@ namespace Example.src.model.graphics.rendering
 
             shadowMapFBO = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
             shadowMapFBO.Texture.WrapFunction = TextureWrapFunction.Repeat;
+
+            finalPassFBO = new FBOwithDepth(Texture2dGL.Create(width, height, 4, true));
 
             satFilter = new SATGpuFilter(contentLoader, renderState, 32, 32, width, height, 4, 4);
         }
@@ -168,6 +171,11 @@ namespace Example.src.model.graphics.rendering
             }
             
             return shader;
+        }
+
+        public ITexture2D GetFinalPassTexture()
+        {
+            return finalPassFBO.Texture;
         }
         #endregion
 
@@ -646,10 +654,34 @@ namespace Example.src.model.graphics.rendering
         #endregion
 
         #region FinalPass
-        public void FinalPass(Vector3 cameraPosition, Vector4 ambientColor, DirectionalLight dirLight, Vector3 cameraDirection)
+        public void FinalPass(Vector3 cameraPosition, Vector4 ambientColor, DirectionalLight dirLight, Vector3 cameraDirection, bool renderToTexture)
         {
+            int textAmount = finalPassFBO.Textures.Count; //Number of Texture Channels of FBO
+            if (renderToTexture)
+            {
+                finalPassFBO.Activate();
+
+                for (int i = 0; i < textAmount; i++)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0 + i);
+                    finalPassFBO.Textures[i].Activate();
+                }
+
+                DrawBuffersEnum[] buffers = new DrawBuffersEnum[textAmount];
+                for (int i = 0; i < textAmount; i++)
+                {
+                    buffers[i] = DrawBuffersEnum.ColorAttachment0 + i;
+                }
+
+                GL.DrawBuffers(textAmount, buffers);
+            }
             deferredPost.Activate();
             //renderState.Set(BlendStates.Additive);
+
+            //Activate Textures of FBO
+            
+
+
 
             int position = GL.GetUniformLocation(deferredPost.ProgramID, "positionSampler");
             int albedo = GL.GetUniformLocation(deferredPost.ProgramID, "albedoSampler");
@@ -658,24 +690,24 @@ namespace Example.src.model.graphics.rendering
             int shadows = GL.GetUniformLocation(deferredPost.ProgramID, "shadowSampler");
             int unlit = GL.GetUniformLocation(deferredPost.ProgramID, "unlitSampler");
 
-            GL.Uniform1(position, 0);
-            GL.Uniform1(albedo, 1);
-            GL.Uniform1(normal, 2);
-            GL.Uniform1(lights, 3);
-            GL.Uniform1(shadows, 4);
-            GL.Uniform1(unlit, 5);
+            GL.Uniform1(position, 1);
+            GL.Uniform1(albedo, 2);
+            GL.Uniform1(normal, 3);
+            GL.Uniform1(lights, 4);
+            GL.Uniform1(shadows, 5);
+            GL.Uniform1(unlit, 6);
 
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[0].ID);
             GL.ActiveTexture(TextureUnit.Texture1);
-            GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[1].ID);
+            GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[0].ID);
             GL.ActiveTexture(TextureUnit.Texture2);
-            GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[2].ID);
+            GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[1].ID);
             GL.ActiveTexture(TextureUnit.Texture3);
-            GL.BindTexture(TextureTarget.Texture2D, pointLightFBO.Textures[0].ID);
+            GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[2].ID);
             GL.ActiveTexture(TextureUnit.Texture4);
-            GL.BindTexture(TextureTarget.Texture2D, shadowMapFBO.Texture.ID);
+            GL.BindTexture(TextureTarget.Texture2D, pointLightFBO.Textures[0].ID);
             GL.ActiveTexture(TextureUnit.Texture5);
+            GL.BindTexture(TextureTarget.Texture2D, shadowMapFBO.Texture.ID);
+            GL.ActiveTexture(TextureUnit.Texture6);
             GL.BindTexture(TextureTarget.Texture2D, mainFBO.Textures[4].ID);
 
             //Pass Parameters
@@ -696,6 +728,17 @@ namespace Example.src.model.graphics.rendering
 
             deferredPost.Deactivate();
             renderState.Set(BlendStates.Opaque);
+            if (renderToTexture)
+            {
+                for (int i = textAmount - 1; i >= 0; i--)
+                {
+                    GL.ActiveTexture(TextureUnit.Texture0 + i);
+                    mainFBO.Textures[i].Deactivate();
+                }
+
+                finalPassFBO.Deactivate();
+                //TextureDebugger.Draw(finalPassFBO.Texture);
+            }
         }
         #endregion
     }
