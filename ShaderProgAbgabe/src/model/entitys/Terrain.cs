@@ -17,11 +17,11 @@ namespace Example.src.model.entitys
         }
 
         Bitmap texture;
-        float pixelWorldWidth;
-        float pixelWorldHeight;
-        float sizeX;
-        float sizeY;
-        float scale;
+        public float pixelWorldWidth;
+        public float pixelWorldHeight;
+        public float sizeX;
+        public float sizeY;
+        public float scale;
 
         void CalculatePixelSizes()
         {
@@ -31,10 +31,10 @@ namespace Example.src.model.entitys
             pixelWorldHeight = sizeY / resY;
         }
 
-        float GetHeightInTerrain(Vector3 pos)
+        float GetHeightInTerrain(Vector2 pos)
         {
             int x = (int)(pos.X / pixelWorldWidth);
-            int y = (int)(pos.Z / pixelWorldHeight);
+            int y = (int)(pos.Y / pixelWorldHeight);
             float textVal = texture.GetPixel(x, y).R;
             return textVal * scale;
         }
