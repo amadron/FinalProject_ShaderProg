@@ -36,8 +36,8 @@ namespace Example.src.model.entitys
         {
             int resX = heightMap.Width;
             int resY = heightMap.Height;
-            pixelWorldWidth = sizeX / resX;
-            pixelWorldHeight = sizeY / resY;
+            pixelWorldWidth = resX / sizeX;
+            pixelWorldHeight = resY / sizeY;
         }
 
         public Vector2 GetInTerrainBounds(Vector3 position)
@@ -47,23 +47,19 @@ namespace Example.src.model.entitys
             float minZ = transform.position.Z - sizeY/2;
             float maxZ = transform.position.Z + sizeY/2;
             float posX = position.X - minX;
-            if(minX < 0)
-            {
-                posX = position.X + minX;
-            }
-            float posZ = position.Z - minZ;
+            float posZ = maxZ - position.Z;
 
-            posX = MathUtil.ClampF(posX, minX, maxX);
-            posZ = MathUtil.ClampF(posZ, minZ, maxZ);
+            posX = MathUtil.ClampF(posX, 0, sizeX);
+            posZ = MathUtil.ClampF(posZ, 0, sizeY);
             return new Vector2(posX, posZ);
         }
 
         public float GetHeightInTerrain(Vector2 pos)
         {
-            int x = (int)(pos.X / pixelWorldWidth);
-            int y = (int)(pos.Y / pixelWorldHeight);
+            int x = (int)(pos.X * pixelWorldWidth);
+            int y = (int)(pos.Y * pixelWorldHeight);
             float textVal = heightMap.GetPixel(x, y).R;
-            textVal *= 0.003921568627451f;
+            textVal /= 255;
             textVal -= 0.5f;
             return textVal * scale;
         }

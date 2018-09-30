@@ -70,7 +70,7 @@ namespace Example.src.Test
             IShaderProgram defaultShader = renderer.GetShader(DeferredRenderer.DrawableType.deferredDefaultMesh);
             List<Entity> res = new List<Entity>();
             float islandScale = 30f;
-            var islePlane = Meshes.CreatePlane(30, 30, 120, 120).Transform(Transformation.Translation(0, islandScale/2, 0)).Transform(Transformation.Rotation(180, Axis.Y));
+            var islePlane = Meshes.CreatePlane(30, 30, 120, 120).Transform(Transformation.Translation(0, islandScale / 2, 0));
             Renderable isle = ContentFactory.GetDefaultRenderable(renderer, islePlane);
 
 
@@ -86,7 +86,8 @@ namespace Example.src.Test
             isleEntity.name = "isle";
             isleEntity.renderable = isle;
 
-            Terrain isleTerrain = new Terrain(contentLoader, "terrain.png", islandScale, 30, 30);
+            Terrain isleTerrain = new Terrain(contentLoader, "hmapUnity.png", islandScale, 30, 30);
+            isleTerrain.transform.position = new Vector3(0, islandScale / 2, 0);
 
 
 
@@ -110,7 +111,7 @@ namespace Example.src.Test
             grass.SetAlphaMap(grassAlpha);
             //Entity grassEntity = new Entity();
             //grassEntity.renderable = grass;
-            SphericalTerrainSpawner grassSpawner = new SphericalTerrainSpawner(isleTerrain, grass, new Vector3(0f, 7, 0f), 1, 10);
+            SphericalTerrainSpawner grassSpawner = new SphericalTerrainSpawner(isleTerrain, grass, new Vector3(0f, 7.1f, 0f), 1, 10);
             grassSpawner.SpawnElements();
             grass.instances = 10;
 

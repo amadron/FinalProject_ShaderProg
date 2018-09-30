@@ -48,15 +48,15 @@ namespace Example.src.model.terrain.TerrainSpawner
             for(int i = 0; i < amountOfElements; i++)
             {
                 Vector3 tmpPos = transform.position;
-                tmpPos.X = circleRange.GetRandomValue(random);
-                tmpPos.Z = circleRange.GetRandomValue(random);
+                tmpPos.X += circleRange.GetRandomValue(random);
+                tmpPos.Z += circleRange.GetRandomValue(random);
                 Vector2 posInTerrain = terrain.GetInTerrainBounds(tmpPos);
-                //tmpPos.Y = terrain.GetHeightInTerrain(new Vector2(tmpPos.X, tmpPos.Z));
+                tmpPos.Y = terrain.GetHeightInTerrain(posInTerrain) + terrain.transform.position.Y + 0.4f;
                 positions.Add(tmpPos);
                 rotation.Add(Vector3.Zero);
                 scale.Add(Vector3.One);
             }
-            //renderable.instances = amountOfElements;
+            renderable.instances = amountOfElements;
             renderable.SetInstancePositions(positions.ToArray());
             renderable.GetMesh().SetAttribute(renderable.GetShader().GetResourceLocation(Zenseless.HLGL.ShaderResourceType.Attribute, "instanceRotation"), rotation.ToArray(), true);
             renderable.GetMesh().SetAttribute(renderable.GetShader().GetResourceLocation(Zenseless.HLGL.ShaderResourceType.Attribute, "instanceScale"), scale.ToArray(), true);
