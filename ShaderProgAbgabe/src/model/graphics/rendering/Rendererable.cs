@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Zenseless.HLGL;
@@ -25,8 +26,12 @@ namespace Example.src.model.graphics.rendering
         public FaceCullingMode faceCullingMode;
         public int instances;
         public float unlit;
-        private VAO mesh;
-        private IShaderProgram shader;
+        private VAO deferredMesh;
+        private VAO lightViewMesh;
+        private VAO shadowMapMesh;
+        private IShaderProgram deferredShader;
+        private IShaderProgram shadowMapShader;
+        private IShaderProgram lightViewShader;
 
         public Renderable()
         {
@@ -78,23 +83,55 @@ namespace Example.src.model.graphics.rendering
             reflectivity = 1;
         }
 
-
-        public void SetMesh(VAO mesh, IShaderProgram shader)
+        public void SetDeferredGeometryMesh(VAO mesh, IShaderProgram shader)
         {
-            this.mesh = mesh;
-            this.shader = shader;
+            deferredMesh = mesh;
+            deferredShader = shader;
+        }
+
+        public VAO GetDeferredMesh()
+        {
+            return deferredMesh;
+        }
+
+        public void SetLightViewMesh(VAO mesh, IShaderProgram shader)
+        {
+            lightViewMesh = mesh;
+            lightViewShader = shader;
+        }
+
+        public VAO GetLightViewMesh()
+        {
+            return lightViewMesh;
+        }
+
+        public void SetShadowMapMesh(VAO mesh, IShaderProgram shader)
+        {
+            shadowMapMesh = mesh;
+            shadowMapShader = shader;
+        }
+
+        public VAO GetShadowMapMesh()
+        {
+            return shadowMapMesh;
         }
 
         public ref VAO GetMesh()
         {
-            return ref mesh;
+            return ref deferredMesh;
         }
 
         public IShaderProgram GetShader()
         {
-            return shader;
+            return deferredShader;
         }
 
+        public void SetInstancePositions(Vector3[] positions)
+        {
+            deferredMesh.SetAttribute(deferredShader.GetResourceLocation(Zenseless.HLGL.ShaderResourceType.Attribute, "instancePosition"), positions, true);
+            lightViewMesh.SetAttribute(lightViewShader.GetResourceLocation(Zenseless.HLGL.ShaderResourceType.Attribute, "instancePosition"), positions, true);
+            shadowMapMesh.SetAttribute(shadowMapShader.GetResourceLocation(Zenseless.HLGL.ShaderResourceType.Attribute, "instancePosition"), positions, true);
+        }
         
     }
 }

@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="AssemblyConfig.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="src\controller\content\ContentFactory.cs" />
     <Compile Include="src\controller\Game.cs" />
     <Compile Include="src\controller\logic\IAction.cs" />
     <Compile Include="src\controller\physics\PhysicsManager.cs" />
@@ -58,7 +59,9 @@
     <Compile Include="src\model\graphics\ui\UIElement.cs" />
     <Compile Include="src\model\physics\BoxCollider.cs" />
     <Compile Include="src\model\physics\SphereCollider.cs" />
-    <Compile Include="src\model\Terrain\TerrainLayer.cs" />
+    <Compile Include="src\model\terrain\TerrainLayer.cs" />
+    <Compile Include="src\model\terrain\TerrainSpawner\ITerrainSpawner.cs" />
+    <Compile Include="src\model\terrain\TerrainSpawner\SphericalTerrainSpawner.cs" />
     <Compile Include="src\Test\ui\ButtonTestAction.cs" />
     <Compile Include="src\Test\ui\IslandUI.cs" />
     <Compile Include="src\util\AspectRatio3D.cs" />
@@ -78,7 +81,6 @@
     <Compile Include="src\model\graphics\rendering\Rendererable.cs" />
     <Compile Include="src\model\Scene.cs" />
     <Compile Include="src\Test\IslandScene.cs" />
-    <Compile Include="src\Test\TestScene.cs" />
     <Compile Include="View.cs" />
   </ItemGroup>
   <ItemGroup>

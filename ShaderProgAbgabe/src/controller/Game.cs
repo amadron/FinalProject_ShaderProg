@@ -71,9 +71,7 @@ namespace Example.src.controller
         Vector2 mouseDelta;
         Vector2 mouseSpeed = new Vector2(0.5f, 0.5f);
         Vector3 movementSpeed = new Vector3(1f, 1f, 1f);
-        RenderMode currentRenderMode = RenderMode.deferred;
         float shiftSpeedFactor = 3f;
-        enum RenderMode { deferred, postion, color, normal, pointlight, shadow, directional };
 
         private void UpdateControl(float deltatime)
         {
@@ -148,35 +146,35 @@ namespace Example.src.controller
             }
             if (kstate.IsKeyDown(Key.F1))
             {
-                Console.WriteLine("Camera Positon: " + campos + "\nCamera Rotation: " + camrot);
+                Debug.WriteLine("Camera Positon: " + campos + "\nCamera Rotation: " + camrot);
             }
             if (kstate.IsKeyDown(Key.F4))
             {
-                currentRenderMode = RenderMode.deferred;
+                renderer.currentRenderMode = DeferredRenderer.RenderMode.deferred;
             }
             if (kstate.IsKeyDown(Key.F5))
             {
-                currentRenderMode = RenderMode.postion;
+                renderer.currentRenderMode = DeferredRenderer.RenderMode.postion;
             }
             if (kstate.IsKeyDown(Key.F6))
             {
-                currentRenderMode = RenderMode.color;
+                renderer.currentRenderMode = DeferredRenderer.RenderMode.color;
             }
             if(kstate.IsKeyDown(Key.F7))
             {
-                currentRenderMode = RenderMode.normal;
+                renderer.currentRenderMode = DeferredRenderer.RenderMode.normal;
             }
             if (kstate.IsKeyDown(Key.F8))
             {
-                currentRenderMode = RenderMode.shadow;
+                renderer.currentRenderMode = DeferredRenderer.RenderMode.shadow;
             }
             if(kstate.IsKeyDown(Key.F9))
             {
-                currentRenderMode = RenderMode.directional;
+                renderer.currentRenderMode = DeferredRenderer.RenderMode.directional;
             }
             if(kstate.IsKeyDown(Key.F10))
             {
-                currentRenderMode = RenderMode.pointlight;
+                renderer.currentRenderMode = DeferredRenderer.RenderMode.pointlight;
             }
         }
 
@@ -250,15 +248,32 @@ namespace Example.src.controller
         private void RenderDeferred()
         {
             List<Entity> geometry = activeScene.getGeometry();
+            List<Entity> renderables = new List<Entity>();
+            List<Entity> alphaGeometry = new List<Entity>();
+            foreach(Entity e in geometry)
+            {
+                if(e.renderable != null)
+                {
+                    if(e.renderable.alphaMap == null)
+                    {
+                        renderables.Add(e);
+                    }
+                    else
+                    {
+                        alphaGeometry.Add(e);
+                    }
+                }
+            }
             List<ParticleSystem> particleSystem = activeScene.GetParticleSystems();
             Vector3 camDir = activeCam.GetDirection();
             renderer.StartLightViewPass();
-            for(int i = 0; i < geometry.Count; i++)
+            for(int i = 0; i < renderables.Count; i++)
             {
-                if (geometry[i].renderable != null)
-                {
-                    renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), geometry[i].renderable);
-                }
+                renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), renderables[i].renderable);
+            }
+            for (int i = 0; i < alphaGeometry.Count; i++)
+            {
+                renderer.DrawShadowLightView(activeScene.GetDirectionalLightCamera(), alphaGeometry[i].renderable);
             }
             for (int j = 0; j < particleSystem.Count; j++)
             {
@@ -267,12 +282,13 @@ namespace Example.src.controller
             renderer.FinishLightViewPass();
             
             renderer.StartShadowMapPass();
-            for (int i = 0; i < geometry.Count; i++)
+            for (int i = 0; i < renderables.Count; i++)
             {
-                if (geometry[i].renderable != null)
-                {
-                    renderer.CreateShadowMap(activeCam.GetMatrix(), activeScene.GetDirectionalLightCamera(), geometry[i].renderable, activeScene.getDirectionalLight().direction);
-                }
+                renderer.CreateShadowMap(activeCam.GetMatrix(), activeScene.GetDirectionalLightCamera(), renderables[i].renderable, activeScene.getDirectionalLight().direction);
+            }
+            for (int i = 0; i < alphaGeometry.Count; i++)
+            {
+                renderer.CreateShadowMap(activeCam.GetMatrix(), activeScene.GetDirectionalLightCamera(), alphaGeometry[i].renderable, activeScene.getDirectionalLight().direction);
             }
             for (int j = 0; j < particleSystem.Count; j++)
             {
@@ -282,14 +298,15 @@ namespace Example.src.controller
             
             
             renderer.StartGeometryPass();
-            for (int i = 0; i < geometry.Count; i++)
+            for (int i = 0; i < renderables.Count; i++)
             {
-                if (geometry[i].renderable != null)
-                {
-                    renderer.DrawDeferredGeometry(geometry[i].renderable, activeCam.GetMatrix(), campos, camDir);
-                }
+                renderer.DrawDeferredGeometry(renderables[i].renderable, activeCam.GetMatrix(), campos, camDir);
             }
-            for(int j = 0; j < particleSystem.Count; j++)
+            for (int i = 0; i < alphaGeometry.Count; i++)
+            {
+                renderer.DrawDeferredGeometry(alphaGeometry[i].renderable, activeCam.GetMatrix(), campos, camDir);
+            }
+            for (int j = 0; j < particleSystem.Count; j++)
             {
                 renderer.DrawDeferredParticle(particleSystem[j].GetDeferredRenderable(), activeCam, campos, camDir, particleSystem[j]);
             }
@@ -297,35 +314,9 @@ namespace Example.src.controller
             renderer.FinishGeometryPass();
             
             renderer.PointLightPass(activeCam.GetMatrix(), campos, camDir);
-            if (currentRenderMode == RenderMode.deferred)
-            {
-                renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight(), camDir, true);
-            }
-            if (currentRenderMode == RenderMode.color)
-            {
-                TextureDebugger.Draw(renderer.mainFBO.Textures[1]);
-            }
-            if (currentRenderMode == RenderMode.postion)
-            {
-                TextureDebugger.Draw(renderer.mainFBO.Textures[0]);
-            }
-            if (currentRenderMode == RenderMode.normal)
-            {
-                TextureDebugger.Draw(renderer.mainFBO.Textures[2]);
-            }
-            if (currentRenderMode == RenderMode.pointlight)
-            {
-                TextureDebugger.Draw(renderer.pointLightFBO.Textures[0]);
-            }
-            if (currentRenderMode == RenderMode.shadow)
-            {
-                TextureDebugger.Draw(renderer.shadowMapFBO.Textures[0]);
-            }
-            if (currentRenderMode == RenderMode.directional)
-            {
-                TextureDebugger.Draw(renderer.lightViewFBO.Textures[0]);
-            }
-            //TextureDebugger.Draw(renderer.mainFBO.Textures[1]);
+            renderer.FinalPass(campos, activeScene.GetAmbientColor(), activeScene.getDirectionalLight(), camDir, true);
+
+            
         }
 
         private void RenderUI(ITexture2D texture, UI ui)

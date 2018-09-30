@@ -41,5 +41,12 @@ namespace Example.src.util
             float res = y1 + ((desiredX - x1) / (x2 - x1)) * (y2 - y1);
             return res;
         }
+
+        public static float ClampF(float val, float min, float max)
+        {
+            if (val < min) return min;
+            else if (val > max) return max;
+            else return val;
+        }
     }
 }

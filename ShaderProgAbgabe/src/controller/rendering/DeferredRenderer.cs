@@ -21,10 +21,14 @@ namespace Example.src.model.graphics.rendering
         public enum DrawableType
         {
             deferredDefaultMesh,
+            lightViewMesh,
+            shadowMapMesh,
             particleMesh,
             particleShadowLightView,
             particleShadowMap
         }
+
+        public enum RenderMode { deferred, postion, color, normal, pointlight, shadow, directional };
 
         public DeferredRenderer(IContentLoader contentLoader, IRenderState renderState)
         {
@@ -77,6 +81,7 @@ namespace Example.src.model.graphics.rendering
 
         int shadowExponent = 20;
 
+        public RenderMode currentRenderMode = RenderMode.deferred;
         
         public void Resize(int width, int height)
         {
@@ -162,6 +167,12 @@ namespace Example.src.model.graphics.rendering
                 case DrawableType.particleMesh:
                     shader = deferredParticleShader;
                     break;
+                case DrawableType.lightViewMesh:
+                    shader = shadowLightViewShader;
+                    break;
+                case DrawableType.shadowMapMesh:
+                    shader = shadowMapShader;
+                    break;
                 case DrawableType.particleShadowLightView:
                     shader = shadowLightViewShaderParticle;
                     break;
@@ -173,9 +184,37 @@ namespace Example.src.model.graphics.rendering
             return shader;
         }
 
+
         public ITexture2D GetFinalPassTexture()
         {
-            return finalPassFBO.Texture;
+            if(currentRenderMode == RenderMode.deferred)
+            {
+                return finalPassFBO.Texture;
+            }
+            else if(currentRenderMode == RenderMode.postion)
+            {
+                return mainFBO.Textures[0];
+            }
+            else if(currentRenderMode == RenderMode.color)
+            {
+                return mainFBO.Textures[1];
+            }
+            else if(currentRenderMode == RenderMode.normal)
+            {
+                return mainFBO.Textures[2];
+            }
+            else if(currentRenderMode == RenderMode.directional)
+            {
+                return lightViewFBO.Texture;
+            }
+            else if(currentRenderMode == RenderMode.shadow)
+            {
+                return shadowMapFBO.Texture;
+            }
+            else
+            {
+                return pointLightFBO.Texture;
+            }
         }
         #endregion
 
@@ -199,6 +238,7 @@ namespace Example.src.model.graphics.rendering
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
+                GL.DepthMask(false);
             }
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             deferredGeometryShader.Activate();
@@ -215,7 +255,15 @@ namespace Example.src.model.graphics.rendering
             deferredGeometryShader.Uniform("hasEnvironmentMap", geometry.hasEnvironmentMap);
             deferredGeometryShader.Uniform("reflectionFactor", geometry.reflectivity);
             deferredGeometryShader.Uniform("isUnlit", geometry.unlit);
-            
+            if(geometry.instances > 0)
+            {
+                deferredGeometryShader.Uniform("hasInstances", 1);
+            }
+            else
+            {
+                deferredGeometryShader.Uniform("hasInstances", 0);
+            }
+
 
             //Activate Textures of FBO
             int textAmount = mainFBO.Textures.Count; //Number of Texture Channels of FBO
@@ -271,7 +319,15 @@ namespace Example.src.model.graphics.rendering
             }
 
             //Draw Gemetry
-            geometry.GetMesh().Draw();
+
+            if(geometry.instances > 0)
+            {
+                geometry.GetDeferredMesh().Draw(geometry.instances);
+            }
+            else
+            {
+                geometry.GetDeferredMesh().Draw();
+            }
             //Deactivate Textures of FBO
             for (int i = textAmount - 1; i >= 0; i--)
             {
@@ -279,6 +335,10 @@ namespace Example.src.model.graphics.rendering
                 mainFBO.Textures[i].Deactivate();
             }
             deferredGeometryShader.Deactivate();
+            if (geometry.hasAlphaMap == 1)
+            {
+                GL.DepthMask(true);
+            }
             GL.Disable(EnableCap.Blend);
         }
 
@@ -394,6 +454,7 @@ namespace Example.src.model.graphics.rendering
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
+                GL.DepthMask(false);
             }
             shadowLightViewShader.Activate();
             //GL.ActiveTexture(TextureUnit.Texture0);
@@ -407,6 +468,15 @@ namespace Example.src.model.graphics.rendering
             shadowLightViewShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
             shadowLightViewShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
             shadowLightViewShader.Uniform("isUnlit", geometry.unlit);
+            if (geometry.instances > 0)
+            {
+                shadowLightViewShader.Uniform("hasInstances", 1);
+            }
+            else
+            {
+                shadowLightViewShader.Uniform("hasInstances", 0);
+            }
+
 
             int heightMap = GL.GetUniformLocation(shadowLightViewShader.ProgramID, "heightSampler");
             
@@ -424,12 +494,22 @@ namespace Example.src.model.graphics.rendering
             {
                 GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
             }
-            
-            geometry.GetMesh().Draw();
+            if(geometry.instances > 0)
+            {
+                geometry.GetLightViewMesh().Draw(geometry.instances);
+            }
+            else
+            {
+                geometry.GetLightViewMesh().Draw();
+            }
             //GL.ActiveTexture(TextureUnit.Texture0);
             lightViewFBO.Texture.Deactivate();
             shadowLightViewShader.Deactivate();
             GL.Disable(EnableCap.Blend);
+            if(geometry.hasAlphaMap == 1)
+            {
+                GL.DepthMask(true);
+            }
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
         }
@@ -502,6 +582,7 @@ namespace Example.src.model.graphics.rendering
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
+                GL.DepthMask(false);
             }
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             shadowMapShader.Activate();
@@ -516,7 +597,16 @@ namespace Example.src.model.graphics.rendering
             shadowMapShader.Uniform("heightScaleFactor", geometry.heightScaleFactor);
             shadowMapShader.Uniform("hasAlphaMap", geometry.hasAlphaMap);
             shadowMapShader.Uniform("isUnlit", geometry.unlit);
-            
+
+            if (geometry.instances > 0)
+            {
+                shadowMapShader.Uniform("hasInstances", 1);
+            }
+            else
+            {
+                shadowMapShader.Uniform("hasInstances", 0);
+            }
+
             int heightMap = GL.GetUniformLocation(shadowMapShader.ProgramID, "heightSampler");
 
             GL.Uniform1(heightMap, 1);
@@ -539,9 +629,20 @@ namespace Example.src.model.graphics.rendering
                 GL.BindTexture(TextureTarget.Texture2D, geometry.alphaMap.ID);
             }
 
-            geometry.GetMesh().Draw();
+            if(geometry.instances > 0)
+            {
+                geometry.GetShadowMapMesh().Draw(geometry.instances);
+            }
+            else
+            {
+                geometry.GetShadowMapMesh().Draw();
+            }
             shadowMapShader.Deactivate();
             GL.Disable(EnableCap.Blend);
+            if(geometry.hasAlphaMap == 1)
+            {
+                GL.DepthMask(true);
+            }
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
         }

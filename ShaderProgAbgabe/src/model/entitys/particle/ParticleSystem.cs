@@ -25,7 +25,7 @@ namespace Example.src.model.entitys
             var plane = Meshes.CreatePlane(1, 1, 1, 1).Transform(Transformation.Rotation(-90,Axis.X));
             IShaderProgram shader = renderer.GetShader(DeferredRenderer.DrawableType.particleMesh);
             VAO planeVao = renderer.GetDrawable(plane, DeferredRenderer.DrawableType.particleMesh);
-            deferredRenderable.SetMesh(planeVao, shader);
+            deferredRenderable.SetDeferredGeometryMesh(planeVao, shader);
             ITexture2D defaultAlpha = contentLoader.Load<ITexture2D>("particleDefault.png");
             deferredRenderable.SetAlbedoTexture(defaultAlpha);
             deferredRenderable.SetAlphaMap(defaultAlpha);
@@ -33,7 +33,7 @@ namespace Example.src.model.entitys
             VAO shadowPlaneVao = renderer.GetDrawable(plane ,DeferredRenderer.DrawableType.particleShadowLightView);
             IShaderProgram shadowShader = renderer.GetShader(DeferredRenderer.DrawableType.particleShadowLightView);
             shadowRenderable = new Renderable();
-            shadowRenderable.SetMesh(shadowPlaneVao, shadowShader);
+            shadowRenderable.SetDeferredGeometryMesh(shadowPlaneVao, shadowShader);
             shadowRenderable.SetAlbedoTexture(defaultAlpha);
             shadowRenderable.SetAlphaMap(defaultAlpha);
             shadowRenderable.faceCullingMode = FaceCullingMode.NONE;

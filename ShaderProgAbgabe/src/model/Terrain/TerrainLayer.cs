@@ -6,10 +6,9 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
-using Example.src.model.entitys;
 using Box2 = OpenTK.Box2;
 
-namespace Example.src.model.Terrain
+namespace Example.src.model.terrain
 {
     class TerrainLayer
     {

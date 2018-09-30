@@ -21,7 +21,6 @@ void main()
 	vec3 up = getCameraUpVector(lightViewMatrix);
 	vec3 right = getCameraRightVector(lightViewMatrix);
 	vec3 npos = getBillboardPosition(position, instanceScale, up, right);
-	//vec3 npos = position * instanceScale;
 	npos += instancePosition;
 	vec4 lpos = lightCamera * vec4(npos,1);
 	lightPosition = lpos;

@@ -8,6 +8,8 @@ uniform sampler2D alphaSampler;
 in vec4 lightPosition;
 in vec2 passUv;
 
+
+
 out vec4 color;
 
 void main()
