@@ -17,9 +17,6 @@ namespace Example.src.model.entitys
             transform = new Transform();
             enabled = true;
             visible = true;
-            transform.position = Vector3.Zero;
-            transform.rotation = Vector3.Zero;
-            transform.scale = Vector3.One;
         }
 
         public string name;

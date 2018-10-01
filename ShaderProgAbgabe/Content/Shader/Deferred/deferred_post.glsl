@@ -28,6 +28,7 @@ void main()
 {
 	vec3 position = texture2D(positionSampler, uv).xyz;
 	vec4 albedo = texture2D(albedoSampler, uv);
+	float hasAlbedo = length(normalize(albedo));
 	vec3 normal = texture2D(normalSampler, uv).rgb;
 	vec4 shadows = texture2D(shadowSampler, uv);
 	vec4 unlit = texture2D(unlitSampler, uv);
@@ -38,6 +39,6 @@ void main()
 	vec4 specular = getSpecular(viewDir, normal, dirLightDir, dirSpecCol, specFactor, dirSpecIntensity);
 	vec4 col = diffuse + specular + vec4(ambient, 1);
 	vec4 plightColor = texture(pointLightSampler, uv);
-	vec4 res = plightColor + (col * shadows) + unlit;
+	vec4 res = plightColor + (col * shadows)+ unlit;
 	color = clamp(res, 0, 1);
 }

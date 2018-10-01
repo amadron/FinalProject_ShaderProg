@@ -21,6 +21,7 @@ in Data {
 	vec3 normal;
 	flat uint material;
 	vec2 uv;
+	vec4 color;
 } inData;
 
 out vec4 position;
@@ -50,8 +51,10 @@ void main()
 	vec4 color = vec4(materials[inData.material],1) * (1 - hasAlbedo) +	texture(albedoSampler, inData.uv) * hasAlbedo;
 	color = mix(color, environment, reflectionFactor);
 	color.a = alpha;
+	//color = inData.color;
 	albedo = clamp(color, 0, 1) * unlitbool;
 	unlit = clamp(color, 0, 1) * isUnlit;
 	float transDepth = inData.transPos.z / inData.transPos.w;
 	depth = vec4(transDepth);
+	
 }

@@ -108,14 +108,14 @@ namespace Example.src.model.entitys
                 ParticleParameters parameter = new ParticleParameters();
                 parameter.position = new Vector3[amount];
                 parameter.scale = new Vector3[amount];
-                parameter.rotation = new Vector3[amount];
+                parameter.rotation = new Vector4[amount];
                 parameter.color = new Vector3[amount];
                 return parameter;
             }
             public Vector3[] color;
             public Vector3[] position;
             public Vector3[] scale;
-            public Vector3[] rotation;
+            public Vector4[] rotation;
         }
 
         List<Particle> particlePoolList;

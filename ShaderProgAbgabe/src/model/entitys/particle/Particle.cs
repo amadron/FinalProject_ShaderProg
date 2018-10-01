@@ -20,7 +20,7 @@ namespace Example.src.model.entitys.particle
         public Vector3 startPosition;
         public Vector3 movementAmount;
         public Vector3 scale;
-        public Vector3 rotation;
+        public Vector4 rotation;
         public Vector3 acceleration;
         public Vector3 startAcceleration;
         public float lifeTime;

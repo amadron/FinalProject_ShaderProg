@@ -133,5 +133,11 @@ namespace Example.src.model.graphics.rendering
             shadowMapMesh.SetAttribute(shadowMapShader.GetResourceLocation(Zenseless.HLGL.ShaderResourceType.Attribute, "instancePosition"), positions, true);
         }
         
+        public void SetInstanceRotations(Vector4[] rotations)
+        {
+            deferredMesh.SetAttribute(deferredShader.GetResourceLocation(Zenseless.HLGL.ShaderResourceType.Attribute, "instanceRotation"), rotations, true);
+            lightViewMesh.SetAttribute(lightViewShader.GetResourceLocation(Zenseless.HLGL.ShaderResourceType.Attribute, "instanceRotation"), rotations, true);
+            shadowMapMesh.SetAttribute(shadowMapShader.GetResourceLocation(Zenseless.HLGL.ShaderResourceType.Attribute, "instanceRotation "), rotations, true);
+        }
     }
 }

@@ -73,3 +73,26 @@ vec3 getBillboardPosition(vec3 position, vec3 scale, vec3 up, vec3 right)
 {
 	return up * position.y * scale.y  + right * position.x * scale.x;
 }
+
+vec4 getConjungatedQuaternion(vec4 quaternion)
+{
+	vec4 res = normalize(quaternion);
+	res.x *= -1;
+	res.y *= -1;
+	res.z *= -1;
+	return res;
+}
+
+vec3 rotateByQuaternion(vec4 p, vec4 q)
+{
+	float x = p.x * (q.x * q.x + q.w * q.w - q.y * q.y - q.z * q.z)
+			+ p.y * (2 * q.x * q.y - 2 * q.w * q.z)
+			+ p.z * (2 * q.y * q.z + 2 * q.w * q.y);
+	float y = p.x * (2 * q.w * q.z + 2 * q.x * q.y)
+			+ p.y * (q.w *q.w - q.x * q.x + q.y * q.y - q.z * q.z)
+			+ p.z * (-2 * q.w * q.x + 2 * q.y * q.z);
+	float z = p.x * (-2 * q.w * q.y + 2 * q.x * q.z)
+			+ p.y * (2 * q.w  * q.x + 2 * q.y * q.z)
+			+ p.z * (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z);
+	return vec3(x, y, z);
+}

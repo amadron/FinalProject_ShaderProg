@@ -12,8 +12,8 @@ in vec3 normal;
 in vec2 uv;
 
 in vec3 instancePosition;
+in vec4 instanceRotation;
 in vec3 instanceScale;
-in vec3 instanceRotation;
 
 out Data {
 	vec4 position;
@@ -21,11 +21,12 @@ out Data {
 	vec3 normal;
 	flat uint material;
 	vec2 uv;
+	vec4 color;
 } outdata;
 
 void main()
 {
-	vec3 npos = position;
+	vec3 npos = position * (1 - hasInstances) + rotateByQuaternion(vec4(position,0), instanceRotation) * hasInstances;
 	float height = (texture2D(heightSampler, uv).r - 0.5) * hasHeightMap * heightScaleFactor;
 	npos += normal * height;
 	npos +=  instancePosition * hasInstances;
@@ -37,4 +38,5 @@ void main()
 	outdata.material = uint(uv.x);;
 	outdata.uv = uv;
 	outdata.transPos = transPos;
+	outdata.color = instanceRotation;
 }
