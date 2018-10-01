@@ -254,6 +254,8 @@ namespace Example.src.controller
             {
                 if(e.renderable != null)
                 {
+                    renderables.Add(e);
+                    /*
                     if(e.renderable.alphaMap == null)
                     {
                         renderables.Add(e);
@@ -262,6 +264,7 @@ namespace Example.src.controller
                     {
                         alphaGeometry.Add(e);
                     }
+                    */
                 }
             }
             List<ParticleSystem> particleSystem = activeScene.GetParticleSystems();

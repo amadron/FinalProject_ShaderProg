@@ -23,6 +23,9 @@ float GetDistanceMapping(float dist)
 
 void main()
 {
+	float alpha = getAlpha(hasAlphaMap, alphaSampler, outuv);
+	if(alpha < 0.1)
+		discard;
 	vec3 lpos = lightPosition.xyz/lightPosition.w;
 	vec3 vpos = viewPosition.xyz/viewPosition.w;
 	vec3 normal = texture(normalSampler, outuv).xyz;
@@ -32,11 +35,10 @@ void main()
 	float bias = biasFactor * tan(acos(cosTheta));
 	bias = clamp(bias, 0f, biasFactor);
 	float vdepth = lpos.z - bias;
-	float alpha = getAlpha(hasAlphaMap, alphaSampler, outuv);
 	float k = -shadowMapExponent;
 	float vexp = exp(k * vdepth);
 	float lexp = texture(lightViewSampler, lpos.xy * 0.5 + 0.5).r;
 	float shadowFact = vexp * lexp;
 	float shadow  = clamp(shadowFact, 0, 1); 
-	color = vec4(vec3(shadowFact), alpha) * (1 - isUnlit);
+	color = vec4(shadowFact) * (1 - isUnlit);
 }
