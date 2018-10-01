@@ -1,4 +1,6 @@
 ﻿#version 430 core
+#include "deferredutil.glsl"
+
 uniform mat4 camera;
 uniform mat4 lightCamera;
 
@@ -12,8 +14,8 @@ in vec3 normal;
 in vec2 uv;
 
 in vec3 instancePosition;
+in vec4 instanceRotation;
 in vec3 instanceScale;
-in vec3 instanceRotation;
 
 out vec4 lightPosition;
 out vec4 viewPosition;
@@ -21,7 +23,7 @@ out vec2 outuv;
 
 void main()
 {
-	vec3 npos = position;
+	vec3 npos = position * (1 - hasInstances) + rotateByQuaternion(vec4(position,0), instanceRotation) * hasInstances;
 	float height = (texture2D(heightSampler, uv).r - 0.5) * hasHeightMap * heightScaleFactor;
 	npos += normal * height;
 	npos += instancePosition * hasInstances;;

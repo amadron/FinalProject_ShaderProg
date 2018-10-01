@@ -111,10 +111,20 @@ namespace Example.src.Test
             grass.SetAlphaMap(grassAlpha);
             //Entity grassEntity = new Entity();
             //grassEntity.renderable = grass;
-            SphericalTerrainSpawner grassSpawner = new SphericalTerrainSpawner(isleTerrain, grass, new Vector3(0f, 7.1f, 0f), 1, 10);
-            grassSpawner.SpawnElements();
-            grass.instances = 10;
-
+            Vector3[] spawnPositions = { new Vector3(-0.1f, 7.1f, 2.5f), new Vector3(-3.5f, 7.1f, -1.5f),
+            new Vector3(6f, 7.1f, 2.5f), new Vector3(6f, 7.1f, -1.5f), new Vector3(5f, 7.1f, -6f), new Vector3(1f, 7.1f, -8f), new Vector3(-3f, 7.1f, -8f)};
+            float[] radius = { 2f, 1.9f, 2f, 2f, 2f, 2f, 2f };
+            int[] amountGrass = { 50, 60, 50, 60, 60, 60, 60 };
+            Range3D scaleRange = new Range3D(new Vector3(0.5f), new Vector3(1.5f));
+            TerrainLayer layer = new TerrainLayer(isleTerrain, grass);
+            for(int i = 0; i < spawnPositions.Length; i++)
+            {
+                SphericalTerrainSpawner grassSpawner = new SphericalTerrainSpawner( spawnPositions[i], radius[i], amountGrass[i]);
+                grassSpawner.randomScaleRange = scaleRange;
+                layer.AddSpawner(grassSpawner);
+            }
+            layer.SpawnElements();
+            res.Add(layer);
             var skysphere = Meshes.CreateSphere(40, 2);
             skysphere.SwitchTriangleMeshWinding();
             Renderable skydome = ContentFactory.GetDefaultRenderable(renderer, skysphere);
@@ -134,7 +144,6 @@ namespace Example.src.Test
             spEntity.renderable = sphere;
 
             //res.Add(grassEntity);
-            res.Add(grassSpawner);
             res.Add(isleEntity);
             res.Add(waterEntity);
             //res.Add(spEntity);

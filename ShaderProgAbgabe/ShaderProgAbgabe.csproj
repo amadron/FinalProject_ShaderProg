@@ -59,7 +59,7 @@
     <Compile Include="src\model\graphics\ui\UIElement.cs" />
     <Compile Include="src\model\physics\BoxCollider.cs" />
     <Compile Include="src\model\physics\SphereCollider.cs" />
-    <Compile Include="src\model\terrain\TerrainLayer.cs" />
+    <Compile Include="src\model\terrain\TerrainSpawner\TerrainLayer.cs" />
     <Compile Include="src\model\terrain\TerrainSpawner\ITerrainSpawner.cs" />
     <Compile Include="src\model\terrain\TerrainSpawner\SphericalTerrainSpawner.cs" />
     <Compile Include="src\Test\ui\ButtonTestAction.cs" />

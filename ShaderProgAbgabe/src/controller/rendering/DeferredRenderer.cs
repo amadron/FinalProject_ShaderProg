@@ -351,7 +351,7 @@ namespace Example.src.model.graphics.rendering
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
-                GL.DepthMask(false);
+                //GL.DepthMask(false);
             }
             
             deferredParticleShader.Activate();
@@ -422,7 +422,7 @@ namespace Example.src.model.graphics.rendering
             }
             deferredParticleShader.Deactivate();
             GL.Disable(EnableCap.Blend);
-            GL.DepthMask(true);
+            //GL.DepthMask(true);
         }
 
         public void FinishGeometryPass()
@@ -454,7 +454,7 @@ namespace Example.src.model.graphics.rendering
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
-                GL.DepthMask(false);
+                //GL.DepthMask(false);
             }
             shadowLightViewShader.Activate();
             //GL.ActiveTexture(TextureUnit.Texture0);
@@ -508,7 +508,7 @@ namespace Example.src.model.graphics.rendering
             GL.Disable(EnableCap.Blend);
             if(geometry.hasAlphaMap == 1)
             {
-                GL.DepthMask(true);
+                //GL.DepthMask(true);
             }
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
@@ -522,7 +522,7 @@ namespace Example.src.model.graphics.rendering
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
-                GL.DepthMask(false);
+                //GL.DepthMask(false);
             }
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             shadowLightViewShaderParticle.Activate();
@@ -549,7 +549,7 @@ namespace Example.src.model.graphics.rendering
             lightViewFBO.Texture.Deactivate();
             shadowLightViewShaderParticle.Deactivate();
             GL.Disable(EnableCap.Blend);
-            GL.DepthMask(true);
+            //GL.DepthMask(true);
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
         }
@@ -582,7 +582,7 @@ namespace Example.src.model.graphics.rendering
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
-                GL.DepthMask(false);
+                //GL.DepthMask(false);
             }
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             shadowMapShader.Activate();
@@ -638,11 +638,11 @@ namespace Example.src.model.graphics.rendering
                 geometry.GetShadowMapMesh().Draw();
             }
             shadowMapShader.Deactivate();
-            GL.Disable(EnableCap.Blend);
             if(geometry.hasAlphaMap == 1)
             {
-                GL.DepthMask(true);
+                //GL.DepthMask(true);
             }
+            GL.Disable(EnableCap.Blend);
             renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             renderState.Set(new DepthTest(false));
         }
