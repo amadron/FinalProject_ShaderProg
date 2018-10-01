@@ -23,7 +23,7 @@ out vec2 outuv;
 
 void main()
 {
-	vec3 npos = position * (1 - hasInstances) + rotateByQuaternion(vec4(position,0), instanceRotation) * hasInstances;
+	vec3 npos = position * (1 - hasInstances) + rotateByQuaternion(vec4(position,0), instanceRotation) * instanceScale * hasInstances;
 	float height = (texture2D(heightSampler, uv).r - 0.5) * hasHeightMap * heightScaleFactor;
 	npos += normal * height;
 	npos += instancePosition * hasInstances;;

@@ -18,5 +18,5 @@ void main()
 	float dist = lightPosition.z/lightPosition.w;
 	float k = shadowMapExponent;
 	float res = exp(k * dist);
-	color = vec4(vec3(res), 1);
+	color = vec4(vec3(res), 1) * (1 - isUnlit);
 }
