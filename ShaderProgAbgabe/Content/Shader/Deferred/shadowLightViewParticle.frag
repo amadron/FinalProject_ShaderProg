@@ -15,10 +15,12 @@ out vec4 color;
 void main()
 {
 
+	float alpha = getAlpha(hasAlphaMap, alphaSampler, passUv);
+	//if(alpha < 0.1f)
+		//discard;
 	float dist = lightPosition.z/lightPosition.w;
 	float k = shadowMapExponent;
 	float res = exp(k * dist);
-	float alpha = getAlpha(hasAlphaMap, alphaSampler, passUv);
 	
 	color = vec4(vec3(res), alpha);
 	//color = vec4(alpha);

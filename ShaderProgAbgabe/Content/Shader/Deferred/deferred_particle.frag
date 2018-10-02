@@ -29,9 +29,11 @@ out vec4 normal;
 out vec4 unlit;
 void main()
 {
+	float alpha = getAlpha(hasAlphaMap, alphaSampler, inData.uv);
+	//if(alpha < 0.1f)
+		//discard;
 	const vec3 materials[] = { vec3(1), vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 1, 1) };
 
-	float alpha = getAlpha(hasAlphaMap, alphaSampler, inData.uv);
 	vec4 pos = inData.position / inData.position.w;
 	pos.a = alpha;
 	pos.a = 1 - step(alpha, 0.5);

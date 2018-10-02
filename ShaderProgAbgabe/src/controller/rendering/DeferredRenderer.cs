@@ -359,7 +359,7 @@ namespace Example.src.model.graphics.rendering
             if (geometry.hasAlphaMap == 1)
             {
                 GL.Enable(EnableCap.Blend);
-                //GL.DepthMask(false);
+                GL.DepthMask(false);
             }
             
             deferredParticleShader.Activate();
@@ -430,7 +430,7 @@ namespace Example.src.model.graphics.rendering
             }
             deferredParticleShader.Deactivate();
             GL.Disable(EnableCap.Blend);
-            //GL.DepthMask(true);
+            GL.DepthMask(true);
         }
 
         public void FinishGeometryPass()
