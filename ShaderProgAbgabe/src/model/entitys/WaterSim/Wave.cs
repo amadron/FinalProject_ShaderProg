@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Example.src.model.entitys
+namespace Example.src.model.entitys.WaterSim
 {
     struct Wave
     {

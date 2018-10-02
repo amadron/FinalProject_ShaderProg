@@ -53,8 +53,9 @@
     <Compile Include="src\model\entitys\particle\Particle.cs" />
     <Compile Include="src\model\entitys\particle\ParticleModule.cs" />
     <Compile Include="src\model\entitys\Terrain.cs" />
-    <Compile Include="src\model\entitys\Water.cs" />
-    <Compile Include="src\model\entitys\Wave.cs" />
+    <Compile Include="src\model\entitys\WaterSim\Water.cs" />
+    <Compile Include="src\model\entitys\WaterSim\Wave.cs" />
+    <Compile Include="src\model\entitys\WaterSim\WaveLayer.cs" />
     <Compile Include="src\model\graphics\ui\UI.cs" />
     <Compile Include="src\model\graphics\ui\UIElement.cs" />
     <Compile Include="src\model\physics\BoxCollider.cs" />

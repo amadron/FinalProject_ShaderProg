@@ -11,46 +11,70 @@ using Zenseless.Geometry;
 using Zenseless.HLGL;
 using Zenseless.OpenGL;
 
-namespace Example.src.model.entitys
+namespace Example.src.model.entitys.WaterSim
 {
     class Water
     {
         IRenderSurface mapFBO;
         IShaderProgram waterMapShader;
-        Random random;
-        int numberOfWaves;
-        Wave[] waves;
+        List<WaveLayer> waveLayers;
         BufferObject waveBuffer = new BufferObject(BufferTarget.ShaderStorageBuffer);
         Renderable renderable;
+        int numberOfWaves;
         public Water(IContentLoader contentLoader)
         {
-            random = new Random();
             waterMapShader = contentLoader.Load<IShaderProgram>("WaterMap.*");
             mapFBO = new FBO(Texture2dGL.Create(256, 256, 4, true));
             mapFBO.Attach(Texture2dGL.Create(256, 256, 4, true));
             mapFBO.Textures[0].WrapFunction = TextureWrapFunction.MirroredRepeat;
-            numberOfWaves = 12;
-            SetSteepness(new Range(1));
-            SetWaveToWaveDistance(new Range(0.05f, 0.05f));
-            SetSpeed(new Range(1));
-            SetAmplitude(new Range(2f));
-            SetDirection(new Vector2(1, 0));
-            InitWaves();
+            waveLayers = GetWaveLayer();
+            List<Wave> waveList = GetWaves();
+            numberOfWaves = waveList.Count;
+            waveBuffer.Set(waveList.ToArray(), BufferUsageHint.StaticCopy);
         }
 
-        void InitWaves()
+        List<WaveLayer> GetWaveLayer()
         {
-            waves = new Wave[numberOfWaves];
-            for(int i = 0; i < numberOfWaves; i++)
+            Random random = new Random();
+            Vector2 dir = new Vector2(1, 0);
+            List<WaveLayer> wLayer = new List<WaveLayer>();
+            WaveLayer main1 = new WaveLayer();
+            main1.direction = dir;
+            main1.numberOfWaves = 12;
+            main1.amplitude = new Range(1, 1f);
+            main1.waveToWaveDistance = new Range(0.2f, 0.20f);
+            main1.amplitude = new Range(2, 2.5f);
+
+            float subScale = 1.5f;
+            WaveLayer sub1 = new WaveLayer();
+            sub1.numberOfWaves = 6;
+            sub1.amplitude = new Range(main1.amplitude.min * subScale, main1.amplitude.max * subScale);//new Range(0.0005f, 0.001f);
+            sub1.waveToWaveDistance = new Range(main1.waveToWaveDistance.min * 0.9f, main1.waveToWaveDistance.max * 0.9f);
+            sub1.speed = main1.speed;
+            sub1.direction = dir + new Vector2(0, 0.1f) ;
+
+            float subScale2 = 1.1f;
+            WaveLayer sub2 = new WaveLayer();
+            sub2.numberOfWaves = 6;
+            sub2.amplitude = new Range(main1.amplitude.min * subScale2, main1.amplitude.max * subScale2);
+            sub2.waveToWaveDistance = new Range(main1.waveToWaveDistance.min * 0.5f, main1.waveToWaveDistance.max * 0.5f);
+            sub2.speed = new Range(main1.speed.min * 2f, main1.speed.max * 2f);
+            sub2.direction = dir + new Vector2(0, 0.2f);
+            wLayer.Add(main1);
+            wLayer.Add(sub1);
+            wLayer.Add(sub2);
+            return wLayer;
+        }
+
+        List<Wave> GetWaves()
+        {
+            List<Wave> tmpList = new List<Wave>();
+            for(int i = 0; i < waveLayers.Count; i++)
             {
-                float waveToWaveValue = waveToWaveDistance.GetRandomValue(random);
-                waves[i].wavelength = (float)Math.Sqrt(gravity * ((2 * Math.PI) / waveToWaveValue));
-                waves[i].steepness = steepness.GetRandomValue(random);
-                waves[i].speed = speed.GetRandomValue(random);
-                waves[i].direction = direction;
-                waves[i].amplitude = amplitude.GetRandomValue(random);
+                waveLayers[i].GenerateWaves();
+                tmpList.AddRange(waveLayers[i].GetWaves());
             }
-            waveBuffer.Set(waves, BufferUsageHint.StaticCopy);
+            return tmpList;
         }
 
         public void CreateMaps(float time)
@@ -111,6 +135,11 @@ namespace Example.src.model.entitys
             this.amplitude = value;
         }
 
+        public void SetSubAmplitude(Range value)
+        {
+            this.subAmplitude = value;
+        }
+
         public void SetDirection(Vector2 dir)
         {
             this.direction = dir;
@@ -121,9 +150,19 @@ namespace Example.src.model.entitys
             speed = value;
         }
 
+        public void SetSubSpeed(Range value)
+        {
+            subSpeed = value;
+        }
+
         public void SetWaveToWaveDistance(Range value)
         {
             this.waveToWaveDistance = value;
+        }
+
+        public void SetSubWaveToWaveDistance(Range value)
+        {
+            this.subWaveToWaveDistance = value;
         }
 
         public void SetSteepness(Range value)
@@ -131,11 +170,29 @@ namespace Example.src.model.entitys
             this.steepness = value;
         }
 
+        public void SetSubSteepness(Range value)
+        {
+            subSteepness = value;
+        }
+
+        public void SetSubDirOffset(Range value)
+        {
+            subDirOffset = value;
+        }
+
+
+
         private float gravity = 9.8f;
         private Range amplitude;
         private Vector2 direction;
         private Range speed;
         private Range waveToWaveDistance;
         private Range steepness;
+
+        private Range subDirOffset;
+        private Range subAmplitude;
+        private Range subSpeed;
+        private Range subWaveToWaveDistance;
+        private Range subSteepness;
     }
 }
