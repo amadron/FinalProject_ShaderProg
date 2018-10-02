@@ -31,7 +31,7 @@ namespace Example.src.Test
             ambientColor = new Vector4(0.1f, 0.10f, 0.074f, 1);
             entityList = GetGeometry(renderer);
             directionalLight = new DirectionalLight(new Vector4(1f, 0.968f, 0.878f, 1), new Vector3(0.1f, -0.5f, 1f), 1f, new Vector4(1, 1, 1, 1), 255, 0f);
-            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 5f, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 70, height: 70, zPlaneNear:0.1f, zPlaneFar:500);
+            directionalLightCamera = new FirstPersonCamera(new Vector3(0, 5f, 5f), 25, 180, Camera.ProjectionType.Orthographic, fov: 1f, width: 100, height: 100, zPlaneNear:0.1f, zPlaneFar:700);
             
             ITexture2D particleText = contentLoader.Load<ITexture2D>("smoke.jpg");
             ParticleSystem system = new ParticleSystem(renderer, contentLoader);
@@ -91,10 +91,10 @@ namespace Example.src.Test
 
 
 
-            var waterplane = Meshes.CreatePlane(50, 50, 225, 225).Transform(Transformation.Translation(0, 1f, 0));
+            var waterplane = Meshes.CreatePlane(100, 100, 225, 225).Transform(Transformation.Translation(0, 1f, 0));
             VAO waterDrawable = renderer.GetDrawable(waterplane, DeferredRenderer.DrawableType.deferredDefaultMesh);
             Renderable water = ContentFactory.GetDefaultRenderable(renderer, waterplane);
-            ITexture2D waterEnvironment = contentLoader.Load<ITexture2D>("sky1.jpg");
+            ITexture2D waterEnvironment = contentLoader.Load<ITexture2D>("sky_low.jpg");
             water.SetEnvironmentMap(waterEnvironment);
             water.reflectivity = 1;
             //water.SetAlbedoTexture(isleAlbedo);
@@ -125,7 +125,7 @@ namespace Example.src.Test
             }
             layer.SpawnElements();
             res.Add(layer);
-            var skysphere = Meshes.CreateSphere(40, 2);
+            var skysphere = Meshes.CreateSphere(60, 2);
             skysphere.SwitchTriangleMeshWinding();
             Renderable skydome = ContentFactory.GetDefaultRenderable(renderer, skysphere);
             skydome.faceCullingMode = FaceCullingMode.FRONT_SIDE;

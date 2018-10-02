@@ -26,7 +26,7 @@ in Data {
 out vec4 position;
 out vec4 albedo;
 out vec4 normal;
-
+out vec4 unlit;
 void main()
 {
 	const vec3 materials[] = { vec3(1), vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 1, 1) };

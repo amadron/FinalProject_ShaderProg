@@ -263,6 +263,14 @@ namespace Example.src.model.graphics.rendering
             {
                 deferredGeometryShader.Uniform("hasInstances", 0);
             }
+            if(geometry.projectionMode == Renderable.ProjectionMode.Spherical)
+            {
+                deferredGeometryShader.Uniform("sphereProj", 1);
+            }
+            else
+            {
+                deferredGeometryShader.Uniform("sphereProj", 0);
+            }
 
 
             //Activate Textures of FBO

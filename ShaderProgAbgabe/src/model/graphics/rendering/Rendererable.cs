@@ -11,6 +11,7 @@ namespace Example.src.model.graphics.rendering
 {
     class Renderable
     {
+        public enum ProjectionMode { Planar, Spherical };
         public int hasAlbedoTexture;
         public ITexture2D albedoTexture;
         public int hasNormalMap;
@@ -26,6 +27,7 @@ namespace Example.src.model.graphics.rendering
         public FaceCullingMode faceCullingMode;
         public int instances;
         public float unlit;
+        public ProjectionMode projectionMode;
         private VAO deferredMesh;
         private VAO lightViewMesh;
         private VAO shadowMapMesh;
@@ -50,6 +52,7 @@ namespace Example.src.model.graphics.rendering
             faceCullingMode = FaceCullingMode.BACK_SIDE;
             instances = 0;
             unlit = 0 ;
+            projectionMode = ProjectionMode.Planar;
         }
 
         public void SetAlbedoTexture(ITexture2D texture)

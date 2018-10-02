@@ -213,5 +213,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Content\Textures\UI\logo.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Environment\sky_low.jpg" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

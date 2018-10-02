@@ -28,10 +28,11 @@ void main()
 {
 	vec3 position = texture2D(positionSampler, uv).xyz;
 	vec4 albedo = texture2D(albedoSampler, uv);
-	float hasAlbedo = length(normalize(albedo));
+	float hasAlbedo = length(albedo.rgb);
 	vec3 normal = texture2D(normalSampler, uv).rgb;
 	vec4 shadows = texture2D(shadowSampler, uv);
-	vec4 unlit = texture2D(unlitSampler, uv);
+	vec4 unlit = texture2D(unlitSampler, uv) * (1 - hasAlbedo);
+	unlit = clamp(unlit, 0, 1);
 	vec3 ambient = ambientColor.rgb;
 	vec4 diffuse = getDiffuse(dirLightDir, normal, dirLightCol, albedo, dirIntensity);
 	vec3 viewDir = normalize(position - camPos);
