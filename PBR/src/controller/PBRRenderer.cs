@@ -16,6 +16,7 @@ namespace PBR.src.controller
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
             pbrShader = contentLoader.Load<IShaderProgram>("PBR.*");
+            dLight = new DirectionalLight();
         }
 
         public IShaderProgram GetShader()
@@ -23,7 +24,9 @@ namespace PBR.src.controller
             return pbrShader;
         }
 
-        public void Render(Matrix4x4 camMat,VAO geometry,PBRMaterial material)
+        DirectionalLight dLight;
+
+        public void Render(Camera<Orbit, Perspective> camera,VAO geometry,PBRMaterial material)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
@@ -31,8 +34,11 @@ namespace PBR.src.controller
             pbrShader.Uniform("rougness", material.roughness);
             pbrShader.Uniform("metal", material.metal);
             pbrShader.Uniform("ao", material.ao);
-            Matrix4x4 mat = camMat;
+            Matrix4x4 mat = camera.Matrix;
+            Vector3 camPos = camera.View.CalcPosition();
             pbrShader.Uniform("cameraMatrix", mat);
+            pbrShader.Uniform("camPosition", camPos);
+            pbrShader.Uniform("lightDir", dLight.direction);
 
             pbrShader.Activate();
             geometry.Draw();

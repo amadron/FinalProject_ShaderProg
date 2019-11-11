@@ -10,8 +10,17 @@ namespace PBR.src.model.rendering
             position = new Vector3(0, 1, 0);
         }
 
-        Vector3 color;
-        Vector3 position;
+        public Vector3 color;
+        public Vector3 position;
+    }
+
+    class DirectionalLight : Light
+    {
+        public DirectionalLight() : base()
+        {
+            direction = new Vector3(0, 1, 1);
+        }
+        public Vector3 direction;
     }
     
 }

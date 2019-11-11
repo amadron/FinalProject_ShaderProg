@@ -71,7 +71,7 @@ namespace PBR
 
         public void Render()
         {
-            renderer.Render(cam.Matrix, geometry, mat);
+            renderer.Render(cam, geometry, mat);
         }
     }
 }
