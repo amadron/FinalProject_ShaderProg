@@ -1,0 +1,220 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8F50EB5E-7E81-4766-8A3F-6991B262F15F}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Example</RootNamespace>
+    <AssemblyName>ZenselessAppEmpty</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyConfig.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="src\controller\content\ContentFactory.cs" />
+    <Compile Include="src\controller\Game.cs" />
+    <Compile Include="src\controller\logic\IAction.cs" />
+    <Compile Include="src\controller\physics\PhysicsManager.cs" />
+    <Compile Include="src\controller\rendering\UIRenderer.cs" />
+    <Compile Include="src\controller\SATGpuFilter.cs" />
+    <Compile Include="src\controller\logic\IState.cs" />
+    <Compile Include="src\model\entitys\particle\modules\global\PModuleAddScale.cs" />
+    <Compile Include="src\model\entitys\particle\modules\particlewise\PModuleApplyWind.cs" />
+    <Compile Include="src\model\entitys\particle\Particle.cs" />
+    <Compile Include="src\model\entitys\particle\ParticleModule.cs" />
+    <Compile Include="src\model\entitys\Terrain.cs" />
+    <Compile Include="src\model\entitys\WaterSim\Water.cs" />
+    <Compile Include="src\model\entitys\WaterSim\Wave.cs" />
+    <Compile Include="src\model\entitys\WaterSim\WaveLayer.cs" />
+    <Compile Include="src\model\graphics\ui\UI.cs" />
+    <Compile Include="src\model\graphics\ui\UIElement.cs" />
+    <Compile Include="src\model\physics\BoxCollider.cs" />
+    <Compile Include="src\model\physics\SphereCollider.cs" />
+    <Compile Include="src\model\terrain\TerrainSpawner\TerrainLayer.cs" />
+    <Compile Include="src\model\terrain\TerrainSpawner\ITerrainSpawner.cs" />
+    <Compile Include="src\model\terrain\TerrainSpawner\SphericalTerrainSpawner.cs" />
+    <Compile Include="src\Test\ui\ButtonTestAction.cs" />
+    <Compile Include="src\Test\ui\IslandUI.cs" />
+    <Compile Include="src\util\AspectRatio3D.cs" />
+    <Compile Include="src\util\AspectRatio2D.cs" />
+    <Compile Include="src\util\MathUtil.cs" />
+    <Compile Include="src\util\Range.cs" />
+    <Compile Include="src\util\Range3D.cs" />
+    <Compile Include="src\model\entitys\Entity.cs" />
+    <Compile Include="src\model\entitys\particle\ParticleSystem.cs" />
+    <Compile Include="src\model\entitys\Transform.cs" />
+    <Compile Include="src\model\graphics\camera\Camera.cs" />
+    <Compile Include="src\model\graphics\camera\FirstPersonCamera.cs" />
+    <Compile Include="src\model\graphics\lightning\DirectionalLight.cs" />
+    <Compile Include="src\model\graphics\lightning\Light.cs" />
+    <Compile Include="src\model\graphics\lightning\PointLight.cs" />
+    <Compile Include="src\controller\rendering\DeferredRenderer.cs" />
+    <Compile Include="src\model\graphics\rendering\Rendererable.cs" />
+    <Compile Include="src\model\Scene.cs" />
+    <Compile Include="src\Test\IslandScene.cs" />
+    <Compile Include="View.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Zenseless.ExampleFramework">
+      <Version>0.5.74</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Phong\phong.vert" />
+    <EmbeddedResource Include="Content\Shader\Phong\phong.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_geometry.vert" />
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_post.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_geometry.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\def_pointLight.frag" />
+    <EmbeddedResource Include="Content\Shader\Deferred\def_pointLight.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowLightView.frag" />
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowLightView.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowMap.frag" />
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowMap.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATSumHorizontal.glsl" />
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATAssemblyPassVertical.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATFiltering.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\testTexture.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATAssemblyPassHorizontal.glsl" />
+    <EmbeddedResource Include="Content\Shader\SummedAreaTables\SATSumVertical.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Util\FullQuad.frag" />
+    <EmbeddedResource Include="Content\Shader\Util\FullQuad.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Terrain\heightmap.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\normalTest1.jpg" />
+    <EmbeddedResource Include="Content\Textures\testAlbedo.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Models\capsule.obj" />
+    <EmbeddedResource Include="Content\Models\suzanne.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Engine\particleDefault.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\deferredutil.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Environment\beach.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Models\sphere.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\normalTest2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_water.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_water.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Foliage\Grass_512_albedo.tif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Foliage\Grass_512_alpha.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Foliage\tGrass_512_alpha.tif" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_particle.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\deferred_particle.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowLightViewParticle.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowLightViewParticle.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowMapParticle.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Deferred\shadowMapParticle.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\FX\smoke.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\Water\WaterMap.frag" />
+    <EmbeddedResource Include="Content\Shader\Water\WaterMap.vert" />
+    <EmbeddedResource Include="Content\Shader\Water\waterutil.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Environment\sky1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Terrain\terrain.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Terrain\hmapUnity.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Shader\UI\UIElement.frag" />
+    <EmbeddedResource Include="Content\Shader\UI\UIElement.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\UI\logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Environment\sky_low.jpg" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
