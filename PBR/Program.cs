@@ -10,6 +10,7 @@ namespace PBR
             var window = new ExampleWindow();
             var view = new View(window.RenderContext.RenderState, window.ContentLoader);
             window.Render += () => view.Render();
+            window.Update += (dt) => view.Update(dt);
             //window.Render += () => Draw();
             window.Run();
         }

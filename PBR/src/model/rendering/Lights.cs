@@ -6,7 +6,7 @@ namespace PBR.src.model.rendering
     {
         public Light()
         {
-            color = new Vector3(1);
+            color = new Vector3(1f);
             position = new Vector3(0, 1, 0);
         }
 
