@@ -1,6 +1,12 @@
 # Submission for Shader Programming Master course
 
-Based on [Zenseless Framework](https://github.com/danielscherzer/Zenseless) by Daniel Scherzer. 
+Based on [Zenseless Framework](https://github.com/danielscherzer/Zenseless) by Daniel Scherzer.
+
+Project Contains two Scenes:
+- Island Scene: Implemented Deferred Rendering and Shadow Maps
+- PBR (Work in Progress): Implementation of Physically based Rendering
+
+# Island Scene
 
 ## Controls
 
@@ -91,3 +97,4 @@ The following features/techniques are implemented:
     * Merge ShadowMap pass into Geometry Pass
     * Recalculate normals on Heightmap
 
+# PBR
