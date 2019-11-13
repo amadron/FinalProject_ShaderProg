@@ -21,6 +21,9 @@ namespace PBR
             sphere = Meshes.CreateCubeWithNormals();
             geometry = VAOLoader.FromMesh(sphere, renderer.GetShader());
             mat = new PBRMaterial();
+            mat.albedoColor = new Vector3(1);
+            mat.roughness = 0.0f;
+            mat.metal = 0.5f;
             cam = new Camera<Orbit, Perspective>(new Orbit(), new Perspective(nearClip: 0.1f,farClip: 1000));
             MouseState mState = Mouse.GetState();
             lastMousePos = new Vector2(mState.X, mState.Y);

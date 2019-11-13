@@ -11,7 +11,7 @@ out vec2 fragUV;
 
 void main()
 {
-	pos = (vec4(position,1) * cameraMatrix).xyz;
+	pos = (cameraMatrix * vec4(position,1)).xyz;
 	//pos = position;
 	fragNormal = normal;
 	fragUV = uv;

@@ -22,5 +22,4 @@ namespace PBR.src.model.rendering
         }
         public Vector3 direction;
     }
-    
 }

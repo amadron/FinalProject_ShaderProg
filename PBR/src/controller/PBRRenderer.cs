@@ -17,6 +17,9 @@ namespace PBR.src.controller
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
             pbrShader = contentLoader.Load<IShaderProgram>("PBR.*");
             dLight = new DirectionalLight();
+            dLight.direction = new Vector3(0, 1, 1);
+            dLight.color = new Vector3(10);
+            dLight.position = new Vector3(0, 1, -1);
         }
 
         public IShaderProgram GetShader()
@@ -31,14 +34,15 @@ namespace PBR.src.controller
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
             pbrShader.Uniform("albedo_Color", material.albedoColor);
-            pbrShader.Uniform("rougness", material.roughness);
+            pbrShader.Uniform("roughness", material.roughness);
             pbrShader.Uniform("metal", material.metal);
             pbrShader.Uniform("ao", material.ao);
             Matrix4x4 mat = camera.Matrix;
             Vector3 camPos = camera.View.CalcPosition();
-            pbrShader.Uniform("cameraMatrix", mat);
+            pbrShader.Uniform("cameraMatrix", mat, true);
             pbrShader.Uniform("camPosition", camPos);
-            pbrShader.Uniform("lightDir", dLight.direction);
+            pbrShader.Uniform("lightPosition", dLight.position);
+            pbrShader.Uniform("lightColor", dLight.color);
 
             pbrShader.Activate();
             geometry.Draw();
