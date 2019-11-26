@@ -79,6 +79,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\controller\PBRRenderer.cs" />
     <Compile Include="src\controller\View.cs" />
+    <Compile Include="src\model\rendering\Camera.cs" />
     <Compile Include="src\model\rendering\Lights.cs" />
     <Compile Include="src\model\rendering\PBRMaterial.cs" />
   </ItemGroup>

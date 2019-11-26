@@ -11,9 +11,13 @@ namespace PBR
             var view = new View(window.RenderContext.RenderState, window.ContentLoader);
             window.Render += () => view.Render();
             window.Update += (dt) => view.Update(dt);
+            window.GameWindow.KeyDown += view.Event_KeyDown;
+            window.GameWindow.KeyUp += view.Event_KeyRelease;
             //window.Render += () => Draw();
             window.Run();
         }
+
+
 
         static void Draw()
         {

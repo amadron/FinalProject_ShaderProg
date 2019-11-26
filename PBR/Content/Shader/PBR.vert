@@ -6,15 +6,15 @@ in vec2 uv;
 uniform mat4 cameraMatrix;
 
 out vec3 pos;
-out vec3 fragNormal;
-out vec2 fragUV;
+out vec3 Normal;
+out vec2 UV;
 
 void main()
 {
 	pos = (cameraMatrix * vec4(position,1)).xyz;
 	//pos = position;
-	fragNormal = normal;
-	fragUV = uv;
+	Normal = normal;
+	UV = uv;
 
 	gl_Position = vec4(pos, 1);
 }

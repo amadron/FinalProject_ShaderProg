@@ -1,6 +1,6 @@
 ﻿#version 430 core
 
-uniform vec3 albedo_Color;
+uniform vec3 albedo;
 uniform float roughness;
 uniform float metal;
 uniform float ao;
@@ -11,8 +11,8 @@ uniform vec3 lightPosition;
 uniform vec3 lightColor;
 
 in vec3 pos;
-in vec3 fragNormal;
-in vec2 fragUV;
+in vec3 Normal;
+in vec2 UV;
 
 out vec4 fragColor;
 
@@ -35,7 +35,7 @@ float NDF(vec3 n, vec3 h, float roughness)
 	//PI((dot(n,h)^2(a^2 - 1) + 1)^2
 	float dProd = max(dot(n, h),0.0);
 	float dProdSquare = dProd * dProd; //dot^2
-	float roughMinus = roughSqr - 1;	//a^2 - 1
+	float roughMinus = roughSqr - 1.0;	//a^2 - 1
 
 	float clip = dProdSquare * roughMinus + 1.0; //(dot(n,h)^2(a^2 - 1) + 1
 	clip = clip * clip;
@@ -44,12 +44,13 @@ float NDF(vec3 n, vec3 h, float roughness)
 }
 
 //GSchlick GGX
-float GSub(vec3 n, vec3 v, float k)
+float GSub(vec3 n, vec3 v, float roughness)
 {
 	float numorator = max(dot(n,v), 0.0f);
-
+	float r = (roughness + 1.0);
+	float k = (r * r) / 8.0;
 	//(n dot v)(1-k)+k
-	float denom = numorator * (1-k)+k;
+	float denom = numorator * (1.0 - k)+k;
 	return numorator / denom;
 }
 
@@ -72,11 +73,11 @@ vec3 Fresnel(vec3 h, vec3 v, vec3 IOR)
 
 void main()
 {
-	vec3 normal = normalize(fragNormal);
+	vec3 normal = normalize(Normal);
 	vec3 viewDir = normalize(camPosition - pos);
 	
 	vec3 IOR = vec3(0.04);
-	IOR = mix(IOR, albedo_Color, metal);
+	IOR = mix(IOR, albedo, metal);
 
 	vec3 Lo = vec3(0.0);
 	
@@ -90,7 +91,7 @@ void main()
 	//BRDF
 	vec3 lightDir = normalize(pos - lightPosition);
 	vec3 halfWayVec = normalize(lightDir + viewDir);
-
+	
 	float ndf = NDF(normal, halfWayVec, roughness);
 	float geometry = GeometryFunction(normal, viewDir, lightDir, roughness);
 	vec3 fresnel = Fresnel(halfWayVec, viewDir, IOR);
@@ -103,16 +104,17 @@ void main()
 	vec3 num = ndf * geometry * fresnel;
 	float denom = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir),0.0);
 
-	vec3 specular = num / max(denom,0.001);
+	vec3 specular = num / max(denom, 0.001);
 	float viewAngle = max(dot(normal, viewDir), 0.0);
-	Lo  += (refraction * albedo_Color / PI + specular) * radiance * viewAngle;
-
-	vec3 ambient = vec3(0.03) * albedo_Color * ao;
+	Lo  += (refraction * albedo / PI + specular) * radiance * viewAngle;
+	//----------------End Per Light------------------
+	vec3 ambient = vec3(0.03) * albedo * ao;
 	vec3  color = ambient + Lo;
 
 	//HDR Color mapping
 	//color = color / (color + vec3(1.0)); 
 	//color = pow(color, vec3(1.0/2.2));
-	fragColor = vec4(color,1.0);
-	fragColor = vec4(vec3(geometry),1.0);
+	//fragColor = vec4(albedo,1.0);
+	//fragColor = vec4(vec3(geometry),1.0);
+	fragColor = vec4(color, 1.0);
 }
