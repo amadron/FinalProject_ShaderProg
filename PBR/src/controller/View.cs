@@ -6,34 +6,30 @@ using Zenseless.HLGL;
 using Zenseless.OpenGL;
 using System.Numerics;
 using System.Collections.Generic;
+using PBR.src.model;
 
 namespace PBR
 {
     class View
     {
         PBRRenderer renderer;
-        VAO geometry;
-        PBRMaterial mat;
+        List<GameObject> objects = new List<GameObject>();
         Camera cam;
         Camera<FirstPerson, Perspective> fCam;
+        IContentLoader contendLoader;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
-            
+            this.contendLoader = contendLoader;
             renderer = new PBRRenderer(renderState, contentLoader);
-            DefaultMesh sphere = Meshes.CreateSphere(0.2f, 10);
+            DefaultMesh sphere = Meshes.CreateSphere(0.2f, 5);
             sphere = Meshes.CreateCubeWithNormals();
-            geometry = VAOLoader.FromMesh(sphere, renderer.GetShader());
-            mat = new PBRMaterial();
-            mat.albedoColor = new Vector3(1);
-            mat.roughness = 1f;
-            mat.metal = 0.5f;
             cam = new Camera();
-            
+            objects = GetSampleScene();
             cam.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
             cam.fov = 90;
-            fCam = new Camera<FirstPerson, Perspective>(new FirstPerson(new Vector3(0, 0, 1)), new Perspective());
+            fCam = new Camera<FirstPerson, Perspective>(new FirstPerson(new Vector3(0, 0, 1)), new Perspective(farClip:1000.0f));
             MouseState mState = Mouse.GetState();
             lastMousePos = new Vector2(mState.X, mState.Y);
             keyStates = new Dictionary<Key, bool>();
@@ -43,6 +39,50 @@ namespace PBR
             keyStates.Add(Key.W, false);
             keyStates.Add(Key.Q, false);
             keyStates.Add(Key.E, false);
+        }
+
+
+        List<GameObject> GetSampleScene()
+        {
+            List<GameObject> goList = new List<GameObject>();
+            DefaultMesh plane = Meshes.CreatePlane(10, 10, 10, 10).Transform(Transformation.Translation(new Vector3(0,-1f,0)));
+            VAO planeMesh = VAOLoader.FromMesh(plane, renderer.GetShader());
+            GameObject planeGO = new GameObject();
+            PBRMaterial planemat = new PBRMaterial();
+            planemat.albedoColor = new Vector3(1);
+            planemat.roughness = 1;
+            planemat.metal = 0;
+            planeGO.mesh = planeMesh;
+            planeGO.material = planemat;
+            goList.Add(planeGO);
+            //return goList;
+            int gridSize = 7;
+            float sphereSize = 0.1f;
+            float spacing = sphereSize + sphereSize * 2f;
+            float startX = gridSize / 2 * spacing;
+            Vector3 startVector = new Vector3(-startX, startX, 0);
+            for(int i = 0; i < gridSize; i++)
+            {
+                Vector3 tmpStart = startVector;
+                for (int j = 0; j < gridSize; j++)
+                {
+                    DefaultMesh mesh = Meshes.CreateSphere(sphereSize, 2).Transform(Transformation.Translation(tmpStart));
+                    VAO geom = VAOLoader.FromMesh(mesh, renderer.GetShader());
+
+                    tmpStart.X += spacing;
+                    
+                    GameObject go = new GameObject();
+                    PBRMaterial mat = new PBRMaterial();
+                    mat.metal = 0;
+                    mat.roughness = 1;
+                    mat.albedoColor = new Vector3(1, 0, 0);
+                    go.mesh = geom;
+                    go.material = mat;
+                    goList.Add(go);
+                }
+                startVector.Y -= spacing;
+            }
+            return goList;
         }
 
         Dictionary<Key, bool> keyStates;
@@ -79,10 +119,11 @@ namespace PBR
             {
                 mouseButtonDown = false;
             }
+            float mouseSpeed = 2;
             if (mouseButtonDown)
             {
-                float vert = mDelta.Y * deltatime;
-                float hor = mDelta.X * deltatime;
+                float vert = mDelta.Y * deltatime * mouseSpeed;
+                float hor = mDelta.X * deltatime * mouseSpeed;
                 /*
                 cam.View.Elevation += vert;
                 cam.View.Azimuth += hor;
@@ -167,9 +208,15 @@ namespace PBR
             fCam.View.Position = camPos;
         }
 
+        
+
         public void Render()
         {
-            renderer.Render(fCam.Matrix, fCam.View.Position, geometry, mat);
+            renderer.StartRendering();
+            foreach(GameObject go in objects)
+            {
+                renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
+            }
         }
     }
 }

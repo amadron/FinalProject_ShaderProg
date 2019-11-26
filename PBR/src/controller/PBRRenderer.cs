@@ -29,9 +29,14 @@ namespace PBR.src.controller
 
         DirectionalLight dLight;
 
-        public void Render(Matrix4x4 camMatrix, Vector3 camPosition,VAO geometry,PBRMaterial material)
+        public void StartRendering()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        }
+
+        public void Render(Matrix4x4 camMatrix, Vector3 camPosition,VAO geometry,PBRMaterial material)
+        {
+            
             
             pbrShader.Uniform("albedo", material.albedoColor);
             pbrShader.Uniform("roughness", material.roughness);
