@@ -14,6 +14,15 @@ in vec3 pos;
 in vec3 Normal;
 in vec2 UV;
 
+uniform PointLight 
+{
+	vec3 position;
+	vec3 color;
+	float radius;
+} pointLights[10];
+
+uniform int pointLightAmount;
+
 out vec4 fragColor;
 
 const float PI = 3.14159265359;

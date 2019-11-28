@@ -22,4 +22,11 @@ namespace PBR.src.model.rendering
         }
         public Vector3 direction;
     }
+
+    struct PointLight
+    {
+        public Vector3 position;
+        public Vector3 color;
+        public float range;
+    }
 }

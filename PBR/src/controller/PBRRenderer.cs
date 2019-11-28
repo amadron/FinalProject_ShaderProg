@@ -20,6 +20,24 @@ namespace PBR.src.controller
             dLight.direction = new Vector3(0, 1, -1);
             dLight.color = new Vector3(10);
             dLight.position = new Vector3(0, 1, -1);
+            int width = 2;
+            float step = 0.5f;
+            Vector3 startPos = new Vector3(-step, step, -1);
+            pointLights = new PointLight[width * width];
+            for(int i = 0; i < width; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    int idx = i * width + j;
+
+                    pointLights[idx] = new PointLight();
+                    pointLights[idx].position = startPos;
+                    pointLights[idx].position.X += i * step;
+                    pointLights[idx].position.Y += j * step;
+                }
+            }
+            
+           
         }
 
         public IShaderProgram GetShader()
@@ -28,6 +46,7 @@ namespace PBR.src.controller
         }
 
         DirectionalLight dLight;
+        PointLight[] pointLights;
 
         public void StartRendering()
         {
@@ -48,6 +67,10 @@ namespace PBR.src.controller
             pbrShader.Uniform("camPosition", camPos);
             pbrShader.Uniform("lightPosition", dLight.position);
             pbrShader.Uniform("lightColor", dLight.color);
+            
+            pbrShader.Uniform("pointLightAmound", pointLights.Length);
+
+
 
             pbrShader.Activate();
             geometry.Draw();
