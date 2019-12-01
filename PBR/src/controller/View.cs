@@ -61,6 +61,7 @@ namespace PBR
             float spacing = sphereSize + sphereSize * 2f;
             float startX = gridSize / 2 * spacing;
             Vector3 startVector = new Vector3(-startX, startX, 0);
+            float paramSteps = 1.0f / gridSize;
             for(int i = 0; i < gridSize; i++)
             {
                 Vector3 tmpStart = startVector;
@@ -73,8 +74,8 @@ namespace PBR
                     
                     GameObject go = new GameObject();
                     PBRMaterial mat = new PBRMaterial();
-                    mat.metal = 0;
-                    mat.roughness = 1;
+                    mat.metal = i * paramSteps;
+                    mat.roughness = j * paramSteps;
                     mat.albedoColor = new Vector3(1, 0, 0);
                     go.mesh = geom;
                     go.material = mat;

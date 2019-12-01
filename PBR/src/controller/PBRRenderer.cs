@@ -23,7 +23,7 @@ namespace PBR.src.controller
             dLight.position = new Vector3(0, 1, -1);
             int width = 2;
             float step = 0.5f;
-            Vector3 startPos = new Vector3(-step, step, -1);
+            Vector3 startPos = new Vector3(-step, step, -0.5f);
             pointLights = new PointLight[width * width];
             for(int i = 0; i < width; i++)
             {
@@ -32,11 +32,11 @@ namespace PBR.src.controller
                     int idx = i * width + j;
 
                     pointLights[idx] = new PointLight();
-                    pointLights[idx].color = new Vector3(1, 0, 0.5f);
+                    pointLights[idx].color = new Vector3(1);
                     pointLights[idx].position = startPos;
                     pointLights[idx].position.X += i * step;
                     pointLights[idx].position.Y += j * step;
-                    pointLights[idx].radius = 1f;
+                    pointLights[idx].radius = 2f;
                 }
             }
             int size = System.Runtime.InteropServices.Marshal.SizeOf(typeof(PointLight)) * pointLights.Length;

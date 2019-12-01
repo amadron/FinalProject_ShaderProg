@@ -100,14 +100,14 @@ void main()
 		PointLight pLight = pointLight[0];
 		//------------------Per Light---------------------
 		//radiance
-		float lightDist = distance(pos, pLight.position);
+		float lightDist = length(pos - pLight.position);
 		float dist = lightDist;
 		float attenuation = 1.0 / (dist * dist);
 		attenuation = clamp(attenuation, 0, pLight.radius);
 		vec3 radiance = pLight.color * attenuation;
 
 		//BRDF
-		vec3 lightDir = normalize(pos - lightPosition);
+		vec3 lightDir = normalize(pos - pLight.position);
 		vec3 halfWayVec = normalize(lightDir + viewDir);
 	
 		float ndf = NDF(normal, halfWayVec, roughness);
@@ -134,7 +134,7 @@ void main()
 	color = color / (color + vec3(1.0)); 
 	color = pow(color, vec3(1.0/2.2));
 	//fragColor = vec4(albedo,1.0);
-	//fragColor = vec4(vec3(geometry),1.0);
 	fragColor = vec4(color, 1.0);
+	//fragColor = vec4(vec3(ambient),1.0);
 	//fragColor = vec4(pointLight[3].color, 1);
 }
