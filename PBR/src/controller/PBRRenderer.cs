@@ -1,4 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL4;
 using Zenseless.Geometry;
 using PBR.src.model.rendering;
 using Zenseless.HLGL;
@@ -9,6 +9,7 @@ namespace PBR.src.controller
 {
     class PBRRenderer
     {
+        int ubo = 0;
         IShaderProgram pbrShader;
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
@@ -31,13 +32,27 @@ namespace PBR.src.controller
                     int idx = i * width + j;
 
                     pointLights[idx] = new PointLight();
+                    pointLights[idx].color = new Vector3(1, 0, 0.5f);
                     pointLights[idx].position = startPos;
                     pointLights[idx].position.X += i * step;
                     pointLights[idx].position.Y += j * step;
+                    pointLights[idx].radius = 1f;
                 }
             }
+            int size = System.Runtime.InteropServices.Marshal.SizeOf(typeof(PointLight)) * pointLights.Length;
+
+            //Generate buffer and allocate memory
+            ubo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.UniformBuffer, ubo);
+            GL.BufferData(BufferTarget.UniformBuffer, size, pointLights, BufferUsageHint.DynamicDraw);
+
+            //Assign Buffer Block to ubo
+            int uniformID = GL.GetUniformBlockIndex(pbrShader.ProgramID, "BufferPointLights");
+            GL.UniformBlockBinding(pbrShader.ProgramID, uniformID, 0);
+            GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 0, ubo);
+
             
-           
+
         }
 
         public IShaderProgram GetShader()
@@ -45,6 +60,15 @@ namespace PBR.src.controller
             return pbrShader;
         }
 
+        struct PointLight
+        {
+            public Vector3 position;
+            public float radius;
+            public Vector3 color;
+            public float offset;
+        }
+
+        
         DirectionalLight dLight;
         PointLight[] pointLights;
 
@@ -55,8 +79,11 @@ namespace PBR.src.controller
 
         public void Render(Matrix4x4 camMatrix, Vector3 camPosition,VAO geometry,PBRMaterial material)
         {
-            
-            
+
+            pbrShader.Activate();
+
+            GL.BindBuffer(BufferTarget.UniformBuffer, ubo);
+
             pbrShader.Uniform("albedo", material.albedoColor);
             pbrShader.Uniform("roughness", material.roughness);
             pbrShader.Uniform("metal", material.metal);
@@ -67,13 +94,10 @@ namespace PBR.src.controller
             pbrShader.Uniform("camPosition", camPos);
             pbrShader.Uniform("lightPosition", dLight.position);
             pbrShader.Uniform("lightColor", dLight.color);
-            
             pbrShader.Uniform("pointLightAmound", pointLights.Length);
 
-
-
-            pbrShader.Activate();
             geometry.Draw();
+
             pbrShader.Deactivate();
         }
     }

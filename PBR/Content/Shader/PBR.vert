@@ -4,6 +4,7 @@ in vec3 position;
 in vec3 normal;
 in vec2 uv;
 uniform mat4 cameraMatrix;
+uniform vec3 albedo;
 
 out vec3 pos;
 out vec3 Normal;
@@ -15,6 +16,7 @@ void main()
 	//pos = position;
 	Normal = normal;
 	UV = uv;
-
+	
 	gl_Position = vec4(pos, 1);
+	vec3 alb = albedo;
 }

@@ -14,12 +14,18 @@ in vec3 pos;
 in vec3 Normal;
 in vec2 UV;
 
-uniform PointLight 
+struct PointLight 
 {
 	vec3 position;
-	vec3 color;
 	float radius;
-} pointLights[10];
+	vec3 color;
+	float offset;
+};
+
+layout (std140) uniform BufferPointLights
+{
+	PointLight pointLight[];
+};
 
 uniform int pointLightAmount;
 
@@ -89,35 +95,39 @@ void main()
 	IOR = mix(IOR, albedo, metal);
 
 	vec3 Lo = vec3(0.0);
+	for(int i = 0; i < pointLightAmount; i++)
+	{
+		PointLight pLight = pointLight[0];
+		//------------------Per Light---------------------
+		//radiance
+		float lightDist = distance(pos, pLight.position);
+		float dist = lightDist;
+		float attenuation = 1.0 / (dist * dist);
+		attenuation = clamp(attenuation, 0, pLight.radius);
+		vec3 radiance = pLight.color * attenuation;
+
+		//BRDF
+		vec3 lightDir = normalize(pos - lightPosition);
+		vec3 halfWayVec = normalize(lightDir + viewDir);
 	
-	//------------------Per Light---------------------
-	//radiance
-	float lightDist = length(pos -lightPosition);
-	float dist = lightDist;
-	float attenuation = 1.0 / (dist * dist);
-	vec3 radiance = lightColor * attenuation;
+		float ndf = NDF(normal, halfWayVec, roughness);
+		float geometry = GeometryFunction(normal, viewDir, lightDir, roughness);
+		vec3 fresnel = Fresnel(halfWayVec, viewDir, IOR);
 
-	//BRDF
-	vec3 lightDir = normalize(pos - lightPosition);
-	vec3 halfWayVec = normalize(lightDir + viewDir);
-	
-	float ndf = NDF(normal, halfWayVec, roughness);
-	float geometry = GeometryFunction(normal, viewDir, lightDir, roughness);
-	vec3 fresnel = Fresnel(halfWayVec, viewDir, IOR);
+		//Get the factors for Reflectivity and refraction (Energy conversion)
+		vec3 reflectivity = fresnel;
+		vec3 refraction = vec3(1.0) - reflectivity;
+		refraction *= 1.0 - metal; //why?
 
-	//Get the factors for Reflectivity and refraction (Energy conversion)
-	vec3 reflectivity = fresnel;
-	vec3 refraction = vec3(1.0) - reflectivity;
-	refraction *= 1.0 - metal; //why?
+		vec3 num = ndf * geometry * fresnel;
+		float denom = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir),0.0);
 
-	vec3 num = ndf * geometry * fresnel;
-	float denom = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir),0.0);
-
-	vec3 specular = num / max(denom, 0.001);
-	float viewAngle = max(dot(normal, viewDir), 0.0);
-	Lo  += (refraction * albedo / PI + specular) * radiance * viewAngle;
+		vec3 specular = num / max(denom, 0.001);
+		float viewAngle = max(dot(normal, viewDir), 0.0);
+		Lo  += (refraction * albedo / PI + specular) * radiance * viewAngle;
+	}
 	//----------------End Per Light------------------
-	vec3 ambient = vec3(0.03) * albedo * ao;
+	vec3 ambient = vec3(0.005) * albedo * ao;
 	vec3  color = ambient + Lo;
 
 	//HDR Color mapping
@@ -126,4 +136,5 @@ void main()
 	//fragColor = vec4(albedo,1.0);
 	//fragColor = vec4(vec3(geometry),1.0);
 	fragColor = vec4(color, 1.0);
+	//fragColor = vec4(pointLight[3].color, 1);
 }
