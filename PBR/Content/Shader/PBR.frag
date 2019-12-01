@@ -137,4 +137,5 @@ void main()
 	fragColor = vec4(color, 1.0);
 	//fragColor = vec4(vec3(ambient),1.0);
 	//fragColor = vec4(pointLight[3].color, 1);
+	//fragColor = vec4(vec3(pointLightAmount),1);
 }

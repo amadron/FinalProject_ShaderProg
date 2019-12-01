@@ -94,7 +94,7 @@ namespace PBR.src.controller
             pbrShader.Uniform("camPosition", camPos);
             pbrShader.Uniform("lightPosition", dLight.position);
             pbrShader.Uniform("lightColor", dLight.color);
-            pbrShader.Uniform("pointLightAmound", pointLights.Length);
+            pbrShader.Uniform("pointLightAmount", pointLights.Length);
 
             geometry.Draw();
 
