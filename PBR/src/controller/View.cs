@@ -169,8 +169,8 @@ namespace PBR
 
             Vector3 forward;// = new OpenTK.Vector4(0, 0, 1, 1);
             Vector3 right; // = new OpenTK.Vector4(1, 0, 0, 1);
-            right = cam.transform.right;
-            forward = cam.transform.forward;
+            right = cam.GetRightVector();
+            forward = cam.GetForwardVector();
             //forward = rot * forward;
             //right = rot * right;
             KeyboardState ks = Keyboard.GetState();
@@ -182,19 +182,19 @@ namespace PBR
             vertical *= moveSpeed * deltatime;
             if (keyStates[Key.A])
             {
-                move += right;
+                move -= right;
             }
             if (keyStates[Key.D])
             {
-                move -= right;
+                move += right;
             }
             if (keyStates[Key.W])
             {
-                move += forward;
+                move -= forward;
             }
             if (keyStates[Key.S])
             {
-                move -= forward;
+                move += forward;
             }
             if(keyStates[Key.Q])
             {

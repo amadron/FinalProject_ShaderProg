@@ -24,7 +24,7 @@ struct PointLight
 
 layout (std140) uniform BufferPointLights
 {
-	PointLight pointLight[];
+	PointLight pointLight[10];
 };
 
 uniform int pointLightAmount;
@@ -95,9 +95,10 @@ void main()
 	IOR = mix(IOR, albedo, metal);
 
 	vec3 Lo = vec3(0.0);
-	for(int i = 0; i < 1; i++)
+	vec3 visual = vec3(0);
+	for(int i = 0; i < pointLightAmount; i++)
 	{
-		PointLight pLight = pointLight[0];
+		PointLight pLight = pointLight[i];
 		//------------------Per Light---------------------
 		//radiance
 		float lightDist = length(worldPos - pLight.position);
@@ -108,6 +109,7 @@ void main()
 
 		//BRDF
 		vec3 lightDir = normalize(worldPos - pLight.position);
+		lightDir = -lightDir;
 		vec3 halfWayVec = normalize(lightDir + viewDir);
 	
 		float ndf = NDF(normal, halfWayVec, roughness);
@@ -124,7 +126,10 @@ void main()
 
 		vec3 specular = num / max(denom, 0.001);
 		float viewAngle = max(dot(normal, viewDir), 0.0);
-		Lo  += (refraction * albedo / PI + specular) * radiance * viewAngle;
+		vec3 tmpLo  = (refraction * albedo / PI + specular) * radiance * viewAngle;
+		Lo += tmpLo;
+		visual = vec3(specular);
+		//visual = pLight.position;
 	}
 	//----------------End Per Light------------------
 	vec3 ambient = vec3(0.005) * albedo * ao;
@@ -135,8 +140,7 @@ void main()
 	color = pow(color, vec3(1.0/2.2));
 	//fragColor = vec4(albedo,1.0);
 	fragColor = vec4(color, 1.0);
-	//fragColor = vec4(vec3(normal), 1.0);
-	//fragColor = vec4(vec3(ambient),1.0);
-	//fragColor = vec4(pointLight[3].color, 1);
-	//fragColor = vec4(vec3(worldPos - pointLight[0].position),1);
+	//fragColor = vec4(vec3(worldPos), 1);
+	//fragColor = vec4(vec3(visual), 1);
+	//fragColor = vec4(vec3(pointLightAmount),1);
 }

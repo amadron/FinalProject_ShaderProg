@@ -87,8 +87,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EmbeddedResource Include="Content\Shader\PBR.frag" />
-    <EmbeddedResource Include="Content\Shader\PBR.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\PBR.frag" />
+    <EmbeddedResource Include="Content\Shader\PBR\PBR.vert" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>

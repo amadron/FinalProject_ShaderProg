@@ -13,33 +13,11 @@ namespace PBR.src.model
         public Vector3 scale;
         public Vector3 rotation;
 
-        public Vector3 forward
-        {
-            get => GetForwardVector();
-        }
-        public Vector3 up
-        {
-            get => GetRotatedVector(new Vector3(0, 1, 0));
-        }
-        public Vector3 right
-        {
-            get => GetRotatedVector(new Vector3(1, 0, 0));
-        }
-
         public Transform()
         {
             position = Vector3.Zero;
             scale = Vector3.One;
             rotation = Vector3.Zero;
-        }
-
-        Vector3 GetForwardVector()
-        {
-            Matrix4x4 inverted = Matrix4x4.Identity;
-            Matrix4x4.Invert(GetModelMatrix(), out inverted);
-            //inverted = Matrix4x4.Transpose(inverted);
-            Vector3 forward = new Vector3(inverted.M12, inverted.M22, inverted.M32);
-            return Vector3.Normalize(forward);
         }
 
         public Matrix4x4 modelMatrix {
@@ -73,10 +51,7 @@ namespace PBR.src.model
         //ToDo:Replace by Quaternion
         public Matrix4x4 GetRotationMatrix()
         {
-            Matrix4x4 zRot = Matrix4x4.CreateRotationZ(rotation.Z);
-            Matrix4x4 yRot = Matrix4x4.CreateRotationY(rotation.Y);
-            Matrix4x4 xRot = Matrix4x4.CreateRotationX(rotation.X);
-            return zRot * yRot * xRot;
+            return Matrix4x4.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z);
         }
 
         /*

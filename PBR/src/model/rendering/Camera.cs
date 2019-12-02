@@ -27,10 +27,26 @@ namespace PBR.src.model.rendering
 
         public Matrix4x4 GetRotationMatrix()
         {
-            Matrix4x4 rotationX = Matrix4x4.CreateRotationX(transform.rotation.X);
-            Matrix4x4 rotationY = Matrix4x4.CreateRotationY(transform.rotation.Y);
-            Matrix4x4 rotationZ = Matrix4x4.CreateRotationZ(transform.rotation.Z);
+            Matrix4x4 rotationX = Matrix4x4.CreateRotationX(-transform.rotation.X);
+            Matrix4x4 rotationY = Matrix4x4.CreateRotationY(-transform.rotation.Y);
+            Matrix4x4 rotationZ = Matrix4x4.CreateRotationZ(-transform.rotation.Z);
             return rotationZ * rotationY * rotationX;
+        }
+
+        public Vector3 GetForwardVector()
+        {
+
+            Matrix4x4 rot = Matrix4x4.CreateFromYawPitchRoll(transform.rotation.Y, transform.rotation.X, transform.rotation.Z);
+            Vector4 frwd = new Vector4(0, 0, 1, 1);
+            frwd = Vector4.Transform(frwd, rot);
+            return Vector3.Normalize(new Vector3(frwd.X, frwd.Y, frwd.Z));
+        }
+
+        public Vector3 GetRightVector()
+        {
+            Vector3 up = new Vector3(0, 1, 0);
+            Vector3 frwrd = GetForwardVector();
+            return Vector3.Normalize(Vector3.Cross(up, frwrd));
         }
 
         public Matrix4x4 GetTranslationMatrix()

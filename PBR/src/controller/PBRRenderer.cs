@@ -12,6 +12,7 @@ namespace PBR.src.controller
     {
         int ubo = 0;
         IShaderProgram pbrShader;
+        IShaderProgram simple;
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
             renderState.Set(new DepthTest(true));
@@ -24,7 +25,7 @@ namespace PBR.src.controller
             dLight.position = new Vector3(0, 1, -1);
             int width = 2;
             float step = 0.5f;
-            Vector3 startPos = new Vector3(-step, step, -0.5f);
+            Vector3 startPos = new Vector3(-step/2, step, 2f);
             pointLights = new PointLight[width * width];
             for(int i = 0; i < width; i++)
             {
@@ -36,7 +37,7 @@ namespace PBR.src.controller
                     pointLights[idx].color = new Vector3(1);
                     pointLights[idx].position = startPos;
                     pointLights[idx].position.X += i * step;
-                    pointLights[idx].position.Y += j * step;
+                    pointLights[idx].position.Y -= j * step;
                     pointLights[idx].radius = 0.5f;
                 }
             }
@@ -61,7 +62,7 @@ namespace PBR.src.controller
             return pbrShader;
         }
 
-        struct PointLight
+        public struct PointLight
         {
             public Vector3 position;
             public float radius;
@@ -104,6 +105,11 @@ namespace PBR.src.controller
             obj.mesh.Draw();
 
             pbrShader.Deactivate();
+        }
+
+        public void DebugLight(PointLight pLight)
+        {
+
         }
     }
 }
