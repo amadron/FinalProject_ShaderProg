@@ -21,8 +21,6 @@ namespace PBR
         {
             this.contendLoader = contendLoader;
             renderer = new PBRRenderer(renderState, contentLoader);
-            DefaultMesh sphere = Meshes.CreateSphere(0.2f, 5);
-            sphere = Meshes.CreateCubeWithNormals();
             cam = new Camera();
             objects = GetSampleScene();
             cam.position = new Vector3(0, 0, 1);
@@ -30,6 +28,7 @@ namespace PBR
             cam.clippingFar = 10000.0f;
             cam.fov = 90;
             fCam = new Camera<FirstPerson, Perspective>(new FirstPerson(new Vector3(0, 0, 1)), new Perspective(farClip:1000.0f));
+            fCam.Projection.FieldOfViewY = 60;
             MouseState mState = Mouse.GetState();
             lastMousePos = new Vector2(mState.X, mState.Y);
             keyStates = new Dictionary<Key, bool>();

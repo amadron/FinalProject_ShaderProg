@@ -36,7 +36,7 @@ namespace PBR.src.controller
                     pointLights[idx].position = startPos;
                     pointLights[idx].position.X += i * step;
                     pointLights[idx].position.Y += j * step;
-                    pointLights[idx].radius = 2f;
+                    pointLights[idx].radius = 0.5f;
                 }
             }
             int size = System.Runtime.InteropServices.Marshal.SizeOf(typeof(PointLight)) * pointLights.Length;
@@ -79,11 +79,9 @@ namespace PBR.src.controller
 
         public void Render(Matrix4x4 camMatrix, Vector3 camPosition,VAO geometry,PBRMaterial material)
         {
-
             pbrShader.Activate();
 
             GL.BindBuffer(BufferTarget.UniformBuffer, ubo);
-
             pbrShader.Uniform("albedo", material.albedoColor);
             pbrShader.Uniform("roughness", material.roughness);
             pbrShader.Uniform("metal", material.metal);

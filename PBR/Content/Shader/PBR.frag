@@ -10,7 +10,7 @@ uniform vec3 camPosition;
 uniform vec3 lightPosition;
 uniform vec3 lightColor;
 
-in vec3 pos;
+in vec3 worldPos;
 in vec3 Normal;
 in vec2 UV;
 
@@ -89,25 +89,25 @@ vec3 Fresnel(vec3 h, vec3 v, vec3 IOR)
 void main()
 {
 	vec3 normal = normalize(Normal);
-	vec3 viewDir = normalize(camPosition - pos);
+	vec3 viewDir = normalize(camPosition - worldPos);
 	
 	vec3 IOR = vec3(0.04);
 	IOR = mix(IOR, albedo, metal);
 
 	vec3 Lo = vec3(0.0);
-	for(int i = 0; i < pointLightAmount; i++)
+	for(int i = 0; i < 1; i++)
 	{
 		PointLight pLight = pointLight[0];
 		//------------------Per Light---------------------
 		//radiance
-		float lightDist = length(pos - pLight.position);
+		float lightDist = length(worldPos - pLight.position);
 		float dist = lightDist;
 		float attenuation = 1.0 / (dist * dist);
 		attenuation = clamp(attenuation, 0, pLight.radius);
 		vec3 radiance = pLight.color * attenuation;
 
 		//BRDF
-		vec3 lightDir = normalize(pos - pLight.position);
+		vec3 lightDir = normalize(worldPos - pLight.position);
 		vec3 halfWayVec = normalize(lightDir + viewDir);
 	
 		float ndf = NDF(normal, halfWayVec, roughness);
@@ -137,5 +137,5 @@ void main()
 	fragColor = vec4(color, 1.0);
 	//fragColor = vec4(vec3(ambient),1.0);
 	//fragColor = vec4(pointLight[3].color, 1);
-	//fragColor = vec4(vec3(pointLightAmount),1);
+	//fragColor = vec4(vec3(worldPos - pointLight[0].position),1);
 }
