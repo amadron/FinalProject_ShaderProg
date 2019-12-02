@@ -83,6 +83,7 @@
     <Compile Include="src\model\rendering\Camera.cs" />
     <Compile Include="src\model\rendering\Lights.cs" />
     <Compile Include="src\model\rendering\PBRMaterial.cs" />
+    <Compile Include="src\model\Transform.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

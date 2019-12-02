@@ -4,6 +4,7 @@ using PBR.src.model.rendering;
 using Zenseless.HLGL;
 using Zenseless.OpenGL;
 using System.Numerics;
+using PBR.src.model;
 
 namespace PBR.src.controller
 {
@@ -65,7 +66,7 @@ namespace PBR.src.controller
             public Vector3 position;
             public float radius;
             public Vector3 color;
-            public float offset;
+            public float offset; //Because of block alignment in shader uniform block
         }
 
         
@@ -77,24 +78,30 @@ namespace PBR.src.controller
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
-        public void Render(Matrix4x4 camMatrix, Vector3 camPosition,VAO geometry,PBRMaterial material)
+        public void Render(Matrix4x4 camMatrix, Vector3 camPosition, GameObject obj)
         {
+            if(obj == null || obj.mesh == null || obj.material == null)
+            {
+                return;
+            }
             pbrShader.Activate();
 
             GL.BindBuffer(BufferTarget.UniformBuffer, ubo);
-            pbrShader.Uniform("albedo", material.albedoColor);
-            pbrShader.Uniform("roughness", material.roughness);
-            pbrShader.Uniform("metal", material.metal);
-            pbrShader.Uniform("ao", material.ao);
+
+            pbrShader.Uniform("albedo", obj.material.albedoColor);
+            pbrShader.Uniform("roughness", obj.material.roughness);
+            pbrShader.Uniform("metal", obj.material.metal);
+            pbrShader.Uniform("ao", obj.material.ao);
             Matrix4x4 mat = camMatrix;
             Vector3 camPos = camPosition;
+            pbrShader.Uniform("modelMatrix", obj.transform.modelMatrix, true);
             pbrShader.Uniform("cameraMatrix", mat, true);
             pbrShader.Uniform("camPosition", camPos);
             pbrShader.Uniform("lightPosition", dLight.position);
             pbrShader.Uniform("lightColor", dLight.color);
             pbrShader.Uniform("pointLightAmount", pointLights.Length);
 
-            geometry.Draw();
+            obj.mesh.Draw();
 
             pbrShader.Deactivate();
         }

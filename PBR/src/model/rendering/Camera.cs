@@ -23,6 +23,11 @@ namespace PBR.src.model.rendering
         public float orthographicHeight = 1;
         public ProjectionMode projectionMode = ProjectionMode.Perspective;
 
+        public Matrix4x4 Matrix
+        {
+            get => GetMatrix();
+        }
+
         public Matrix4x4 GetRotationMatrix()
         {
             Matrix4x4 rotationX = Matrix4x4.CreateRotationX(rotation.X);

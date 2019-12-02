@@ -27,8 +27,9 @@ namespace PBR
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
             cam.fov = 90;
-            fCam = new Camera<FirstPerson, Perspective>(new FirstPerson(new Vector3(0, 0, 1)), new Perspective(farClip:1000.0f));
-            fCam.Projection.FieldOfViewY = 60;
+            cam.projectionMode = Camera.ProjectionMode.Perspective;
+            //fCam = new Camera<FirstPerson, Perspective>(new FirstPerson(new Vector3(0, 0, 1)), new Perspective(farClip:1000.0f));
+            //fCam.Projection.FieldOfViewY = 60;
             MouseState mState = Mouse.GetState();
             lastMousePos = new Vector2(mState.X, mState.Y);
             keyStates = new Dictionary<Key, bool>();
@@ -66,19 +67,17 @@ namespace PBR
                 Vector3 tmpStart = startVector;
                 for (int j = 0; j < gridSize; j++)
                 {
-                    DefaultMesh mesh = Meshes.CreateSphere(sphereSize, 2).Transform(Transformation.Translation(tmpStart));
+                    DefaultMesh mesh = Meshes.CreateSphere(sphereSize, 2);
                     VAO geom = VAOLoader.FromMesh(mesh, renderer.GetShader());
-
-                    tmpStart.X += spacing;
                     
                     GameObject go = new GameObject();
-                    PBRMaterial mat = new PBRMaterial();
-                    mat.metal = i * paramSteps;
-                    mat.roughness = j * paramSteps;
-                    mat.albedoColor = new Vector3(1, 0, 0);
+                    go.transform.position = tmpStart;
+                    go.material.metal = i * paramSteps;
+                    go.material.roughness = j * paramSteps;
+                    go.material.albedoColor = new Vector3(1, 0, 0);
                     go.mesh = geom;
-                    go.material = mat;
                     goList.Add(go);
+                    tmpStart.X += spacing;
                 }
                 startVector.Y -= spacing;
             }
@@ -128,10 +127,10 @@ namespace PBR
                 cam.View.Elevation += vert;
                 cam.View.Azimuth += hor;
                 */
-                fCam.View.Tilt += vert;
-                fCam.View.Heading += hor;
-                cam.rotation.X += vert;
-                cam.rotation.Y += hor;
+                //fCam.View.Tilt += vert;
+                //fCam.View.Heading += hor;
+                cam.rotation.X += vert * 0.5f;
+                cam.rotation.Y += hor * 0.5f;
             }
             lastMousePos = new Vector2(mState.X, mState.Y);
             lastScroll = scroll.Y;
@@ -200,12 +199,12 @@ namespace PBR
             {
                 move -= vertical;
             }
-            Vector3 camPos = fCam.View.Position;
+            Vector3 camPos = cam.position;//fCam.View.Position;
             camPos.X += move.X;
             camPos.Y += move.Y;
             camPos.Z += move.Z;
             cam.position = camPos;
-            fCam.View.Position = camPos;
+            //fCam.View.Position = camPos;
         }
 
         
@@ -215,7 +214,8 @@ namespace PBR
             renderer.StartRendering();
             foreach(GameObject go in objects)
             {
-                renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
+                //renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
+                renderer.Render(cam.Matrix, cam.position, go);
             }
         }
     }

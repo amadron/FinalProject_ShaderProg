@@ -19,7 +19,7 @@ struct PointLight
 	vec3 position;
 	float radius;
 	vec3 color;
-	float offset;
+	float offset; //Block alignment in uniform shader blocks
 };
 
 layout (std140) uniform BufferPointLights
@@ -103,7 +103,7 @@ void main()
 		float lightDist = length(worldPos - pLight.position);
 		float dist = lightDist;
 		float attenuation = 1.0 / (dist * dist);
-		attenuation = clamp(attenuation, 0, pLight.radius);
+		//attenuation = clamp(attenuation, 0, pLight.radius);
 		vec3 radiance = pLight.color * attenuation;
 
 		//BRDF
@@ -135,6 +135,7 @@ void main()
 	color = pow(color, vec3(1.0/2.2));
 	//fragColor = vec4(albedo,1.0);
 	fragColor = vec4(color, 1.0);
+	//fragColor = vec4(vec3(normal), 1.0);
 	//fragColor = vec4(vec3(ambient),1.0);
 	//fragColor = vec4(pointLight[3].color, 1);
 	//fragColor = vec4(vec3(worldPos - pointLight[0].position),1);
