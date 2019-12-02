@@ -83,7 +83,7 @@ float GeometryFunction(vec3 n, vec3 viewDir, vec3 lightDir, float roughness)
 vec3 Fresnel(vec3 h, vec3 v, vec3 IOR)
 {
 	float dProd = max(dot(h,v),0.0);
-	return IOR + (1-IOR) * pow((1-dProd),5);
+	return IOR + (1.0-IOR) * pow((1-dProd),5.0);
 }
 
 void main()
@@ -101,6 +101,7 @@ void main()
 		PointLight pLight = pointLight[i];
 		//------------------Per Light---------------------
 		//radiance
+		vec3 lightDir = normalize(pLight.position - worldPos);
 		float lightDist = length(worldPos - pLight.position);
 		float dist = lightDist;
 		float attenuation = 1.0 / (dist * dist);
@@ -108,8 +109,6 @@ void main()
 		vec3 radiance = pLight.color * attenuation;
 
 		//BRDF
-		vec3 lightDir = normalize(worldPos - pLight.position);
-		lightDir = -lightDir;
 		vec3 halfWayVec = normalize(lightDir + viewDir);
 	
 		float ndf = NDF(normal, halfWayVec, roughness);
@@ -123,16 +122,17 @@ void main()
 
 		vec3 num = ndf * geometry * fresnel;
 		float denom = 4.0 * max(dot(normal, viewDir), 0.0) * max(dot(normal, lightDir),0.0);
-
 		vec3 specular = num / max(denom, 0.001);
-		float viewAngle = max(dot(normal, viewDir), 0.0);
-		vec3 tmpLo  = (refraction * albedo / PI + specular) * radiance * viewAngle;
+
+		//specular = num/denom;
+		float lightAngle = max(dot(normal, lightDir), 0.0);
+		vec3 tmpLo  = (refraction * albedo / PI + specular) * radiance * lightAngle;
 		Lo += tmpLo;
-		visual = vec3(specular);
+		visual = tmpLo;
 		//visual = pLight.position;
 	}
 	//----------------End Per Light------------------
-	vec3 ambient = vec3(0.005) * albedo * ao;
+	vec3 ambient = vec3(0.03) * albedo * ao;
 	vec3  color = ambient + Lo;
 
 	//HDR Color mapping
@@ -140,7 +140,6 @@ void main()
 	color = pow(color, vec3(1.0/2.2));
 	//fragColor = vec4(albedo,1.0);
 	fragColor = vec4(color, 1.0);
-	//fragColor = vec4(vec3(worldPos), 1);
 	//fragColor = vec4(vec3(visual), 1);
 	//fragColor = vec4(vec3(pointLightAmount),1);
 }

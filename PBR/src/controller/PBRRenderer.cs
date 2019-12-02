@@ -23,9 +23,9 @@ namespace PBR.src.controller
             dLight.direction = new Vector3(0, 1, -1);
             dLight.color = new Vector3(10);
             dLight.position = new Vector3(0, 1, -1);
-            int width = 2;
+            int width = 1;
             float step = 0.5f;
-            Vector3 startPos = new Vector3(-step/2, step, 2f);
+            Vector3 startPos = new Vector3(0, step, 1f);
             pointLights = new PointLight[width * width];
             for(int i = 0; i < width; i++)
             {
