@@ -7,6 +7,7 @@ using Zenseless.OpenGL;
 using System.Numerics;
 using System.Collections.Generic;
 using PBR.src.model;
+using System;
 
 namespace PBR
 {
@@ -23,7 +24,7 @@ namespace PBR
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
             objects = GetSampleScene();
-            cam.position = new Vector3(0, 0, 1);
+            cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
             cam.fov = 90;
@@ -123,14 +124,19 @@ namespace PBR
             {
                 float vert = mDelta.Y * deltatime * mouseSpeed;
                 float hor = mDelta.X * deltatime * mouseSpeed;
+                
+                cam.transform.rotation.X += vert * 0.5f;
+                cam.transform.rotation.Y += hor * 0.5f;
                 /*
-                cam.View.Elevation += vert;
-                cam.View.Azimuth += hor;
+                if (cam.transform.rotation.X > 90)
+                {
+                    cam.transform.rotation.X = 90;
+                }
+                if (cam.transform.rotation.X < -90)
+                {
+                    cam.transform.rotation.X = -90;
+                }
                 */
-                //fCam.View.Tilt += vert;
-                //fCam.View.Heading += hor;
-                cam.rotation.X += vert * 0.5f;
-                cam.rotation.Y += hor * 0.5f;
             }
             lastMousePos = new Vector2(mState.X, mState.Y);
             lastScroll = scroll.Y;
@@ -161,19 +167,18 @@ namespace PBR
         void FirstPersonMovement(Camera cam, float deltatime)
         {
 
-            OpenTK.Vector4 forward = new OpenTK.Vector4(0, 0, 1, 1);
-            OpenTK.Vector4 right = new OpenTK.Vector4(1, 0, 0, 1);
-            OpenTK.Matrix4 rotX = OpenTK.Matrix4.CreateRotationX(cam.rotation.X);
-            OpenTK.Matrix4 rotY = OpenTK.Matrix4.CreateRotationY(cam.rotation.Y);
-            OpenTK.Matrix4 rot = rotY * rotX;
+            Vector3 forward;// = new OpenTK.Vector4(0, 0, 1, 1);
+            Vector3 right; // = new OpenTK.Vector4(1, 0, 0, 1);
+            right = cam.transform.right;
+            forward = cam.transform.forward;
             //forward = rot * forward;
             //right = rot * right;
             KeyboardState ks = Keyboard.GetState();
-            OpenTK.Vector4 move = new OpenTK.Vector4(0);
+            Vector3 move = Vector3.Zero;
             float moveSpeed = 1.0f;
             right *= moveSpeed * deltatime;
             forward *= moveSpeed * deltatime;
-            OpenTK.Vector4 vertical = new OpenTK.Vector4(0, 1, 0, 1);
+            Vector3 vertical = new Vector3(0,1,0);
             vertical *= moveSpeed * deltatime;
             if (keyStates[Key.A])
             {
@@ -199,11 +204,11 @@ namespace PBR
             {
                 move -= vertical;
             }
-            Vector3 camPos = cam.position;//fCam.View.Position;
+            Vector3 camPos = cam.transform.position;//fCam.View.Position;
             camPos.X += move.X;
             camPos.Y += move.Y;
             camPos.Z += move.Z;
-            cam.position = camPos;
+            cam.transform.position = camPos;
             //fCam.View.Position = camPos;
         }
 
@@ -215,7 +220,7 @@ namespace PBR
             foreach(GameObject go in objects)
             {
                 //renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
-                renderer.Render(cam.Matrix, cam.position, go);
+                renderer.Render(cam.Matrix, cam.transform.position, go);
             }
         }
     }

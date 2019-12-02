@@ -13,10 +13,7 @@ namespace PBR.src.model.rendering
         public enum ProjectionMode { Ortogonal, Perspective }
         public float clippingNear = 0.1f;
         public float clippingFar = 1000.0f;
-        public Vector3 rotation;
-        public Vector3 up;
-        public Vector3 right;
-        public Vector3 position;
+        public Transform transform = new Transform();
         public float fov = 60f;
         public float aspectRatio = 1;
         public float orthographicWidth = 1;
@@ -30,20 +27,20 @@ namespace PBR.src.model.rendering
 
         public Matrix4x4 GetRotationMatrix()
         {
-            Matrix4x4 rotationX = Matrix4x4.CreateRotationX(rotation.X);
-            Matrix4x4 rotationY = Matrix4x4.CreateRotationY(rotation.Y);
-            Matrix4x4 rotationZ = Matrix4x4.CreateRotationZ(rotation.Z);
+            Matrix4x4 rotationX = Matrix4x4.CreateRotationX(transform.rotation.X);
+            Matrix4x4 rotationY = Matrix4x4.CreateRotationY(transform.rotation.Y);
+            Matrix4x4 rotationZ = Matrix4x4.CreateRotationZ(transform.rotation.Z);
             return rotationZ * rotationY * rotationX;
         }
 
         public Matrix4x4 GetTranslationMatrix()
         {
-            return Matrix4x4.CreateTranslation(-position);
+            return Matrix4x4.CreateTranslation(-transform.position);
         }
 
         public Matrix4x4 GetTransformationMatrix()
         {
-            return GetTranslationMatrix() * GetRotationMatrix();
+            return transform.GetTranslationMatrix() * GetRotationMatrix();
         }
 
         public Matrix4x4 GetProjectionMatrix()
