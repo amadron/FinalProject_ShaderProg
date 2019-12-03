@@ -96,6 +96,7 @@ float GeometryFunction(vec3 n, vec3 viewDir, vec3 lightDir, float roughness)
 vec3 Fresnel(vec3 h, vec3 v, vec3 IOR)
 {
 	float dProd = max(dot(h,v),0.0);
+	dProd = min(dProd, 1.0);
 	return IOR + (1.0-IOR) * pow((1-dProd),5.0);
 }
 
