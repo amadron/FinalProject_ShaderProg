@@ -17,10 +17,10 @@ namespace PBR
         List<GameObject> objects = new List<GameObject>();
         Camera cam;
         Camera<FirstPerson, Perspective> fCam;
-        IContentLoader contendLoader;
+        IContentLoader contentLoader;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
-            this.contendLoader = contendLoader;
+            this.contentLoader = contentLoader;
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
             objects = GetSampleScene();
@@ -63,6 +63,13 @@ namespace PBR
             float startX = gridSize / 2 * spacing;
             Vector3 startVector = new Vector3(-startX, startX, 0);
             float paramSteps = 1.0f / gridSize;
+            string texPrefix = "rustediron2_";
+            /*
+            ITexture2D albedoText = contentLoader.Load<ITexture2D>(texPrefix + "basecolor.png");
+            ITexture2D metallicText = contentLoader.Load<ITexture2D>(texPrefix + "metallic.png");
+            ITexture2D normalText = contentLoader.Load<ITexture2D>(texPrefix + "normal.png");
+            ITexture2D roughnessText = contentLoader.Load<ITexture2D>(texPrefix + "roughness.png");
+            */
             for(int i = 0; i < gridSize; i++)
             {
                 Vector3 tmpStart = startVector;

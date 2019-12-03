@@ -1,9 +1,22 @@
 ﻿#version 430 core
 
-uniform vec3 albedo;
-uniform float roughness;
-uniform float metal;
-uniform float ao;
+uniform vec3 albedoColor;
+uniform sampler2D albedoMap;
+int hasAlbedoMap;
+
+uniform sampler2D normalMap;
+int hasNormalMap;
+
+uniform float roughnessFactor;
+uniform sampler2D roughnessMap;
+
+int hasRoughnessMap;
+uniform float metalFactor;
+uniform sampler2D metalMap;
+int hasMetallicMap;
+uniform float aoFactor;
+uniform sampler2D occlusionMap;
+int hasOcclusionMap;
 
 uniform vec3 camPosition;
 
@@ -88,9 +101,15 @@ vec3 Fresnel(vec3 h, vec3 v, vec3 IOR)
 
 void main()
 {
-	vec3 normal = normalize(Normal);
+	vec3 normal = normalize(Normal) * (1.0 - hasNormalMap);
 	vec3 viewDir = normalize(camPosition - worldPos);
 	
+	vec3 albedo = albedoColor * (1.0 - hasAlbedoMap);
+	float ao = aoFactor * (1.0 - hasOcclusionMap);
+	float metal = metalFactor * (1.0 - hasMetallicMap);
+	float roughness = roughnessFactor * (1.0 - hasOcclusionMap);
+
+
 	vec3 IOR = vec3(0.04);
 	IOR = mix(IOR, albedo, metal);
 

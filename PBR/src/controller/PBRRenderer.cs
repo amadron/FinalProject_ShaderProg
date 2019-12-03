@@ -12,7 +12,6 @@ namespace PBR.src.controller
     {
         int ubo = 0;
         IShaderProgram pbrShader;
-        IShaderProgram simple;
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
             renderState.Set(new DepthTest(true));
@@ -79,6 +78,14 @@ namespace PBR.src.controller
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
+        private void SetSampler(int programmID, int samplerNumber, string samplerName, ITexture2D texture)
+        {
+            int samplerID = GL.GetUniformLocation(programmID, samplerName);
+            GL.ActiveTexture(TextureUnit.Texture0 + samplerNumber);
+            GL.BindTexture(TextureTarget.Texture2D, texture.ID);
+
+        }
+
         public void Render(Matrix4x4 camMatrix, Vector3 camPosition, GameObject obj)
         {
             if(obj == null || obj.mesh == null || obj.material == null)
@@ -89,10 +96,40 @@ namespace PBR.src.controller
 
             GL.BindBuffer(BufferTarget.UniformBuffer, ubo);
 
-            pbrShader.Uniform("albedo", obj.material.albedoColor);
-            pbrShader.Uniform("roughness", obj.material.roughness);
-            pbrShader.Uniform("metal", obj.material.metal);
-            pbrShader.Uniform("ao", obj.material.ao);
+            pbrShader.Uniform("albedoColor", obj.material.albedoColor);
+            int textCounter = 0;
+            if(obj.material.albedoMap != null)
+            {
+                pbrShader.Uniform("hasAlbedoMap", 1);
+                SetSampler(pbrShader.ProgramID, textCounter++, "albedoMap", obj.material.albedoMap);
+            }
+
+            if(obj.material.normalMap != null)
+            {
+                pbrShader.Uniform("hasNormalMap", 1);
+                SetSampler(pbrShader.ProgramID, textCounter++, "normalMap", obj.material.normalMap);
+            }
+
+            pbrShader.Uniform("roughnessFactor", obj.material.roughness);
+            if(obj.material.roughnessMap != null)
+            {
+                pbrShader.Uniform("hasRougnessMap", 1);
+                SetSampler(pbrShader.ProgramID, textCounter++, "roughnessMap", obj.material.roughnessMap);
+
+            }
+            pbrShader.Uniform("metalFactor", obj.material.metal);
+            if(obj.material.metallicMap != null)
+            {
+                pbrShader.Uniform("hasMetallicMap", 1);
+                SetSampler(pbrShader.ProgramID, textCounter++, "metallicMap", obj.material.metallicMap);
+            }
+            pbrShader.Uniform("aoFactor", obj.material.ao);
+            if(obj.material.metallicMap != null)
+            {
+                pbrShader.Uniform("hasOcclusionMap", 1);
+                SetSampler(pbrShader.ProgramID, textCounter++, "occlusionMap", obj.material.occlusionMap);
+
+            }
             Matrix4x4 mat = camMatrix;
             Vector3 camPos = camPosition;
             pbrShader.Uniform("modelMatrix", obj.transform.modelMatrix, true);

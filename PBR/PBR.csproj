@@ -43,7 +43,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Drawing.Common, Version=4.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Drawing.Common.4.6.0\lib\net461\System.Drawing.Common.dll</HintPath>
+      <HintPath>..\packages\System.Drawing.Common.4.6.1\lib\net461\System.Drawing.Common.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -93,13 +93,19 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Content\Textures\" />
+    <Folder Include="Content\Shader\Debug\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ShaderProgAbgabe\IslandScene.csproj">
       <Project>{8F50EB5E-7E81-4766-8A3F-6991B262F15F}</Project>
       <Name>IslandScene</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Content\Textures\rustediron2_basecolor.png" />
+    <None Include="Content\Textures\rustediron2_metallic.png" />
+    <None Include="Content\Textures\rustediron2_normal.png" />
+    <None Include="Content\Textures\rustediron2_roughness.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

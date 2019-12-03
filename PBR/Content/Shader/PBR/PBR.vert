@@ -6,7 +6,6 @@ in vec3 normal;
 in vec2 uv;
 uniform mat4 modelMatrix;
 uniform mat4 cameraMatrix;
-uniform vec3 albedo;
 
 out vec3 worldPos;
 out vec3 Normal;
