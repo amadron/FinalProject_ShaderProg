@@ -107,20 +107,20 @@ void main()
 	vec3 viewDir = normalize(camPosition - worldPos);
 	
 	vec3 albedo = albedoColor * (1.0 - hasAlbedoMap);
-	//vec4 albedoMapTex = texture(albedoMap, UV);
-	//albedo += albedoMapTex.xyz;
+	vec4 albedoMapTex = texture(albedoMap, UV);
+	albedo += albedoMapTex.xyz;
 	
 	float ao = aoFactor * (1.0 - hasOcclusionMap);
-	//vec4 occlusionMapTex = texture(occlusionMap, UV);
-	//ao += occlusionMapTex.r;
+	vec4 occlusionMapTex = texture(occlusionMap, UV);
+	ao += occlusionMapTex.r;
 
 	float metal = metalFactor * (1.0 - hasMetallicMap);
-	//vec4 metallicMapTex = texture(metallicMap, UV);
-	//metal += metallicMapTex.r;
+	vec4 metallicMapTex = texture(metallicMap, UV);
+	metal += metallicMapTex.r;
 
 	float roughness = roughnessFactor * (1.0 - hasOcclusionMap);
-	//vec4 roughnessMapTex = texture(roughnessMap, UV);
-	//roughness += roughnessMapTex.r;
+	vec4 roughnessMapTex = texture(roughnessMap, UV);
+	roughness += roughnessMapTex.r;
 
 
 	vec3 IOR = vec3(0.04);
@@ -173,5 +173,6 @@ void main()
 	//fragColor = vec4(albedo,1.0);
 	fragColor = vec4(color, 1.0);
 	//fragColor = vec4(vec3(hasAlbedoMap), 1);
-	//fragColor = vec4(vec3(pointLightAmount),1);
+	fragColor = vec4(vec3(normal),1);
+	//fragColor = vec4(UV, 1,1);
 }

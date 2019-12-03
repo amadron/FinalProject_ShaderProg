@@ -75,6 +75,7 @@ namespace PBR
                 for (int j = 0; j < gridSize; j++)
                 {
                     DefaultMesh mesh = Meshes.CreateSphere(sphereSize, 2);
+                    DefaultMesh mesh = contentLoader.Load<DefaultMesh>("sphere").Transform(Transformation.Scale(0.1f));
                     VAO geom = VAOLoader.FromMesh(mesh, renderer.GetShader());
                     
                     GameObject go = new GameObject();
@@ -83,12 +84,12 @@ namespace PBR
                     go.material.roughness = j * paramSteps;
                     go.material.albedoColor = new Vector3(1, 0, 0);
                     go.mesh = geom;
-                    /*
+                    
                     go.material.albedoMap = albedoText;
                     go.material.metallicMap = metallicText;
                     go.material.normalMap = normalText;
                     go.material.roughnessMap = roughnessText;
-                    */
+                    
                     goList.Add(go);
                     tmpStart.X += spacing;
                 }

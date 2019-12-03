@@ -14,6 +14,7 @@ void main()
 {
 	//pos = position;
 	Normal = normal;
+	//UV = uv;
 	UV = uv;
 	//worldPos = position;
 	worldPos = (modelMatrix * vec4(position,1)).xyz;

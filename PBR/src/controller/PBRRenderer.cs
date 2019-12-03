@@ -78,11 +78,14 @@ namespace PBR.src.controller
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
-        private void SetSampler(int programmID, int samplerNumber, string samplerName, ITexture2D texture)
+        private void SetSampler(int programmID, int samplerNumber, string uniformName, ITexture2D texture)
         {
-            int samplerID = GL.GetUniformLocation(programmID, samplerName);
             GL.ActiveTexture(TextureUnit.Texture0 + samplerNumber);
-            GL.BindTexture(TextureTarget.Texture2D, samplerID);
+            GL.BindTexture(TextureTarget.Texture2D, texture.ID);
+            //SetUniform
+            int samplerID = GL.GetUniformLocation(programmID, uniformName);
+            GL.Uniform1(samplerID, samplerNumber);
+
         }
 
         public void Render(Matrix4x4 camMatrix, Vector3 camPosition, GameObject obj)
@@ -91,13 +94,15 @@ namespace PBR.src.controller
             {
                 return;
             }
+
             pbrShader.Activate();
 
             GL.BindBuffer(BufferTarget.UniformBuffer, ubo);
 
             pbrShader.Uniform("albedoColor", obj.material.albedoColor);
             int textCounter = 0;
-            if(obj.material.albedoMap != null)
+
+            if (obj.material.albedoMap != null)
             {
                 pbrShader.Uniform("hasAlbedoMap", 1);
                 SetSampler(pbrShader.ProgramID, textCounter++, "albedoMap", obj.material.albedoMap);
@@ -159,9 +164,14 @@ namespace PBR.src.controller
             pbrShader.Uniform("lightColor", dLight.color);
             pbrShader.Uniform("pointLightAmount", pointLights.Length);
 
+            
+
+
             obj.mesh.Draw();
 
             pbrShader.Deactivate();
+
+
         }
 
         public void DebugLight(PointLight pLight)
