@@ -2,21 +2,22 @@
 
 uniform vec3 albedoColor;
 uniform sampler2D albedoMap;
-int hasAlbedoMap;
+uniform int hasAlbedoMap;
 
 uniform sampler2D normalMap;
-int hasNormalMap;
+uniform int hasNormalMap;
 
 uniform float roughnessFactor;
 uniform sampler2D roughnessMap;
+uniform int hasRoughnessMap;
 
-int hasRoughnessMap;
 uniform float metalFactor;
-uniform sampler2D metalMap;
-int hasMetallicMap;
+uniform sampler2D metallicMap;
+uniform int hasMetallicMap;
+
 uniform float aoFactor;
 uniform sampler2D occlusionMap;
-int hasOcclusionMap;
+uniform int hasOcclusionMap;
 
 uniform vec3 camPosition;
 
@@ -106,9 +107,20 @@ void main()
 	vec3 viewDir = normalize(camPosition - worldPos);
 	
 	vec3 albedo = albedoColor * (1.0 - hasAlbedoMap);
+	//vec4 albedoMapTex = texture(albedoMap, UV);
+	//albedo += albedoMapTex.xyz;
+	
 	float ao = aoFactor * (1.0 - hasOcclusionMap);
+	//vec4 occlusionMapTex = texture(occlusionMap, UV);
+	//ao += occlusionMapTex.r;
+
 	float metal = metalFactor * (1.0 - hasMetallicMap);
+	//vec4 metallicMapTex = texture(metallicMap, UV);
+	//metal += metallicMapTex.r;
+
 	float roughness = roughnessFactor * (1.0 - hasOcclusionMap);
+	//vec4 roughnessMapTex = texture(roughnessMap, UV);
+	//roughness += roughnessMapTex.r;
 
 
 	vec3 IOR = vec3(0.04);
@@ -152,7 +164,7 @@ void main()
 		//visual = pLight.position;
 	}
 	//----------------End Per Light------------------
-	vec3 ambient = vec3(0.03) * albedo * ao;
+	vec3 ambient = vec3(0.015) * albedo * ao;
 	vec3  color = ambient + Lo;
 
 	//HDR Color mapping
@@ -160,6 +172,6 @@ void main()
 	color = pow(color, vec3(1.0/2.2));
 	//fragColor = vec4(albedo,1.0);
 	fragColor = vec4(color, 1.0);
-	//fragColor = vec4(vec3(visual), 1);
+	//fragColor = vec4(vec3(hasAlbedoMap), 1);
 	//fragColor = vec4(vec3(pointLightAmount),1);
 }

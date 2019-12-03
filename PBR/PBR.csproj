@@ -87,8 +87,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EmbeddedResource Include="Content\Shader\PBR\PBR.frag" />
-    <EmbeddedResource Include="Content\Shader\PBR\PBR.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\pbrLighting.frag" />
+    <EmbeddedResource Include="Content\Shader\PBR\pbrLighting.vert" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -102,10 +102,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Content\Textures\rustediron2_basecolor.png" />
-    <None Include="Content\Textures\rustediron2_metallic.png" />
-    <None Include="Content\Textures\rustediron2_normal.png" />
-    <None Include="Content\Textures\rustediron2_roughness.png" />
+    <EmbeddedResource Include="Content\Textures\rustediron2_basecolor.png" />
+    <EmbeddedResource Include="Content\Textures\rustediron2_metallic.png" />
+    <EmbeddedResource Include="Content\Textures\rustediron2_normal.png" />
+    <EmbeddedResource Include="Content\Textures\rustediron2_roughness.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -16,7 +16,6 @@ namespace PBR
         PBRRenderer renderer;
         List<GameObject> objects = new List<GameObject>();
         Camera cam;
-        Camera<FirstPerson, Perspective> fCam;
         IContentLoader contentLoader;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
@@ -64,12 +63,12 @@ namespace PBR
             Vector3 startVector = new Vector3(-startX, startX, 0);
             float paramSteps = 1.0f / gridSize;
             string texPrefix = "rustediron2_";
-            /*
+            
             ITexture2D albedoText = contentLoader.Load<ITexture2D>(texPrefix + "basecolor.png");
             ITexture2D metallicText = contentLoader.Load<ITexture2D>(texPrefix + "metallic.png");
             ITexture2D normalText = contentLoader.Load<ITexture2D>(texPrefix + "normal.png");
             ITexture2D roughnessText = contentLoader.Load<ITexture2D>(texPrefix + "roughness.png");
-            */
+            
             for(int i = 0; i < gridSize; i++)
             {
                 Vector3 tmpStart = startVector;
@@ -84,6 +83,12 @@ namespace PBR
                     go.material.roughness = j * paramSteps;
                     go.material.albedoColor = new Vector3(1, 0, 0);
                     go.mesh = geom;
+                    /*
+                    go.material.albedoMap = albedoText;
+                    go.material.metallicMap = metallicText;
+                    go.material.normalMap = normalText;
+                    go.material.roughnessMap = roughnessText;
+                    */
                     goList.Add(go);
                     tmpStart.X += spacing;
                 }
