@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Collections.Generic;
 using PBR.src.model;
 using System;
+using OpenTK.Graphics.OpenGL;
 
 namespace PBR
 {
@@ -127,10 +128,12 @@ namespace PBR
             ITexture2D roughnessText = contentLoader.Load<ITexture2D>(texPrefix + "roughness.png");
             
             DefaultMesh mesh = contentLoader.Load<DefaultMesh>("sphere").Transform(Transformation.Scale(0.1f));
-            VAO geom = VAOLoader.FromMesh(mesh, renderer.GetShader());
             TangentSpaceData[] tangentData = GetTangentSpaceData(mesh.Position, mesh.TexCoord);
+            VAO geom = VAOLoader.FromMesh(mesh, renderer.GetShader());
+            //int tangentLocation = renderer.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "tangent");
+            //int biTangentLocation = GL.GetAttribLocation(renderer.GetShader().ProgramID, "biTangent");
 
-            for(int i = 0; i < gridSize; i++)
+            for (int i = 0; i < gridSize; i++)
             {
                 Vector3 tmpStart = startVector;
                 for (int j = 0; j < gridSize; j++)

@@ -24,9 +24,13 @@ uniform vec3 camPosition;
 uniform vec3 lightPosition;
 uniform vec3 lightColor;
 
-in vec3 worldPos;
-in vec3 Normal;
-in vec2 UV;
+in Fragment_Data {
+	vec3 worldPos;
+	vec3 Normal;
+	vec2 UV;
+	mat3 tbn;
+};
+
 
 struct PointLight 
 {
