@@ -41,6 +41,63 @@ namespace PBR
             keyStates.Add(Key.E, false);
         }
 
+        struct TangentSpaceData
+        {
+            public Vector3 tangent;
+            public Vector3 biTangent;
+        }
+
+        //Calculation taken from: https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+        TangentSpaceData[] GetTangentSpaceData(List<Vector3> positions, List<Vector2> uvs)
+        {
+            if(positions.Count != uvs.Count)
+            {
+                throw new Exception("Position Data does not match the amount of uv data");
+            }
+            TangentSpaceData[] result = new TangentSpaceData[positions.Count];
+            for(int i = 0; i < positions.Count - 2; i+=2)
+            {
+                int idx1 = i;
+                int idx2 = i + 1;
+                int idx3 = i + 2;
+
+                Vector3 pos1 = positions[idx1];
+                Vector3 pos2 = positions[idx2];
+                Vector3 pos3 = positions[idx3];
+
+                Vector3 edge1 = pos2 - pos1;
+                Vector3 edge2 = pos3 - pos1;
+
+                Vector2 uv1 = uvs[idx1];
+                Vector2 uv2 = uvs[idx2];
+                Vector2 uv3 = uvs[idx3];
+
+                Vector2 deltaUV1 = uv2 - uv1;
+                Vector2 deltaUV2 = uv3 - uv1;
+
+                float f = 1.0f / (deltaUV1.Y * deltaUV2.X - deltaUV1.X * deltaUV2.Y);
+                
+                Vector3 tangent;
+                tangent.X = f * (deltaUV2.Y * edge1.X - deltaUV1.Y * edge2.X);
+                tangent.Y = f * (deltaUV2.Y * edge1.Y - deltaUV1.Y * edge2.Y);
+                tangent.Z = f * (deltaUV2.Y * edge1.Z + deltaUV1.Y * edge2.Z);
+                tangent = Vector3.Normalize(tangent);
+
+                Vector3 biTangent;
+                biTangent.X = f * (-deltaUV2.X * edge1.X + deltaUV1.X * edge2.X);
+                biTangent.Y = f * (-deltaUV2.X * edge1.Y + deltaUV1.X * edge2.Y);
+                biTangent.Z = f * (-deltaUV2.X * edge1.Z + deltaUV1.X * edge2.Z);
+                biTangent = Vector3.Normalize(biTangent);
+
+                TangentSpaceData tmpData = new TangentSpaceData();
+                tmpData.tangent = tangent;
+                tmpData.biTangent = biTangent;
+                result[i] = tmpData;
+                result[idx2] = tmpData;
+                result[idx3] = tmpData;
+            }
+            return result;
+        }
 
         List<GameObject> GetSampleScene()
         {
@@ -69,14 +126,16 @@ namespace PBR
             ITexture2D normalText = contentLoader.Load<ITexture2D>(texPrefix + "normal.png");
             ITexture2D roughnessText = contentLoader.Load<ITexture2D>(texPrefix + "roughness.png");
             
+            DefaultMesh mesh = contentLoader.Load<DefaultMesh>("sphere").Transform(Transformation.Scale(0.1f));
+            VAO geom = VAOLoader.FromMesh(mesh, renderer.GetShader());
+            TangentSpaceData[] tangentData = GetTangentSpaceData(mesh.Position, mesh.TexCoord);
+
             for(int i = 0; i < gridSize; i++)
             {
                 Vector3 tmpStart = startVector;
                 for (int j = 0; j < gridSize; j++)
                 {
                     //DefaultMesh mesh = Meshes.CreateSphere(sphereSize, 2);
-                    DefaultMesh mesh = contentLoader.Load<DefaultMesh>("sphere").Transform(Transformation.Scale(0.1f));
-                    VAO geom = VAOLoader.FromMesh(mesh, renderer.GetShader());
                     
                     GameObject go = new GameObject();
                     go.transform.position = tmpStart;
@@ -84,12 +143,12 @@ namespace PBR
                     go.material.roughness = j * paramSteps;
                     go.material.albedoColor = new Vector3(1, 0, 0);
                     go.mesh = geom;
-                    /*
+                    
                     go.material.albedoMap = albedoText;
                     go.material.metallicMap = metallicText;
                     go.material.normalMap = normalText;
                     go.material.roughnessMap = roughnessText;
-                    */
+                    
                     goList.Add(go);
                     tmpStart.X += spacing;
                 }
