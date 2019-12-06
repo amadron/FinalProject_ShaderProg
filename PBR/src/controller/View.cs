@@ -44,18 +44,20 @@ namespace PBR
 
         struct TangentSpaceData
         {
-            public Vector3 tangent;
-            public Vector3 biTangent;
+            public Vector3[] tangent;
+            public Vector3[] biTangent;
         }
 
         //Calculation taken from: https://learnopengl.com/Advanced-Lighting/Normal-Mapping
-        TangentSpaceData[] GetTangentSpaceData(List<Vector3> positions, List<Vector2> uvs)
+        TangentSpaceData GetTangentSpaceData(List<Vector3> positions, List<Vector2> uvs)
         {
             if(positions.Count != uvs.Count)
             {
                 throw new Exception("Position Data does not match the amount of uv data");
             }
-            TangentSpaceData[] result = new TangentSpaceData[positions.Count];
+            Vector3[] tangents = new Vector3[positions.Count];
+            Vector3[] biTangents = new Vector3[positions.Count];
+
             for(int i = 0; i < positions.Count - 2; i+=2)
             {
                 int idx1 = i;
@@ -90,13 +92,17 @@ namespace PBR
                 biTangent.Z = f * (-deltaUV2.X * edge1.Z + deltaUV1.X * edge2.Z);
                 biTangent = Vector3.Normalize(biTangent);
 
-                TangentSpaceData tmpData = new TangentSpaceData();
-                tmpData.tangent = tangent;
-                tmpData.biTangent = biTangent;
-                result[i] = tmpData;
-                result[idx2] = tmpData;
-                result[idx3] = tmpData;
+                tangents[idx1] = tangent;
+                biTangents[idx1] = biTangent;
+                tangents[idx2] = tangent;
+                biTangents[idx2] = biTangent;
+                tangents[idx3] = tangent;
+                biTangents[idx3] = biTangent;
             }
+            TangentSpaceData result = new TangentSpaceData();
+            result.tangent = tangents;
+            result.biTangent = biTangents;
+            
             return result;
         }
 
@@ -127,18 +133,24 @@ namespace PBR
             ITexture2D normalText = contentLoader.Load<ITexture2D>(texPrefix + "normal.png");
             ITexture2D roughnessText = contentLoader.Load<ITexture2D>(texPrefix + "roughness.png");
             
-            DefaultMesh mesh = contentLoader.Load<DefaultMesh>("sphere").Transform(Transformation.Scale(0.1f));
-            TangentSpaceData[] tangentData = GetTangentSpaceData(mesh.Position, mesh.TexCoord);
+            DefaultMesh mesh = contentLoader.Load<DefaultMesh>("uvSphere").Transform(Transformation.Scale(0.1f));
+            //DefaultMesh mesh = Meshes.CreateSphere(sphereSize, 2);
             VAO geom = VAOLoader.FromMesh(mesh, renderer.GetShader());
-            //int tangentLocation = renderer.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "tangent");
-            //int biTangentLocation = GL.GetAttribLocation(renderer.GetShader().ProgramID, "biTangent");
+            
+            
+            TangentSpaceData tangentData = GetTangentSpaceData(mesh.Position, mesh.TexCoord);
+            int tangentLocation = renderer.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "tangent");
+            int biTangentLocation = GL.GetAttribLocation(renderer.GetShader().ProgramID, "biTangent");
+            geom.SetAttribute(tangentLocation, tangentData.tangent);
+            geom.SetAttribute(biTangentLocation, tangentData.biTangent);
+            
 
             for (int i = 0; i < gridSize; i++)
             {
                 Vector3 tmpStart = startVector;
                 for (int j = 0; j < gridSize; j++)
                 {
-                    //DefaultMesh mesh = Meshes.CreateSphere(sphereSize, 2);
+                    
                     
                     GameObject go = new GameObject();
                     go.transform.position = tmpStart;

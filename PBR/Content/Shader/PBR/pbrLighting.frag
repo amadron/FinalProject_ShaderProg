@@ -107,15 +107,16 @@ vec3 Fresnel(vec3 h, vec3 v, vec3 IOR)
 
 vec3 GetMapNormal()
 {
-	vec3 result = texture(normalMap, UV).rgb * 2 - 1;
+	vec3 result = texture(normalMap, UV).rgb * 2.0 - 1.0;
+	result = normalize(result);
+	result = normalize(tbn * result);
 	return result;
 }
 
 void main()
 {
-	vec3 normal = Normal;// * (1.0 - hasNormalMap);
-	//normal += GetMapNormal(); 
-	normal = normalize(normal);
+	vec3 normal = normalize(Normal) * (1.0 - hasNormalMap);
+	normal += GetMapNormal() * hasNormalMap; 
 	vec3 viewDir = normalize(camPosition - worldPos);
 	
 	vec3 albedo = albedoColor * (1.0 - hasAlbedoMap);

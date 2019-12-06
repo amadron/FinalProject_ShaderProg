@@ -90,6 +90,7 @@
     <EmbeddedResource Include="Content\Shader\PBR\pbrLighting.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\pbrLighting.vert" />
     <EmbeddedResource Include="Content\Models\sphere.obj" />
+    <EmbeddedResource Include="Content\Models\uvSphere.obj" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
   </ItemGroup>
