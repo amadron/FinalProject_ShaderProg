@@ -125,23 +125,23 @@ namespace PBR.src.controller
             pbrShader.Uniform("roughnessFactor", obj.material.roughness);
             if(obj.material.roughnessMap != null)
             {
-                pbrShader.Uniform("hasRougnessMap", 1);
+                pbrShader.Uniform("hasRoughnessMap", 1);
                 SetSampler(pbrShader.ProgramID, textCounter++, "roughnessMap", obj.material.roughnessMap);
             }
             else
             {
-                pbrShader.Uniform("hasRougnessMap", 0);
+                pbrShader.Uniform("hasRoughnessMap", 0);
             }
 
             pbrShader.Uniform("metalFactor", obj.material.metal);
             if(obj.material.metallicMap != null)
             {
-                pbrShader.Uniform("hasRougnessMap", 1);
+                pbrShader.Uniform("hasMetallicMap", 1);
                 SetSampler(pbrShader.ProgramID, textCounter++, "metallicMap", obj.material.metallicMap);
             }
             else
             {
-                pbrShader.Uniform("hasRougnessMap", 0);
+                pbrShader.Uniform("hasMetallicMap", 0);
             }
 
             pbrShader.Uniform("aoFactor", obj.material.ao);

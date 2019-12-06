@@ -121,19 +121,19 @@ void main()
 	
 	vec3 albedo = albedoColor * (1.0 - hasAlbedoMap);
 	vec4 albedoMapTex = texture(albedoMap, UV);
-	albedo += albedoMapTex.xyz;
+	albedo += pow(albedoMapTex.xyz, vec3(2.2)) * hasAlbedoMap;
 	
 	float ao = aoFactor * (1.0 - hasOcclusionMap);
 	vec4 occlusionMapTex = texture(occlusionMap, UV);
-	ao += occlusionMapTex.r;
+	ao += occlusionMapTex.r * hasOcclusionMap;
 
 	float metal = metalFactor * (1.0 - hasMetallicMap);
 	vec4 metallicMapTex = texture(metallicMap, UV);
-	metal += metallicMapTex.r;
+	metal += metallicMapTex.r * hasMetallicMap;
 
-	float roughness = roughnessFactor * (1.0 - hasOcclusionMap);
+	float roughness = roughnessFactor * (1.0 - hasRoughnessMap);
 	vec4 roughnessMapTex = texture(roughnessMap, UV);
-	roughness += roughnessMapTex.r;
+	roughness += roughnessMapTex.r * hasRoughnessMap;
 
 
 	vec3 IOR = vec3(0.04);
@@ -177,7 +177,7 @@ void main()
 		//visual = pLight.position;
 	}
 	//----------------End Per Light------------------
-	vec3 ambient = vec3(0.015) * albedo * ao;
+	vec3 ambient = vec3(0.03) * albedo * ao;
 	vec3  color = ambient + Lo;
 
 	//HDR Color mapping
@@ -188,4 +188,5 @@ void main()
 	//fragColor = vec4(vec3(hasAlbedoMap), 1);
 	//fragColor = vec4(vec3(normal),1);
 	//fragColor = vec4(UV, 1,1);
+	//fragColor = vec4(roughness);
 }
