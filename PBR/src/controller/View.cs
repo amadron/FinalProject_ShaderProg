@@ -24,6 +24,7 @@ namespace PBR
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
             objects = GetSampleScene();
+            //ITexture text = GetIBLTexture("Content/Textures/Alexs_Apt_2k.hdr");
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
@@ -104,6 +105,26 @@ namespace PBR
             result.biTangent = biTangents;
             
             return result;
+        }
+
+        ITexture2D GetIBLTexture(string path)
+        {
+            /*
+            ImageStreamLoader loader = new ImageStreamLoader();
+            using (Stream stream = File.Open(path, FileMode.Open))
+            {
+                ImageResult image = loader.Load(stream, ColorComponents.RedGreenBlueAlpha);
+                Texture2dGL text = null;
+                if (image != null)
+                {
+                    text = Texture2dGL.Create(image.Width, image.Height);
+                    text.LoadPixels((IntPtr)image.Data[0], image.Width, image.Height, OpenTK.Graphics.OpenGL4.PixelInternalFormat.Rgb, OpenTK.Graphics.OpenGL4.PixelFormat.Rgb, OpenTK.Graphics.OpenGL4.PixelType.Byte);
+                }
+                return text;
+                
+            }
+            */
+            return null;
         }
 
         List<GameObject> GetSampleScene()

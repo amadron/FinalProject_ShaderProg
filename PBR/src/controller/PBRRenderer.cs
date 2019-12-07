@@ -12,6 +12,7 @@ namespace PBR.src.controller
     {
         int ubo = 0;
         IShaderProgram pbrShader;
+        ITexture iblTexture;
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
             renderState.Set(new DepthTest(true));
@@ -59,6 +60,11 @@ namespace PBR.src.controller
         public IShaderProgram GetShader()
         {
             return pbrShader;
+        }
+
+        public void SetIBLTexture(ITexture texture)
+        {
+            this.iblTexture = texture;
         }
 
         public struct PointLight
