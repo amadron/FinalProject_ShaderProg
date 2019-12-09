@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using PBR.src.model;
 using System;
 using OpenTK.Graphics.OpenGL;
+using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace PBR
 {
@@ -109,22 +111,44 @@ namespace PBR
 
         ITexture2D GetIBLTexture(string path)
         {
-            /*
-            ImageStreamLoader loader = new ImageStreamLoader();
-            using (Stream stream = File.Open(path, FileMode.Open))
+            FreeImageAPI.FREE_IMAGE_FORMAT type = FreeImageAPI.FreeImage.GetFileType(path, 0);
+            FreeImageAPI.FIBITMAP bitmap = FreeImageAPI.FreeImage.Load(type, path, FreeImageAPI.FREE_IMAGE_LOAD_FLAGS.DEFAULT);
+            FreeImageAPI.FIBITMAP convert = FreeImageAPI.FreeImage.ToneMapping(bitmap, FreeImageAPI.FREE_IMAGE_TMO.FITMO_DRAGO03, 0, 0);
+
+            if(bitmap.IsNull)
             {
-                ImageResult image = loader.Load(stream, ColorComponents.RedGreenBlueAlpha);
-                Texture2dGL text = null;
-                if (image != null)
-                {
-                    text = Texture2dGL.Create(image.Width, image.Height);
-                    text.LoadPixels((IntPtr)image.Data[0], image.Width, image.Height, OpenTK.Graphics.OpenGL4.PixelInternalFormat.Rgb, OpenTK.Graphics.OpenGL4.PixelFormat.Rgb, OpenTK.Graphics.OpenGL4.PixelType.Byte);
-                }
-                return text;
-                
+                return null;
             }
-            */
-            return null;
+            uint width = FreeImageAPI.FreeImage.GetWidth(convert);
+            uint height = FreeImageAPI.FreeImage.GetHeight(convert);
+            int channelNo = 3;
+            byte[] imgData = new byte[width * height * channelNo];
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j ++)
+                {
+                    int idx = i * (int)width + j;
+                    FreeImageAPI.RGBQUAD color = new FreeImageAPI.RGBQUAD();
+                    int byteIdx = idx * channelNo;
+                    byteIdx -= 1;
+                    bool pSuccess = FreeImageAPI.FreeImage.GetPixelColor(convert, (uint) j, (uint)i, out color);
+                    Color nColor = color.Color;
+                    
+                    imgData[byteIdx + 1] = color.rgbRed;
+                    imgData[byteIdx + 2] = color.rgbGreen;
+                    imgData[byteIdx + 3] = color.rgbBlue;
+
+                    if(!pSuccess)
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            Texture2dGL text = Texture2dGL.Create((int)width, (int)height);
+            IntPtr ptr = Marshal.UnsafeAddrOfPinnedArrayElement(imgData, 0);
+            text.LoadPixels(ptr, (int)width, (int)height, OpenTK.Graphics.OpenGL4.PixelInternalFormat.Rgb8, OpenTK.Graphics.OpenGL4.PixelFormat.Rgb, OpenTK.Graphics.OpenGL4.PixelType.UnsignedByte);
+            return text;
         }
 
         List<GameObject> GetSampleScene()
@@ -148,7 +172,6 @@ namespace PBR
             Vector3 startVector = new Vector3(-startX, startX, 0);
             float paramSteps = 1.0f / gridSize;
             string texPrefix = "rustediron2_";
-            
             ITexture2D albedoText = contentLoader.Load<ITexture2D>(texPrefix + "basecolor.png");
             ITexture2D metallicText = contentLoader.Load<ITexture2D>(texPrefix + "metallic.png");
             ITexture2D normalText = contentLoader.Load<ITexture2D>(texPrefix + "normal.png");

@@ -186,6 +186,7 @@ void main()
 	//fragColor = vec4(albedo,1.0);
 	fragColor = vec4(color, 1.0);
 	//fragColor = vec4(vec3(hasAlbedoMap), 1);
+	//fragColor = vec4(albedo,1);
 	//fragColor = vec4(vec3(normal),1);
 	//fragColor = vec4(UV, 1,1);
 	//fragColor = vec4(roughness);
