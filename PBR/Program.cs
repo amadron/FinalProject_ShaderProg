@@ -13,6 +13,7 @@ namespace PBR
             window.Update += (dt) => view.Update(dt);
             window.GameWindow.KeyDown += view.Event_KeyDown;
             window.GameWindow.KeyUp += view.Event_KeyRelease;
+            window.Resize += (width, height) => view.Resize(width, height);
             //window.Render += () => Draw();
             window.Run();
         }

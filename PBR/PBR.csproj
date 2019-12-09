@@ -108,6 +108,8 @@
     <EmbeddedResource Include="Content\Models\uvSphere.obj" />
     <EmbeddedResource Include="Content\Shader\PBR\cubeMapProjection.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\cubeMapProjection.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\Skybox.frag" />
+    <EmbeddedResource Include="Content\Shader\PBR\Skybox.vert" />
     <None Include="Content\Textures\Alexs_Apt_2k.hdr">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

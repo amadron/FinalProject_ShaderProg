@@ -20,14 +20,16 @@ namespace PBR
         List<GameObject> objects = new List<GameObject>();
         Camera cam;
         IContentLoader contentLoader;
+        ITexture2D skyboxText;
+        ITexture2D iblText;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
             this.contentLoader = contentLoader;
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
             objects = GetSampleScene();
-            ITexture2D iblText = GetIBLTexture("Content/Textures/Alexs_Apt_2k.hdr");
-            renderer.SetIBLTexture(iblText);
+            skyboxText = renderer.GetHDRCubeMap("Content/Textures/Alexs_Apt_2k.hdr");
+            iblText = renderer.GetIBLTexture("Content/Textures/Alexs_Apt_2k.hdr");
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
@@ -44,6 +46,16 @@ namespace PBR
             keyStates.Add(Key.W, false);
             keyStates.Add(Key.Q, false);
             keyStates.Add(Key.E, false);
+        }
+
+        internal void Resize(int width, int height)
+        {
+            GL.Viewport(0, 0, width, height);
+            float aspectRatio = (float)width / (float)height;
+            if(cam != null)
+            {
+                cam.aspectRatio = aspectRatio;
+            }
         }
 
         struct TangentSpaceData
@@ -110,53 +122,11 @@ namespace PBR
             return result;
         }
 
-        ITexture2D GetIBLTexture(string path)
-        {
-            FreeImageAPI.FREE_IMAGE_FORMAT type = FreeImageAPI.FreeImage.GetFileType(path, 0);
-            FreeImageAPI.FIBITMAP bitmap = FreeImageAPI.FreeImage.Load(type, path, FreeImageAPI.FREE_IMAGE_LOAD_FLAGS.DEFAULT);
-            FreeImageAPI.FIBITMAP convert = FreeImageAPI.FreeImage.ToneMapping(bitmap, FreeImageAPI.FREE_IMAGE_TMO.FITMO_DRAGO03, 0, 0);
-
-            if(bitmap.IsNull)
-            {
-                return null;
-            }
-            uint width = FreeImageAPI.FreeImage.GetWidth(convert);
-            uint height = FreeImageAPI.FreeImage.GetHeight(convert);
-            int channelNo = 3;
-            byte[] imgData = new byte[width * height * channelNo];
-            for(int i = 0; i < height; i++)
-            {
-                for(int j = 0; j < width; j ++)
-                {
-                    int idx = i * (int)width + j;
-                    FreeImageAPI.RGBQUAD color = new FreeImageAPI.RGBQUAD();
-                    int byteIdx = idx * channelNo;
-                    byteIdx -= 1;
-                    bool pSuccess = FreeImageAPI.FreeImage.GetPixelColor(convert, (uint) j, (uint)i, out color);
-                    Color nColor = color.Color;
-                    
-                    imgData[byteIdx + 1] = color.rgbRed;
-                    imgData[byteIdx + 2] = color.rgbGreen;
-                    imgData[byteIdx + 3] = color.rgbBlue;
-
-                    if(!pSuccess)
-                    {
-                        return null;
-                    }
-                }
-            }
-
-            Texture2dGL text = Texture2dGL.Create((int)width, (int)height);
-            IntPtr ptr = Marshal.UnsafeAddrOfPinnedArrayElement(imgData, 0);
-            text.LoadPixels(ptr, (int)width, (int)height, OpenTK.Graphics.OpenGL4.PixelInternalFormat.Rgb8, OpenTK.Graphics.OpenGL4.PixelFormat.Rgb, OpenTK.Graphics.OpenGL4.PixelType.UnsignedByte);
-            return text;
-        }
-
         List<GameObject> GetSampleScene()
         {
             List<GameObject> goList = new List<GameObject>();
             DefaultMesh plane = Meshes.CreatePlane(10, 10, 10, 10).Transform(Transformation.Translation(new Vector3(0,-1f,0)));
-            VAO planeMesh = VAOLoader.FromMesh(plane, renderer.GetShader());
+            VAO planeMesh = VAOLoader.FromMesh(plane, renderer.GetPBRShader());
             GameObject planeGO = new GameObject();
             PBRMaterial planemat = new PBRMaterial();
             planemat.albedoColor = new Vector3(1);
@@ -180,12 +150,12 @@ namespace PBR
             
             DefaultMesh mesh = contentLoader.Load<DefaultMesh>("uvSphere").Transform(Transformation.Scale(0.1f));
             //DefaultMesh mesh = Meshes.CreateSphere(sphereSize, 2);
-            VAO geom = VAOLoader.FromMesh(mesh, renderer.GetShader());
+            VAO geom = VAOLoader.FromMesh(mesh, renderer.GetPBRShader());
             
             
             TangentSpaceData tangentData = GetTangentSpaceData(mesh.Position, mesh.TexCoord);
-            int tangentLocation = renderer.GetShader().GetResourceLocation(ShaderResourceType.Attribute, "tangent");
-            int biTangentLocation = GL.GetAttribLocation(renderer.GetShader().ProgramID, "biTangent");
+            int tangentLocation = renderer.GetPBRShader().GetResourceLocation(ShaderResourceType.Attribute, "tangent");
+            int biTangentLocation = GL.GetAttribLocation(renderer.GetPBRShader().ProgramID, "biTangent");
             geom.SetAttribute(tangentLocation, tangentData.tangent);
             geom.SetAttribute(biTangentLocation, tangentData.biTangent);
             
@@ -349,14 +319,17 @@ namespace PBR
         public void Render()
         {
             renderer.StartRendering();
-            
+            if(skyboxText != null)
+            {
+                renderer.ShowTexture(iblText, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
+                renderer.RenderSkybox(iblText, cam.GetProjectionMatrix(), cam.GetTransformationMatrix());
+            }
             foreach(GameObject go in objects)
             {
                 //renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
                 renderer.Render(cam.Matrix, cam.transform.position, go);
             }
             
-            renderer.ShowIBLTexture(cam.GetTransformationMatrix(),cam.GetProjectionMatrix());
         }
     }
 }

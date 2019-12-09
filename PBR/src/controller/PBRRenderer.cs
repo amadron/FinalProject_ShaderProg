@@ -5,6 +5,9 @@ using Zenseless.HLGL;
 using Zenseless.OpenGL;
 using System.Numerics;
 using PBR.src.model;
+using System.Runtime.InteropServices;
+using System;
+using System.Drawing;
 
 namespace PBR.src.controller
 {
@@ -12,15 +15,17 @@ namespace PBR.src.controller
     {
         int ubo = 0;
         IShaderProgram pbrShader;
-        IShaderProgram cubeProjectionShader;
-        VAO unitCube;
+        IShaderProgram skyboxShader;
+
         ITexture2D iblTexture;
+
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
             
             pbrShader = contentLoader.Load<IShaderProgram>("pbrLighting.*");
+            skyboxShader = contentLoader.Load<IShaderProgram>("Skybox.*");
             dLight = new DirectionalLight();
             dLight.direction = new Vector3(0, 1, -1);
             dLight.color = new Vector3(10);
@@ -61,22 +66,18 @@ namespace PBR.src.controller
 
         }
 
-        public void ShowIBLTexture(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix)
+        public void SetPBRShader(IShaderProgram shader)
         {
-            if(iblTexture != null)
-            {
-                cubeProjectionShader.Activate();
-                SetSampler(cubeProjectionShader.ProgramID, 0, "equirectangularMap", iblTexture);
-                cubeProjectionShader.Uniform("projection", projectionMatrix, true);
-                cubeProjectionShader.Uniform("view", viewMatrix, true);
-
-                unitCube.Draw();
-                cubeProjectionShader.Deactivate();
-                DeactivateTexture(0);
-            }
+            this.pbrShader = shader;
         }
 
-        public IShaderProgram GetShader()
+        public void SetSkyboxShader(IShaderProgram shader)
+        {
+            this.skyboxShader = shader;
+        }
+        
+
+        public IShaderProgram GetPBRShader()
         {
             return pbrShader;
         }
@@ -119,9 +120,26 @@ namespace PBR.src.controller
             GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
+        VAO unitCube;
+        public void RenderSkybox(ITexture2D skyboxTexture, Matrix4x4 projection, Matrix4x4 view)
+        {
+            if(skyboxShader == null)
+            {
+                return;
+            }
+            GL.DepthFunc(DepthFunction.Lequal);
+            skyboxShader.Activate();
+            skyboxShader.Uniform("view", view);
+            skyboxShader.Uniform("projection", projection);
+            SetSampler(skyboxShader.ProgramID, 0, "environmentMap", skyboxTexture);
+            unitCube.Draw();
+            GL.DepthFunc(DepthFunction.Less);
+
+        }
+
         public void Render(Matrix4x4 camMatrix, Vector3 camPosition, GameObject obj)
         {
-            if(obj == null || obj.mesh == null || obj.material == null)
+            if(pbrShader == null || obj == null || obj.mesh == null || obj.material == null)
             {
                 return;
             }
@@ -213,5 +231,129 @@ namespace PBR.src.controller
         {
 
         }
+
+        #region DiffuseIBL
+        IShaderProgram cubeProjectionShader;
+
+        public ITexture2D GetIBLTexture(string path)
+        {
+            FreeImageAPI.FREE_IMAGE_FORMAT type = FreeImageAPI.FreeImage.GetFileType(path, 0);
+            FreeImageAPI.FIBITMAP bitmap = FreeImageAPI.FreeImage.Load(type, path, FreeImageAPI.FREE_IMAGE_LOAD_FLAGS.DEFAULT);
+            FreeImageAPI.FIBITMAP convert = FreeImageAPI.FreeImage.ToneMapping(bitmap, FreeImageAPI.FREE_IMAGE_TMO.FITMO_DRAGO03, 0, 0);
+
+            if (bitmap.IsNull)
+            {
+                return null;
+            }
+            uint width = FreeImageAPI.FreeImage.GetWidth(convert);
+            uint height = FreeImageAPI.FreeImage.GetHeight(convert);
+            int channelNo = 3;
+            byte[] imgData = new byte[width * height * channelNo];
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    int idx = i * (int)width + j;
+                    FreeImageAPI.RGBQUAD color = new FreeImageAPI.RGBQUAD();
+                    int byteIdx = idx * channelNo;
+                    byteIdx -= 1;
+                    bool pSuccess = FreeImageAPI.FreeImage.GetPixelColor(convert, (uint)j, (uint)i, out color);
+                    Color nColor = color.Color;
+
+                    imgData[byteIdx + 1] = color.rgbRed;
+                    imgData[byteIdx + 2] = color.rgbGreen;
+                    imgData[byteIdx + 3] = color.rgbBlue;
+
+                    if (!pSuccess)
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            Texture2dGL text = Texture2dGL.Create((int)width, (int)height);
+            IntPtr ptr = Marshal.UnsafeAddrOfPinnedArrayElement(imgData, 0);
+            text.LoadPixels(ptr, (int)width, (int)height, OpenTK.Graphics.OpenGL4.PixelInternalFormat.Rgb8, OpenTK.Graphics.OpenGL4.PixelFormat.Rgb, OpenTK.Graphics.OpenGL4.PixelType.UnsignedByte);
+            return text;
+        }
+
+        public void ShowTexture(ITexture2D texture, Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix)
+        {
+            if (texture != null)
+            {
+                cubeProjectionShader.Activate();
+                SetSampler(cubeProjectionShader.ProgramID, 0, "equirectangularMap", texture);
+                cubeProjectionShader.Uniform("projection", projectionMatrix, true);
+                cubeProjectionShader.Uniform("view", viewMatrix, true);
+
+                unitCube.Draw();
+                cubeProjectionShader.Deactivate();
+                DeactivateTexture(0);
+            }
+        }
+
+        public ITexture2D GetHDRCubeMap(string path)
+        {
+            ITexture2D sphereText = GetIBLTexture(path);
+            return CreateHDRCubeMap(sphereText);
+        }
+
+        public ITexture2D CreateHDRCubeMap(ITexture2D sphereTexture)
+        {
+            DefaultMesh cubeMesh = Meshes.CreateCubeWithNormals();
+            VAO renderCube = VAOLoader.FromMesh(cubeMesh, cubeProjectionShader);
+
+            ITexture2D captureTexture = Texture2dGL.Create(512, 512);
+            FBO captureFBO = new FBO(captureTexture);
+            
+
+
+            //Setting up the Cubemap to render to;
+            int envCubeMap = GL.GenTexture();
+            GL.BindTexture(TextureTarget.TextureCubeMap, envCubeMap);
+
+            for(int i = 0; i < 6; i++)
+            {
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgb16f, 512, 512, 0, PixelFormat.Rgb, PixelType.Float, System.IntPtr.Zero);
+            }
+            int[] wrapParam = { (int)TextureWrapMode.ClampToEdge };
+            GL.TexParameterI(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, wrapParam);
+            GL.TexParameterI(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, wrapParam);
+            GL.TexParameterI(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, wrapParam);
+            int[] filterMinParam = { (int)TextureMinFilter.Linear };
+            GL.TexParameterI(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, filterMinParam);
+            int[] filterMagParam = { (int)TextureMagFilter.Linear };
+            GL.TexParameterI(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, filterMagParam);
+
+            Matrix4x4 captureProjection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), 1.0f, 0.1f, 10.0f);
+            Matrix4x4[] captureView =
+            {
+                Matrix4x4.CreateLookAt(Vector3.Zero, new Vector3(1.0f,0,0), new Vector3(0,-1.0f, 0)),
+                Matrix4x4.CreateLookAt(Vector3.Zero, new Vector3(-1.0f,0,0), new Vector3(0,-1.0f, 0)),
+                Matrix4x4.CreateLookAt(Vector3.Zero, new Vector3(0,1.0f,0), new Vector3(0, 0, 1.0f)),
+                Matrix4x4.CreateLookAt(Vector3.Zero, new Vector3(0,-1.0f,0), new Vector3(0, 0, -1.0f)),
+                Matrix4x4.CreateLookAt(Vector3.Zero, new Vector3(0,0,1.0f), new Vector3(0,-1.0f, 0)),
+                Matrix4x4.CreateLookAt(Vector3.Zero, new Vector3(0,0,-1.0f), new Vector3(0,-1.0f, 0)),
+            };
+
+            cubeProjectionShader.Activate();
+            cubeProjectionShader.Uniform("projection", captureProjection);
+            SetSampler(cubeProjectionShader.ProgramID, 0, "equirectangularMap", sphereTexture);
+
+            GL.Viewport(0, 0, 512, 512);
+            captureFBO.Activate();
+            for(int i = 0; i < 6; i++)
+            {
+                cubeProjectionShader.Uniform("view", captureView[i]);
+                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.TextureCubeMapPositiveX + i, envCubeMap, 0);
+                GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                renderCube.Draw();
+            }
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+            return captureTexture;
+        }
+
+        #endregion
     }
 }
