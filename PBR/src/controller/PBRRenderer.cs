@@ -12,7 +12,9 @@ namespace PBR.src.controller
     {
         int ubo = 0;
         IShaderProgram pbrShader;
-        ITexture iblTexture;
+        IShaderProgram cubeProjectionShader;
+        VAO unitCube;
+        ITexture2D iblTexture;
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
             renderState.Set(new DepthTest(true));
@@ -53,8 +55,25 @@ namespace PBR.src.controller
             GL.UniformBlockBinding(pbrShader.ProgramID, uniformID, 0);
             GL.BindBufferBase(BufferRangeTarget.UniformBuffer, 0, ubo);
 
-            
+            cubeProjectionShader = contentLoader.Load<IShaderProgram>("cubeMapProjection.*");
+            DefaultMesh cubeMesh = Meshes.CreateCubeWithNormals();
+            unitCube = VAOLoader.FromMesh(cubeMesh, cubeProjectionShader);
 
+        }
+
+        public void ShowIBLTexture(Matrix4x4 viewMatrix, Matrix4x4 projectionMatrix)
+        {
+            if(iblTexture != null)
+            {
+                cubeProjectionShader.Activate();
+                SetSampler(cubeProjectionShader.ProgramID, 0, "equirectangularMap", iblTexture);
+                cubeProjectionShader.Uniform("projection", projectionMatrix, true);
+                cubeProjectionShader.Uniform("view", viewMatrix, true);
+
+                unitCube.Draw();
+                cubeProjectionShader.Deactivate();
+                DeactivateTexture(0);
+            }
         }
 
         public IShaderProgram GetShader()
@@ -62,7 +81,7 @@ namespace PBR.src.controller
             return pbrShader;
         }
 
-        public void SetIBLTexture(ITexture texture)
+        public void SetIBLTexture(ITexture2D texture)
         {
             this.iblTexture = texture;
         }
@@ -92,6 +111,12 @@ namespace PBR.src.controller
             int samplerID = GL.GetUniformLocation(programmID, uniformName);
             GL.Uniform1(samplerID, samplerNumber);
 
+        }
+
+        private void DeactivateTexture(int samplerNumber)
+        {
+            GL.ActiveTexture(TextureUnit.Texture0 + samplerNumber);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
         }
 
         public void Render(Matrix4x4 camMatrix, Vector3 camPosition, GameObject obj)
@@ -177,6 +202,10 @@ namespace PBR.src.controller
 
             pbrShader.Deactivate();
 
+            for(int i = textCounter; i >= 0; i--)
+            {
+                DeactivateTexture(i);
+            }
 
         }
 

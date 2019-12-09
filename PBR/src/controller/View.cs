@@ -26,7 +26,8 @@ namespace PBR
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
             objects = GetSampleScene();
-            //ITexture text = GetIBLTexture("Content/Textures/Alexs_Apt_2k.hdr");
+            ITexture2D iblText = GetIBLTexture("Content/Textures/Alexs_Apt_2k.hdr");
+            renderer.SetIBLTexture(iblText);
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
@@ -348,11 +349,14 @@ namespace PBR
         public void Render()
         {
             renderer.StartRendering();
+            
             foreach(GameObject go in objects)
             {
                 //renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
                 renderer.Render(cam.Matrix, cam.transform.position, go);
             }
+            
+            renderer.ShowIBLTexture(cam.GetTransformationMatrix(),cam.GetProjectionMatrix());
         }
     }
 }
