@@ -22,7 +22,7 @@ namespace PBR
         IContentLoader contentLoader;
         ITexture2D skyboxText;
         ITexture2D iblText;
-        int skyCubeMapID;
+        uint skyCubeMapID;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
             this.contentLoader = contentLoader;
@@ -321,7 +321,7 @@ namespace PBR
         public void Render()
         {
             renderer.StartRendering();
-            //renderer.ShowTexture(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
+            renderer.ShowTexture(iblText.ID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
             renderer.RenderSkybox(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
             
             if(skyboxText != null)
@@ -335,6 +335,8 @@ namespace PBR
                 //renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
                 renderer.Render(cam.Matrix, cam.transform.position, go);
             }
+
+            //renderer.ShowTexture(skyCubeMapID);
             
         }
     }

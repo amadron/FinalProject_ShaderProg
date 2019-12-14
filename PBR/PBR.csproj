@@ -110,6 +110,8 @@
     <EmbeddedResource Include="Content\Shader\PBR\cubeMapProjection.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\Skybox.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\Skybox.vert" />
+    <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture.frag" />
+    <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture.vert" />
     <None Include="Content\Textures\Alexs_Apt_2k.hdr">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -120,7 +122,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Content\Shader\Debug\" />
     <Folder Include="External\" />
   </ItemGroup>
   <ItemGroup>

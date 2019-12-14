@@ -21,5 +21,5 @@ void main()
     vec3 color = texture(equirectangularMap, uv).rgb;
     
     fragColor = vec4(color, 1.0);
-	fragColor = vec4(1);
+	//fragColor = vec4(1);
 }
