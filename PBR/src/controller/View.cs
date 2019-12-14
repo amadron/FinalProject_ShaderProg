@@ -22,6 +22,7 @@ namespace PBR
         IContentLoader contentLoader;
         ITexture2D skyboxText;
         ITexture2D iblText;
+        int skyCubeMapID;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
             this.contentLoader = contentLoader;
@@ -30,6 +31,7 @@ namespace PBR
             objects = GetSampleScene();
             skyboxText = renderer.GetHDRCubeMap("Content/Textures/Alexs_Apt_2k.hdr");
             iblText = renderer.GetIBLTexture("Content/Textures/Alexs_Apt_2k.hdr");
+            skyCubeMapID = renderer.SphereMapToCubeMap(iblText);
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
@@ -319,11 +321,15 @@ namespace PBR
         public void Render()
         {
             renderer.StartRendering();
+            //renderer.ShowTexture(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
+            renderer.RenderSkybox(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
+            
             if(skyboxText != null)
             {
-                renderer.ShowTexture(iblText, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
-                renderer.RenderSkybox(iblText, cam.GetProjectionMatrix(), cam.GetTransformationMatrix());
+                renderer.ShowTexture(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
+                //renderer.RenderSkybox(skyboxText, cam.GetProjectionMatrix(), cam.GetTransformationMatrix());
             }
+            
             foreach(GameObject go in objects)
             {
                 //renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
