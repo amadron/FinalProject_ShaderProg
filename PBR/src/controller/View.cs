@@ -29,9 +29,9 @@ namespace PBR
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
             objects = GetSampleScene();
-            skyboxText = renderer.GetHDRCubeMap("Content/Textures/Alexs_Apt_2k.hdr");
             iblText = renderer.GetIBLTexture("Content/Textures/Alexs_Apt_2k.hdr");
-            skyCubeMapID = renderer.SphereMapToCubeMap(iblText);
+
+            skyCubeMapID = renderer.GetCubeMapFromSphereMap(iblText);
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
@@ -321,12 +321,12 @@ namespace PBR
         public void Render()
         {
             renderer.StartRendering();
-            renderer.ShowTexture(iblText.ID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
+            //renderer.ShowTexture(iblText.ID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
             renderer.RenderSkybox(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
-            
-            if(skyboxText != null)
+            //renderer.ShowCubeMap(iblText, 4);
+            if (skyboxText != null)
             {
-                renderer.ShowTexture(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
+                //renderer.ShowTexture(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
                 //renderer.RenderSkybox(skyboxText, cam.GetProjectionMatrix(), cam.GetTransformationMatrix());
             }
             
