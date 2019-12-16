@@ -20,7 +20,6 @@ namespace PBR
         List<GameObject> objects = new List<GameObject>();
         Camera cam;
         IContentLoader contentLoader;
-        ITexture2D skyboxText;
         ITexture2D iblText;
         uint skyCubeMapID;
         uint skyIrradMapID;
@@ -325,11 +324,6 @@ namespace PBR
             //renderer.ShowTexture(iblText.ID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
             renderer.RenderSkybox(skyIrradMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
             //renderer.ShowCubeMap(iblText, 4);
-            if (skyboxText != null)
-            {
-                //renderer.ShowTexture(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
-                //renderer.RenderSkybox(skyboxText, cam.GetProjectionMatrix(), cam.GetTransformationMatrix());
-            }
             
             foreach(GameObject go in objects)
             {
