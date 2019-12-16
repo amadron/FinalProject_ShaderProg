@@ -23,6 +23,7 @@ namespace PBR
         ITexture2D skyboxText;
         ITexture2D iblText;
         uint skyCubeMapID;
+        uint skyIrradMapID;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
             this.contentLoader = contentLoader;
@@ -31,7 +32,7 @@ namespace PBR
             objects = GetSampleScene();
             iblText = renderer.GetIBLTexture("Content/Textures/Alexs_Apt_2k.hdr");
 
-            skyCubeMapID = renderer.GetCubeMapFromSphereMap(iblText);
+            renderer.GetCubeIBLMapFromSphereMap(iblText, ref skyCubeMapID, ref skyIrradMapID);
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
@@ -322,7 +323,7 @@ namespace PBR
         {
             renderer.StartRendering();
             //renderer.ShowTexture(iblText.ID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
-            renderer.RenderSkybox(skyCubeMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
+            renderer.RenderSkybox(skyIrradMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
             //renderer.ShowCubeMap(iblText, 4);
             if (skyboxText != null)
             {
