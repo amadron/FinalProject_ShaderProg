@@ -52,6 +52,7 @@ namespace PBR.src.controller
             cubeProjectionShader = contentLoader.Load<IShaderProgram>("CubeMapProjection.*");
             textureTest = contentLoader.Load<IShaderProgram>("DisplayTexture2D.*");
             irradianceMapShader = contentLoader.Load<IShaderProgram>("IrradianceMap.*");
+            prefilterMapShader = contentLoader.Load<IShaderProgram>("PrefilterIBLMap.*");
             dLight = new DirectionalLight();
             dLight.direction = new Vector3(0, 1, -1);
             dLight.color = new Vector3(10);

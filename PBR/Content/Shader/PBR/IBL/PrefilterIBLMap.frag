@@ -1,8 +1,9 @@
 ﻿#version 330 core
-#include "../PBRUtil.glsl"
+#include "IBLUtil.glsl"
 
-out vec4 FragColor;
+out vec4 fragColor;
 in vec3 localPos;
+
 
 uniform samplerCube environmentMap;
 uniform float roughness;
@@ -10,7 +11,9 @@ uniform float roughness;
 float RadicalInverse_VdC(uint bits);
 vec2 Hammersley(uint i, uint N);
 vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
-  
+
+
+
 void main()
 {		
     vec3 N = normalize(localPos);    
@@ -35,5 +38,5 @@ void main()
     }
     prefilteredColor = prefilteredColor / totalWeight;
 
-    FragColor = vec4(prefilteredColor, 1.0);
+    fragColor = vec4(prefilteredColor, 1.0);
 }  
