@@ -21,9 +21,6 @@ uniform int hasOcclusionMap;
 
 uniform vec3 camPosition;
 
-uniform vec3 lightPosition;
-uniform vec3 lightColor;
-
 in Fragment_Data {
 	vec3 worldPos;
 	vec3 Normal;
@@ -31,6 +28,7 @@ in Fragment_Data {
 	mat3 tbn;
 };
 
+uniform samplerCube irradianceMap;
 
 struct PointLight 
 {
@@ -104,6 +102,13 @@ vec3 Fresnel(vec3 h, vec3 v, vec3 IOR)
 	return IOR + (1.0-IOR) * pow((1-dProd),5.0);
 }
 
+vec3 FresnelWightRoughness(vec3 h, vec3 v, vec3 IOR, float roughness)
+{
+	float dProd = max(dot(h,v),0.0);
+	dProd = min(dProd, 1.0);
+	return IOR + (max(vec3(1.0-roughness), IOR) - IOR) * pow((1-dProd),5.0);
+}
+
 vec3 GetMapNormal()
 {
 	vec3 result = texture(normalMap, UV).rgb * 2.0 - 1.0;
@@ -137,6 +142,8 @@ void main()
 	vec3 IOR = vec3(0.04);
 	IOR = mix(IOR, albedo, metal);
 
+	vec3 irradiance = texture(irradianceMap, normal).rgb;
+
 	vec3 Lo = vec3(0.0);
 	vec3 visual = vec3(0);
 	for(int i = 0; i < pointLightAmount; i++)
@@ -155,6 +162,7 @@ void main()
 		vec3 halfWayVec = normalize(lightDir + viewDir);
 	
 		float ndf = NDF(normal, halfWayVec, roughness);
+		//ndf = DistributionGGX(normal, halfWayVec, roughness);
 		float geometry = GeometryFunction(normal, viewDir, lightDir, roughness);
 		vec3 fresnel = Fresnel(halfWayVec, viewDir, IOR);
 
@@ -171,12 +179,18 @@ void main()
 		float lightAngle = max(dot(normal, lightDir), 0.0);
 		vec3 tmpLo  = (refraction * albedo / PI + specular) * radiance * lightAngle;
 		Lo += tmpLo;
-		visual = vec3(specular);
-		//visual = vec3();
+		//visual = tmpLo;
+		//visual = vec3(fresnel);
+		
 	}
 	//----------------End Per Light------------------
-	vec3 ambient = vec3(0.03);
-	//vec3 ambient = irradiance;
+	//vec3 ambient = vec3(0.03);
+	//Calculate the ambient color by taking the irradiance map
+	vec3 specularFact = FresnelWightRoughness(viewDir, normal, IOR, roughness);
+	vec3 diffuseFact = vec3(1.0) - specularFact;
+	vec3 diffuse = irradiance * albedo;
+	vec3 ambient = (diffuseFact * diffuse) *ao; //Take only the diffuse part into account
+
 	ambient *= albedo * ao;
 	vec3  color = ambient + Lo;
 

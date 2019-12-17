@@ -40,8 +40,8 @@ namespace PBR.src.controller
             GL.Enable(EnableCap.TextureCubeMap);
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
-            
-            pbrShader = contentLoader.Load<IShaderProgram>("pbrLighting.*");
+            //pbrShader = contentLoader.Load<IShaderProgram>("pbrLighting.*");
+            pbrShader = contentLoader.Load<IShaderProgram>("pbrLightingIBLDiffuse.*");
             skyboxShader = contentLoader.Load<IShaderProgram>("Skybox.*");
             cubeProjectionShader = contentLoader.Load<IShaderProgram>("cubeMapProjection.*");
             textureTest = contentLoader.Load<IShaderProgram>("DisplayTexture2D.*");
@@ -50,24 +50,22 @@ namespace PBR.src.controller
             dLight.direction = new Vector3(0, 1, -1);
             dLight.color = new Vector3(10);
             dLight.position = new Vector3(0, 1, -1);
-            int width = 1;
-            float step = 0.5f;
-            Vector3 startPos = new Vector3(0, step, 0.5f);
-            pointLights = new PointLight[width * width];
-            for(int i = 0; i < width; i++)
-            {
-                for(int j = 0; j < width; j++)
-                {
-                    int idx = i * width + j;
 
-                    pointLights[idx] = new PointLight();
-                    pointLights[idx].color = new Vector3(1);
-                    pointLights[idx].position = startPos;
-                    pointLights[idx].position.X += i * step;
-                    pointLights[idx].position.Y -= j * step;
-                    pointLights[idx].radius = 0.5f;
-                }
+            Vector3 startPos = new Vector3(0, 0, 0.5f);
+            pointLights = new PointLight[4];
+            for(int i = 0; i < 4; i++)
+            {
+                pointLights[i] = new PointLight();
+                pointLights[i].color = new Vector3(1);
+                pointLights[i].radius = 1;
+                pointLights[i].position = startPos;
             }
+            pointLights[0].position = new Vector3(-1, 1, 0.5f);
+            pointLights[1].position = new Vector3(-1, -1, 0.5f);
+            pointLights[2].position = new Vector3(1, -1, 0.5f);
+            pointLights[3].position = new Vector3(1, 1, 0.5f);
+            
+
             int size = System.Runtime.InteropServices.Marshal.SizeOf(typeof(PointLight)) * pointLights.Length;
 
             //Generate buffer and allocate memory

@@ -131,13 +131,13 @@ namespace PBR
             planemat.metal = 0;
             planeGO.mesh = planeMesh;
             planeGO.material = planemat;
-            goList.Add(planeGO);
+            //goList.Add(planeGO);
             //return goList;
             int gridSize = 7;
             float sphereSize = 0.1f;
             float spacing = sphereSize + sphereSize * 2f;
             float startX = gridSize / 2 * spacing;
-            Vector3 startVector = new Vector3(-startX, startX, 0);
+            Vector3 startVector = new Vector3(startX, startX, 0);
             float paramSteps = 1.0f / gridSize;
             string texPrefix = "rustediron2_";
             ITexture2D albedoText = contentLoader.Load<ITexture2D>(texPrefix + "basecolor.png");
@@ -167,17 +167,19 @@ namespace PBR
                     GameObject go = new GameObject();
                     go.transform.position = tmpStart;
                     go.material.metal = i * paramSteps;
-                    go.material.roughness = j * paramSteps;
+                    go.material.roughness = j  * paramSteps;
                     go.material.albedoColor = new Vector3(1, 0, 0);
                     go.mesh = geom;
                     
+                    /*
                     go.material.albedoMap = albedoText;
                     go.material.metallicMap = metallicText;
                     go.material.normalMap = normalText;
                     go.material.roughnessMap = roughnessText;
-                    
+                    */
+
                     goList.Add(go);
-                    tmpStart.X += spacing;
+                    tmpStart.X -= spacing;
                 }
                 startVector.Y -= spacing;
             }
