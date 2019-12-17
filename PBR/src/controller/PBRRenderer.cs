@@ -40,7 +40,7 @@ namespace PBR.src.controller
             GL.Enable(EnableCap.TextureCubeMap);
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
-            //pbrShader = contentLoader.Load<IShaderProgram>("pbrLighting.*");
+            //pbrShader = contentLoader.Load<IShaderProgram>("pbrLightingBasic.*");
             pbrShader = contentLoader.Load<IShaderProgram>("pbrLightingIBLDiffuse.*");
             skyboxShader = contentLoader.Load<IShaderProgram>("Skybox.*");
             cubeProjectionShader = contentLoader.Load<IShaderProgram>("cubeMapProjection.*");

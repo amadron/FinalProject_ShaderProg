@@ -102,8 +102,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EmbeddedResource Include="Content\Shader\PBR\pbrLighting.frag" />
-    <EmbeddedResource Include="Content\Shader\PBR\pbrLighting.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\pbrLightingBasic.frag" />
+    <EmbeddedResource Include="Content\Shader\PBR\pbrLightingBasic.vert" />
     <EmbeddedResource Include="Content\Models\sphere.obj" />
     <EmbeddedResource Include="Content\Models\uvSphere.obj" />
     <EmbeddedResource Include="Content\Shader\PBR\cubeMapProjection.frag" />
@@ -116,6 +116,7 @@
     <EmbeddedResource Include="Content\Shader\PBR\IrradianceMap.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\pbrLightingIBLDiffuse.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\pbrLightingIBLDiffuse.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\PBRUtil.glsl" />
     <None Include="Content\Textures\Alexs_Apt_2k.hdr">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
