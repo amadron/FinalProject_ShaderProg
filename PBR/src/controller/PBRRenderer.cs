@@ -159,6 +159,7 @@ namespace PBR.src.controller
         VAO unitCube;
         public void RenderSkybox(Matrix4x4 view, Matrix4x4 projection)
         {
+            //RenderSkybox(ibl_skyboxMap, view, projection);
             RenderSkybox(ibl_skyboxMap, view, projection);
         }
 
@@ -379,17 +380,41 @@ namespace PBR.src.controller
 
         uint CreatePrefilteredMap(int frameBuffer, Matrix4x4 projection, Matrix4x4[] viewMatrices, uint cubeMap)
         {
-            uint prefiltMap = (uint)GL.GenTexture();
-            GL.BindTexture(TextureTarget.TextureCubeMap, prefiltMap);
-            for (int i = 0; i < 6; i++)
+            DefaultMesh cubeMesh = Meshes.CreateCubeWithNormals();
+            VAO renderPrefilterCube = VAOLoader.FromMesh(cubeMesh, prefilterMapShader);
+            int texResX = 128;
+            int texResY = 128;
+
+            int prefiltMap = CreateCubeMap(texResX, texResY);
+            GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
+
+            prefilterMapShader.Activate();
+            SetSampler(prefilterMapShader.ProgramID, 0, "environmentMap", cubeMap, TextureTarget.TextureCubeMap);
+            prefilterMapShader.Uniform("projection", projection);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
+            int maxMipLvl = 5;
+            for(int i = 0; i < maxMipLvl; i++)
             {
-                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgb16f,
-                              128, 128, 0, PixelFormat.Rgb, PixelType.Float, IntPtr.Zero);
+                int mipWidth = texResX * (int)Math.Pow(0.5, i);
+                int mipHeight = texResY * (int)Math.Pow(0.5, i);
+
+                float roughness = (float)mipHeight / (float)(maxMipLvl - 1);
+                prefilterMapShader.Uniform("roughness", roughness);
+                for(int j = 0; j < 6; j++)
+                {
+                    prefilterMapShader.Uniform("view", viewMatrices[j]);
+                    GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
+                                            TextureTarget.TextureCubeMapPositiveX + j, prefiltMap, i);
+
+                    GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+                    renderPrefilterCube.Draw();
+                }
             }
 
-            SetUpCubeMapParameters();
-            GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
-            return prefiltMap;
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+
+            return (uint) prefiltMap;
         }
 
         uint CreateIntegratedMap(int frameBuffer, Matrix4x4 projection, Matrix4x4[] viewMatrices, uint cubeMap)
