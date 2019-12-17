@@ -28,8 +28,12 @@ namespace PBR.src.controller
 
         IRenderState renderstate;
 
+        //PBR IBL Diffuse
         uint skyboxMap;
         uint irradianceMap;
+        //PBR IBL Specular part
+        uint prefilteredEnvironment;
+        uint brdfIntegraionMap;
 
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
@@ -40,10 +44,10 @@ namespace PBR.src.controller
             GL.Enable(EnableCap.TextureCubeMap);
             renderState.Set(new DepthTest(true));
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
-            //pbrShader = contentLoader.Load<IShaderProgram>("pbrLightingBasic.*");
-            pbrShader = contentLoader.Load<IShaderProgram>("pbrLightingIBLDiffuse.*");
+            //pbrShader = contentLoader.Load<IShaderProgram>("PBRLightingBasic.*");
+            pbrShader = contentLoader.Load<IShaderProgram>("PBRLightingIBLDiffuse.*");
             skyboxShader = contentLoader.Load<IShaderProgram>("Skybox.*");
-            cubeProjectionShader = contentLoader.Load<IShaderProgram>("cubeMapProjection.*");
+            cubeProjectionShader = contentLoader.Load<IShaderProgram>("CubeMapProjection.*");
             textureTest = contentLoader.Load<IShaderProgram>("DisplayTexture2D.*");
             irradianceMapShader = contentLoader.Load<IShaderProgram>("IrradianceMap.*");
             dLight = new DirectionalLight();

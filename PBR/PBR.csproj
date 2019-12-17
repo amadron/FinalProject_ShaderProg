@@ -102,21 +102,23 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EmbeddedResource Include="Content\Shader\PBR\pbrLightingBasic.frag" />
-    <EmbeddedResource Include="Content\Shader\PBR\pbrLightingBasic.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\PBRLightingBasic.frag" />
+    <EmbeddedResource Include="Content\Shader\PBR\PBRLightingBasic.vert" />
     <EmbeddedResource Include="Content\Models\sphere.obj" />
     <EmbeddedResource Include="Content\Models\uvSphere.obj" />
-    <EmbeddedResource Include="Content\Shader\PBR\cubeMapProjection.frag" />
-    <EmbeddedResource Include="Content\Shader\PBR\cubeMapProjection.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\IBL\CubeMapProjection.frag" />
+    <EmbeddedResource Include="Content\Shader\PBR\IBL\CubeMapProjection.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\Skybox.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\Skybox.vert" />
     <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture2D.frag" />
     <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture2D.vert" />
-    <EmbeddedResource Include="Content\Shader\PBR\IrradianceMap.frag" />
-    <EmbeddedResource Include="Content\Shader\PBR\IrradianceMap.vert" />
-    <EmbeddedResource Include="Content\Shader\PBR\pbrLightingIBLDiffuse.frag" />
-    <EmbeddedResource Include="Content\Shader\PBR\pbrLightingIBLDiffuse.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\IBL\IrradianceMap.frag" />
+    <EmbeddedResource Include="Content\Shader\PBR\IBL\IrradianceMap.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\PBRLightingIBLDiffuse.frag" />
+    <EmbeddedResource Include="Content\Shader\PBR\PBRLightingIBLDiffuse.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\PBRUtil.glsl" />
+    <None Include="Content\Shader\PBR\IBL\PrefilterEnvironment.frag" />
+    <None Include="Content\Shader\PBR\IBL\PrefilterEnvironment.vert" />
     <None Include="Content\Textures\Alexs_Apt_2k.hdr">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
