@@ -17,9 +17,6 @@ namespace PBR.src.controller
         IShaderProgram pbrShader;
         IShaderProgram skyboxShader;
         IShaderProgram textureTest;
-        //IBL Creation Shader
-        IShaderProgram cubeProjectionShader;
-        IShaderProgram irradianceMapShader;
 
         ITexture2D iblTexture;
 
@@ -28,12 +25,17 @@ namespace PBR.src.controller
 
         IRenderState renderstate;
 
+        //IBL Creation Shader
+        IShaderProgram cubeProjectionShader;
         //PBR IBL Diffuse
-        uint skyboxMap;
-        uint irradianceMap;
+        IShaderProgram irradianceMapShader;
+        uint ibl_skyboxMap;
+        uint ibl_irradianceMap;
         //PBR IBL Specular part
-        uint prefilteredEnvironment;
-        uint brdfIntegraionMap;
+        IShaderProgram prefilterMapShader;
+        uint ibl_prefilteredEnvironment;
+        IShaderProgram integrationMapShader;
+        uint ibl_BrdfIntegraionMap;
 
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
@@ -99,7 +101,7 @@ namespace PBR.src.controller
         public void SetIBLMap(string path)
         {
             ITexture2D sphereText = GetIBLTexture(path);
-            GetCubeIBLMapFromSphereMap(sphereText, ref skyboxMap, ref irradianceMap);
+            GetCubeIBLMapsFromSphereMap(sphereText, ref ibl_skyboxMap, ref ibl_irradianceMap, ref ibl_prefilteredEnvironment, ref ibl_BrdfIntegraionMap);
         }
 
         public IShaderProgram GetPBRShader()
@@ -156,7 +158,7 @@ namespace PBR.src.controller
         VAO unitCube;
         public void RenderSkybox(Matrix4x4 view, Matrix4x4 projection)
         {
-            RenderSkybox(skyboxMap, view, projection);
+            RenderSkybox(ibl_skyboxMap, view, projection);
         }
 
         public void RenderSkybox(uint skyboxTexture, Matrix4x4 view, Matrix4x4 projection)
@@ -237,11 +239,41 @@ namespace PBR.src.controller
             DeactivateTexture(0);
         }
 
-        public void GetCubeIBLMapFromSphereMap(ITexture2D sphereTexture, ref uint cubeMap, ref uint irradianceMap)
+        private void SetUpCubeMapParameters()
         {
-            int fbCubeWidht = 512;
-            int fbCubeHeight = 512;
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+
+        }
+
+        private int CreateCubeMap(int resX, int resY)
+        {
+            int cubeMap = GL.GenTexture();
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.BindTexture(TextureTarget.TextureCubeMap, cubeMap);
+
+            for (int i = 0; i < 6; i++)
+            {
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgb16f, resX, resY, 0,
+                              PixelFormat.Rgb, PixelType.Float, IntPtr.Zero);
+            }
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
+
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            return cubeMap;
+        }
+
+        public void GetCubeIBLMapsFromSphereMap(ITexture2D sphereTexture, ref uint cubeMap, ref uint irradianceMap, ref uint prefilterMap, ref uint integrationMap)
+        {
             GL.CullFace(CullFaceMode.Front);
+            DefaultMesh cubeMesh = Meshes.CreateCubeWithNormals();
 
             //Set up Projection Matrix and View Matrix for rendering into Cubemap
             Matrix4x4 captureProjection = Matrix4x4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(90.0f), 1.0f, 0.1f, 10.0f);
@@ -254,48 +286,51 @@ namespace PBR.src.controller
                 Matrix4x4.CreateLookAt(Vector3.Zero, new Vector3( 0.0f, 0.0f, 1.0f), new Vector3(0.0f,-1.0f, 0.0f)),
                 Matrix4x4.CreateLookAt(Vector3.Zero, new Vector3( 0.0f, 0.0f,-1.0f), new Vector3(0.0f,-1.0f, 0.0f)),
             };
+            int captureFBO = GL.GenFramebuffer();
+            //Basic Skybox/IBL CubeMap
+            cubeMap = CreateEnvironmentMap(captureFBO, captureProjection, captureView, sphereTexture);
+            //Irradiance map, which is presampled map of irradiance of IBL Cubemap
+            irradianceMap = CreateIrradianceMap(captureFBO, captureProjection, captureView, cubeMap);
 
+            prefilterMap = CreatePrefilteredMap(captureFBO, captureProjection, captureView, cubeMap);
+            integrationMap = CreateIntegratedMap(captureFBO, captureProjection, captureView, cubeMap);
+            /*
+             * 
+             * Create BDRF Integration Map
+             * 
+             */
+
+            GL.CullFace(CullFaceMode.Back);
+        }
+
+        uint CreateEnvironmentMap(int frameBuffer, Matrix4x4 projection, Matrix4x4[] viewMatrices, ITexture2D sphereTexture)
+        {
+            int fbCubeWidht = 512;
+            int fbCubeHeight = 512;
             DefaultMesh cubeMesh = Meshes.CreateCubeWithNormals();
             VAO renderCubeMapCube = VAOLoader.FromMesh(cubeMesh, cubeProjectionShader);
-            
+
             //Cubemap
-            int envCubeMap = GL.GenTexture();
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.TextureCubeMap, envCubeMap);
-
-            for (int i = 0; i < 6; i++)
-            {
-                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgb32f, fbCubeWidht, fbCubeHeight, 0,
-                              PixelFormat.Rgb, PixelType.Float, IntPtr.Zero);
-            }
-
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-
-
+            int envCubeMap = CreateCubeMap(fbCubeWidht, fbCubeHeight);
             //FBO
-            int captureFBO = GL.GenFramebuffer();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, captureFBO);
+
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
             //GL.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.TextureCubeMap, envCubeMap, 0);
-            
+
             //Render into Cubemap
             //Setting up shader
             cubeProjectionShader.Activate();
-            cubeProjectionShader.Uniform("projection", captureProjection, true);
+            cubeProjectionShader.Uniform("projection", projection, true);
 
             SetSampler(cubeProjectionShader.ProgramID, 0, "equirectangularMap", sphereTexture);
             GL.Viewport(0, 0, fbCubeWidht, fbCubeHeight);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, captureFBO);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
             //GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
             for (int i = 0; i < 6; i++)
             {
-                cubeProjectionShader.Uniform("view", captureView[i], true);
-                
-                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, 
+                cubeProjectionShader.Uniform("view", viewMatrices[i], true);
+
+                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
                                         TextureTarget.TextureCubeMapPositiveX + i, envCubeMap, 0);
 
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
@@ -305,48 +340,32 @@ namespace PBR.src.controller
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             DeactivateTexture(0);
-            cubeMap = (uint) envCubeMap;
-            /*
-             * Create Irradiance Map
-             */
+            return (uint)envCubeMap;
+        }
+
+        uint CreateIrradianceMap(int frameBuffer, Matrix4x4 projection, Matrix4x4[] viewMatrices, uint cubeMap)
+        {
+            DefaultMesh cubeMesh = Meshes.CreateCubeWithNormals();
             VAO renderIrradMapCube = VAOLoader.FromMesh(cubeMesh, irradianceMapShader);
             //Create Irradiance Texture
-            int irradMap = GL.GenTexture();
-            GL.ActiveTexture(TextureUnit.Texture0);
-            GL.BindTexture(TextureTarget.TextureCubeMap, irradMap);
             int fbIrrWidth = 32;
             int fbIrrHeight = 32;
-            float[] col = new float[fbIrrWidth * fbIrrHeight * 3];
-            for(int i = 0; i < col.Length; i++)
-            {
-                col[i] = 0.5f;
-            }
-            for(int i = 0; i < 6; i++)
-            {
-                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgb32f, 
-                              fbIrrWidth, fbIrrHeight, 0, PixelFormat.Rgb, PixelType.Float, Marshal.UnsafeAddrOfPinnedArrayElement(col, 0));
-            }
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            int irradMap = CreateCubeMap(32, 32);
 
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, captureFBO);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
             //GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.TextureCubeMap, irradMap, 0);
             //Render 
             //Irradiance Map
             irradianceMapShader.Activate();
             SetSampler(irradianceMapShader.ProgramID, 0, "environmentMap", cubeMap, TextureTarget.TextureCubeMap);
-            irradianceMapShader.Uniform("projection", captureProjection, true);
+            irradianceMapShader.Uniform("projection", projection, true);
 
             GL.Viewport(0, 0, fbIrrWidth, fbIrrHeight);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, captureFBO);
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
             for (int i = 0; i < 6; i++)
             {
-                irradianceMapShader.Uniform("view", captureView[i], true);
-                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, 
+                irradianceMapShader.Uniform("view", viewMatrices[i], true);
+                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
                                        TextureTarget.TextureCubeMapPositiveX + i, irradMap, 0);
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
@@ -354,10 +373,29 @@ namespace PBR.src.controller
             }
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            irradianceMap = (uint) irradMap;
-            GL.CullFace(CullFaceMode.Back);
+            return (uint)irradMap;
         }
 
+        uint CreatePrefilteredMap(int frameBuffer, Matrix4x4 projection, Matrix4x4[] viewMatrices, uint cubeMap)
+        {
+            uint prefiltMap = (uint)GL.GenTexture();
+            GL.BindTexture(TextureTarget.TextureCubeMap, prefiltMap);
+            for (int i = 0; i < 6; i++)
+            {
+                GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, PixelInternalFormat.Rgb16f,
+                              128, 128, 0, PixelFormat.Rgb, PixelType.Float, IntPtr.Zero);
+            }
+
+            SetUpCubeMapParameters();
+            GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
+            return prefiltMap;
+        }
+
+        uint CreateIntegratedMap(int frameBuffer, Matrix4x4 projection, Matrix4x4[] viewMatrices, uint cubeMap)
+        {
+            uint integratedMap = (uint)GL.GenTexture();
+            return integratedMap;
+        }
 
         public void ShowCubeMap(ITexture2D sphereTexture, int side)
         {
@@ -468,7 +506,7 @@ namespace PBR.src.controller
                 pbrShader.Uniform("hasOcclusionMap", 0);
             }
 
-            SetSampler(pbrShader.ProgramID, textCounter++, "irradianceMap", irradianceMap,TextureTarget.TextureCubeMap);
+            SetSampler(pbrShader.ProgramID, textCounter++, "irradianceMap", ibl_irradianceMap,TextureTarget.TextureCubeMap);
 
             Matrix4x4 mat = camMatrix;
             Vector3 camPos = camPosition;

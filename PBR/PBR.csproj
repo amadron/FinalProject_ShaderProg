@@ -117,8 +117,8 @@
     <EmbeddedResource Include="Content\Shader\PBR\PBRLightingIBLDiffuse.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\PBRLightingIBLDiffuse.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\PBRUtil.glsl" />
-    <None Include="Content\Shader\PBR\IBL\PrefilterEnvironment.frag" />
-    <None Include="Content\Shader\PBR\IBL\PrefilterEnvironment.vert" />
+    <EmbeddedResource Include="Content\Shader\PBR\IBL\PrefilterIBLMap.frag" />
+    <EmbeddedResource Include="Content\Shader\PBR\IBL\PrefilterIBLMap.vert" />
     <None Include="Content\Textures\Alexs_Apt_2k.hdr">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
