@@ -20,18 +20,13 @@ namespace PBR
         List<GameObject> objects = new List<GameObject>();
         Camera cam;
         IContentLoader contentLoader;
-        ITexture2D iblText;
-        uint skyCubeMapID;
-        uint skyIrradMapID;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
             this.contentLoader = contentLoader;
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
             objects = GetSampleScene();
-            iblText = renderer.GetIBLTexture("Content/Textures/Alexs_Apt_2k.hdr");
-
-            renderer.GetCubeIBLMapFromSphereMap(iblText, ref skyCubeMapID, ref skyIrradMapID);
+            renderer.SetIBLMap("Content/Textures/Alexs_Apt_2k.hdr");
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
@@ -321,9 +316,6 @@ namespace PBR
         public void Render()
         {
             renderer.StartRendering();
-            //renderer.ShowTexture(iblText.ID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
-            renderer.RenderSkybox(skyIrradMapID, cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
-            //renderer.ShowCubeMap(iblText, 4);
             
             foreach(GameObject go in objects)
             {
@@ -331,7 +323,7 @@ namespace PBR
                 renderer.Render(cam.Matrix, cam.transform.position, go);
             }
 
-            //renderer.ShowTexture(skyCubeMapID);
+            renderer.RenderSkybox(cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
             
         }
     }

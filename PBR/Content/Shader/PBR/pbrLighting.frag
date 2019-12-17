@@ -24,6 +24,8 @@ uniform vec3 camPosition;
 uniform vec3 lightPosition;
 uniform vec3 lightColor;
 
+uniform samplerCube irradianceMap;
+
 in Fragment_Data {
 	vec3 worldPos;
 	vec3 Normal;
@@ -135,6 +137,7 @@ void main()
 	vec4 roughnessMapTex = texture(roughnessMap, UV);
 	roughness += roughnessMapTex.r * hasRoughnessMap;
 
+	vec3 irradiance = texture(irradianceMap, normal).rgb;
 
 	vec3 IOR = vec3(0.04);
 	IOR = mix(IOR, albedo, metal);
@@ -177,17 +180,13 @@ void main()
 		//visual = pLight.position;
 	}
 	//----------------End Per Light------------------
-	vec3 ambient = vec3(0.03) * albedo * ao;
+	vec3 ambient = vec3(0.03);
+	//vec3 ambient = irradiance;
+	ambient *= albedo * ao;
 	vec3  color = ambient + Lo;
 
 	//HDR Color mapping
 	color = color / (color + vec3(1.0)); 
 	color = pow(color, vec3(1.0/2.2));
-	//fragColor = vec4(albedo,1.0);
 	fragColor = vec4(color, 1.0);
-	//fragColor = vec4(vec3(hasAlbedoMap), 1);
-	//fragColor = vec4(albedo,1);
-	//fragColor = vec4(vec3(normal),1);
-	//fragColor = vec4(UV, 1,1);
-	//fragColor = vec4(roughness);
 }

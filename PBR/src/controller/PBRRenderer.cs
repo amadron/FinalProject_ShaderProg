@@ -28,6 +28,9 @@ namespace PBR.src.controller
 
         IRenderState renderstate;
 
+        uint skyboxMap;
+        uint irradianceMap;
+
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
             GL.Enable(EnableCap.DebugOutput);
@@ -91,6 +94,12 @@ namespace PBR.src.controller
             textureTest.Deactivate();
         }
 
+        public void SetIBLMap(string path)
+        {
+            ITexture2D sphereText = GetIBLTexture(path);
+            GetCubeIBLMapFromSphereMap(sphereText, ref skyboxMap, ref irradianceMap);
+        }
+
         public IShaderProgram GetPBRShader()
         {
             return pbrShader;
@@ -143,6 +152,11 @@ namespace PBR.src.controller
         }
 
         VAO unitCube;
+        public void RenderSkybox(Matrix4x4 view, Matrix4x4 projection)
+        {
+            RenderSkybox(skyboxMap, view, projection);
+        }
+
         public void RenderSkybox(uint skyboxTexture, Matrix4x4 view, Matrix4x4 projection)
         {
             if(skyboxShader == null)
@@ -451,6 +465,8 @@ namespace PBR.src.controller
             {
                 pbrShader.Uniform("hasOcclusionMap", 0);
             }
+
+            SetSampler(pbrShader.ProgramID, textCounter++, "irradianceMap", irradianceMap,TextureTarget.TextureCubeMap);
 
             Matrix4x4 mat = camMatrix;
             Vector3 camPos = camPosition;
