@@ -40,7 +40,7 @@ namespace PBR.src.controller
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
             GL.Enable(EnableCap.DebugOutput);
-            
+            GL.Enable(EnableCap.TextureCubeMapSeamless);
             this.renderstate = renderState;
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.TextureCubeMap);
@@ -160,7 +160,7 @@ namespace PBR.src.controller
         public void RenderSkybox(Matrix4x4 view, Matrix4x4 projection)
         {
             //RenderSkybox(ibl_skyboxMap, view, projection);
-            RenderSkybox(ibl_skyboxMap, view, projection);
+            RenderSkybox(ibl_prefilteredEnvironment, view, projection);
         }
 
         public void RenderSkybox(uint skyboxTexture, Matrix4x4 view, Matrix4x4 projection)
@@ -369,6 +369,7 @@ namespace PBR.src.controller
                 irradianceMapShader.Uniform("view", viewMatrices[i], true);
                 GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
                                        TextureTarget.TextureCubeMapPositiveX + i, irradMap, 0);
+
                 GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
                 renderIrradMapCube.Draw();
@@ -386,24 +387,27 @@ namespace PBR.src.controller
             int texResY = 128;
 
             int prefiltMap = CreateCubeMap(texResX, texResY);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
             GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
+
 
             prefilterMapShader.Activate();
             SetSampler(prefilterMapShader.ProgramID, 0, "environmentMap", cubeMap, TextureTarget.TextureCubeMap);
-            prefilterMapShader.Uniform("projection", projection);
-
+            prefilterMapShader.Uniform("projection", projection, true);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
             int maxMipLvl = 5;
-            for(int i = 0; i < maxMipLvl; i++)
+            
+            for (int i = 0; i < maxMipLvl; i++)
             {
-                int mipWidth = texResX * (int)Math.Pow(0.5, i);
-                int mipHeight = texResY * (int)Math.Pow(0.5, i);
+                float mipWidth = texResX * (float)Math.Pow(0.5, i);
+                float mipHeight = texResY * (float)Math.Pow(0.5, i);
+                GL.Viewport(0, 0, (int)mipWidth, (int)mipHeight);
 
                 float roughness = (float)mipHeight / (float)(maxMipLvl - 1);
                 prefilterMapShader.Uniform("roughness", roughness);
                 for(int j = 0; j < 6; j++)
                 {
-                    prefilterMapShader.Uniform("view", viewMatrices[j]);
+                    prefilterMapShader.Uniform("view", viewMatrices[j], true);
                     GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0,
                                             TextureTarget.TextureCubeMapPositiveX + j, prefiltMap, i);
 
@@ -411,7 +415,6 @@ namespace PBR.src.controller
                     renderPrefilterCube.Draw();
                 }
             }
-
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
 
             return (uint) prefiltMap;

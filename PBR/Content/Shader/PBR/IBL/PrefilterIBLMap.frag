@@ -8,12 +8,6 @@ in vec3 localPos;
 uniform samplerCube environmentMap;
 uniform float roughness;
 
-float RadicalInverse_VdC(uint bits);
-vec2 Hammersley(uint i, uint N);
-vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness);
-
-
-
 void main()
 {		
     vec3 N = normalize(localPos);    
@@ -39,4 +33,7 @@ void main()
     prefilteredColor = prefilteredColor / totalWeight;
 
     fragColor = vec4(prefilteredColor, 1.0);
+	//float maxFacT = 1.0/32.0;
+	//fragColor = vec4(maxFacT * roughness);
+	//fragColor = vec4(totalWeight);
 }  
