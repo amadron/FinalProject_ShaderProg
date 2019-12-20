@@ -8,6 +8,7 @@ in vec3 localPos;
 uniform samplerCube environmentMap;
 uniform float roughness;
 
+
 void main()
 {		
     vec3 N = normalize(localPos);    

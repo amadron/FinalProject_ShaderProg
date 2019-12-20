@@ -314,6 +314,7 @@ namespace PBR.src.controller
 
             //Cubemap
             int envCubeMap = CreateCubeMap(fbCubeWidht, fbCubeHeight);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
             //FBO
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
@@ -339,6 +340,8 @@ namespace PBR.src.controller
 
                 renderCubeMapCube.Draw();
             }
+            GL.BindTexture(TextureTarget.TextureCubeMap, envCubeMap);
+            GL.GenerateMipmap(GenerateMipmapTarget.TextureCubeMap);
 
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             DeactivateTexture(0);
@@ -392,7 +395,11 @@ namespace PBR.src.controller
 
 
             prefilterMapShader.Activate();
+
             SetSampler(prefilterMapShader.ProgramID, 0, "environmentMap", cubeMap, TextureTarget.TextureCubeMap);
+            GL.TexParameter(TextureTarget.TextureCubeMap, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            
+
             prefilterMapShader.Uniform("projection", projection, true);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, frameBuffer);
             int maxMipLvl = 5;
