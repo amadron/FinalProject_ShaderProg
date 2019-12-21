@@ -50,7 +50,7 @@ namespace PBR.src.controller
             pbrShader = contentLoader.Load<IShaderProgram>("PBRLightingIBLDiffuse.*");
             skyboxShader = contentLoader.Load<IShaderProgram>("Skybox.*");
             cubeProjectionShader = contentLoader.Load<IShaderProgram>("CubeMapProjection.*");
-            textureTest = contentLoader.Load<IShaderProgram>("DisplayTexture2D.*");
+            //textureTest = contentLoader.Load<IShaderProgram>("DisplayTexture2D.*");
             irradianceMapShader = contentLoader.Load<IShaderProgram>("IrradianceMap.*");
             prefilterMapShader = contentLoader.Load<IShaderProgram>("PrefilterIBLMap.*");
             dLight = new DirectionalLight();
@@ -90,6 +90,7 @@ namespace PBR.src.controller
 
         }
 
+        /*
         public void ShowTexture(uint textureID)
         {
             textureTest.Activate();
@@ -98,6 +99,7 @@ namespace PBR.src.controller
             DeactivateTexture(0);
             textureTest.Deactivate();
         }
+        */
 
         public void SetIBLMap(string path)
         {

@@ -110,8 +110,6 @@
     <EmbeddedResource Include="Content\Shader\PBR\IBL\CubeMapProjection.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\Skybox.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\Skybox.vert" />
-    <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture2D.frag" />
-    <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture2D.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\IBL\IrradianceMap.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\IBL\IrradianceMap.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\PBRLightingIBLDiffuse.frag" />
