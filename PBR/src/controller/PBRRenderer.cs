@@ -16,7 +16,7 @@ namespace PBR.src.controller
         int ubo = 0;
         IShaderProgram pbrShader;
         IShaderProgram skyboxShader;
-        IShaderProgram textureTest;
+        //IShaderProgram textureTest;
         //IBL Creation Shader
         IShaderProgram cubeProjectionShader;
         IShaderProgram irradianceMapShader;
@@ -44,7 +44,7 @@ namespace PBR.src.controller
             pbrShader = contentLoader.Load<IShaderProgram>("pbrLightingIBLDiffuse.*");
             skyboxShader = contentLoader.Load<IShaderProgram>("Skybox.*");
             cubeProjectionShader = contentLoader.Load<IShaderProgram>("cubeMapProjection.*");
-            textureTest = contentLoader.Load<IShaderProgram>("DisplayTexture2D.*");
+            //textureTest = contentLoader.Load<IShaderProgram>("DisplayTexture2D.*");
             irradianceMapShader = contentLoader.Load<IShaderProgram>("IrradianceMap.*");
             dLight = new DirectionalLight();
             dLight.direction = new Vector3(0, 1, -1);
@@ -82,7 +82,7 @@ namespace PBR.src.controller
             unitCube = VAOLoader.FromMesh(cubeMesh, cubeProjectionShader);
 
         }
-
+        /*
         public void ShowTexture(uint textureID)
         {
             textureTest.Activate();
@@ -91,6 +91,7 @@ namespace PBR.src.controller
             DeactivateTexture(0);
             textureTest.Deactivate();
         }
+        */
 
         public void SetIBLMap(string path)
         {
