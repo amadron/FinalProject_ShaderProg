@@ -118,7 +118,7 @@ void main()
 	//----------------End Per Light------------------
 	//vec3 ambient = vec3(0.03);
 	//Calculate the ambient color by taking the irradiance map
-	vec3 specularFact = FresnelWightRoughness(viewDir, normal, IOR, roughness);
+	vec3 specularFact = FresnelWithRoughness(viewDir, normal, IOR, roughness);
 	vec3 diffuseFact = vec3(1.0) - specularFact;
 	vec3 diffuse = irradiance * albedo;
 	vec3 ambient = (diffuseFact * diffuse) *ao; //Take only the diffuse part into account

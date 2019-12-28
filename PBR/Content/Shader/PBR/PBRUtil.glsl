@@ -52,7 +52,7 @@ vec3 Fresnel(vec3 h, vec3 v, vec3 IOR)
 	return IOR + (1.0 - IOR) * pow((1 - dProd), 5.0);
 }
 
-vec3 FresnelWightRoughness(vec3 h, vec3 v, vec3 IOR, float roughness)
+vec3 FresnelWithRoughness(vec3 h, vec3 v, vec3 IOR, float roughness)
 {
 	float dProd = max(dot(h, v), 0.0);
 	dProd = min(dProd, 1.0);

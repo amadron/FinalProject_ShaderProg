@@ -517,8 +517,10 @@ namespace PBR.src.controller
 
             GL.BindBuffer(BufferTarget.UniformBuffer, ubo);
 
+            SetSampler(pbrShader.ProgramID, 0, "prefilterMap", ibl_prefilteredEnvironment, TextureTarget.TextureCubeMap);
+            SetSampler(pbrShader.ProgramID, 1, "brdfLUT", ibl_BrdfIntegraionMap, TextureTarget.Texture2D);
             pbrShader.Uniform("albedoColor", obj.material.albedoColor);
-            int textCounter = 0;
+            int textCounter = 2;
 
             if (obj.material.albedoMap != null)
             {
