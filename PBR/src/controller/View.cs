@@ -319,6 +319,7 @@ namespace PBR
         {
             renderer.StartRendering();
             
+
             foreach(GameObject go in objects)
             {
                 //renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
@@ -326,7 +327,10 @@ namespace PBR
             }
 
             renderer.RenderSkybox(cam.GetTransformationMatrix(), cam.GetProjectionMatrix());
-            
+            /*
+            renderer.StartRendering();
+            renderer.ShowTexture2D(0);
+            */
         }
     }
 }
