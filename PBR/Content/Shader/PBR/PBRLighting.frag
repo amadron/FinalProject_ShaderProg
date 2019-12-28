@@ -130,7 +130,7 @@ void main()
 	vec3 diffuse = irradiance * albedo;
 
 	vec3 reflectDir = reflect(-viewDir, normal);
-	const float Max_Reflection_LOD = 4.0;
+	const float Max_Reflection_LOD = 5.0;
 	vec3 prefilteredColor = textureLod(prefilterMap, reflectDir, roughness * Max_Reflection_LOD).rgb;
 	vec2 envBRDF = texture(brdfLUT, vec2(max(dot(normal, viewDir),0.0)), roughness).rg;
 
@@ -144,7 +144,7 @@ void main()
 	//ambient *= albedo * ao;
 	vec3  color = ambient + Lo;
 	//color = vec3(envBRDF,0);
-
+	//color = prefilteredColor;
 	//HDR Color mapping
 	color = color / (color + vec3(1.0)); 
 	color = pow(color, vec3(1.0/2.2));
