@@ -48,6 +48,7 @@ namespace PBR.src.controller
             renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
             //pbrShader = contentLoader.Load<IShaderProgram>("PBRLightingBasic.*");
             pbrShader = contentLoader.Load<IShaderProgram>("PBRLighting.*");
+            //pbrShader = contentLoader.Load<IShaderProgram>("PBRReference.*");
             skyboxShader = contentLoader.Load<IShaderProgram>("Skybox.*");
             cubeProjectionShader = contentLoader.Load<IShaderProgram>("CubeMapProjection.*");
             textureTest = contentLoader.Load<IShaderProgram>("DisplayTexture2D.*");

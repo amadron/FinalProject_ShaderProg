@@ -25,7 +25,10 @@ namespace PBR
             this.contentLoader = contentLoader;
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
-            objects = GetSampleScene();
+            //objects = GetSphereSampleScene();
+            GameObject weapon = GetModelSample();
+            objects = new List<GameObject>();
+            objects.Add(weapon);
             renderer.SetIBLMap("Content/Textures/Alexs_Apt_2k.hdr");
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
@@ -119,7 +122,30 @@ namespace PBR
             return result;
         }
 
-        List<GameObject> GetSampleScene()
+        GameObject GetModelSample()
+        {
+            DefaultMesh mesh = contentLoader.Load<DefaultMesh>("ceberus");
+            VAO geom = VAOLoader.FromMesh(mesh, renderer.GetPBRShader());
+            GameObject go = new GameObject();
+            PBRMaterial mat = new PBRMaterial();
+            go.mesh = geom;
+            go.material = mat;
+            //mat.metal = 1.0f;
+            //mat.metal = 0f;
+            mat.roughness = 0;
+            string modelName = "Cerberus_";
+            ITexture2D albedoMap = contentLoader.Load<ITexture2D>(modelName + "A");
+            ITexture2D normalMap = contentLoader.Load<ITexture2D>(modelName + "N");
+            ITexture2D roughnessMap = contentLoader.Load<ITexture2D>(modelName + "R");
+            ITexture2D metallicMap = contentLoader.Load<ITexture2D>(modelName + "M");
+            mat.albedoMap = albedoMap;
+            mat.normalMap = normalMap;
+            mat.roughnessMap = roughnessMap;
+            mat.metallicMap = metallicMap;
+            return go;
+        }
+
+        List<GameObject> GetSphereSampleScene()
         {
             List<GameObject> goList = new List<GameObject>();
             DefaultMesh plane = Meshes.CreatePlane(10, 10, 10, 10).Transform(Transformation.Translation(new Vector3(0,-1f,0)));
@@ -171,12 +197,12 @@ namespace PBR
                     go.material.albedoColor = new Vector3(1, 0, 0);
                     go.mesh = geom;
                     
-                    /*
+                    
                     go.material.albedoMap = albedoText;
                     go.material.metallicMap = metallicText;
                     go.material.normalMap = normalText;
                     go.material.roughnessMap = roughnessText;
-                    */
+                    
 
                     goList.Add(go);
                     tmpStart.X -= spacing;
@@ -212,14 +238,6 @@ namespace PBR
             */
             //cam.View.Distance += deltatime * 0.1f;
             Vector2 mDelta = new Vector2(lastMousePos.X - mState.X, lastMousePos.Y - mState.Y);
-            if(!mouseButtonDown && mState.LeftButton == ButtonState.Pressed)
-            {
-                mouseButtonDown = true;
-            }
-            if(mouseButtonDown && mState.LeftButton == ButtonState.Released)
-            {
-                mouseButtonDown = false;
-            }
             float mouseSpeed = 2;
             if (mouseButtonDown)
             {
@@ -260,9 +278,19 @@ namespace PBR
 
         }
 
-        private void Event_KeyPress(object sender, OpenTK.KeyPressEventArgs e)
+        public void Event_KeyPress(object sender, OpenTK.KeyPressEventArgs e)
         {
             
+        }
+
+        public void GameWindow_MouseDown(object sender, OpenTK.Input.MouseButtonEventArgs e)
+        {
+            mouseButtonDown = true;
+        }
+
+        public void GameWindow_MouseUp(object sender, OpenTK.Input.MouseButtonEventArgs e)
+        {
+            mouseButtonDown = false;
         }
 
         void FirstPersonMovement(Camera cam, float deltatime)

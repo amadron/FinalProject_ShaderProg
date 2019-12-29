@@ -14,11 +14,18 @@ namespace PBR
             window.GameWindow.KeyDown += view.Event_KeyDown;
             window.GameWindow.KeyUp += view.Event_KeyRelease;
             window.Resize += (width, height) => view.Resize(width, height);
+            window.GameWindow.MouseDown += (sender, e) => view.GameWindow_MouseDown(sender, e);
+            window.GameWindow.MouseUp += (sender, e) => view.GameWindow_MouseUp(sender, e);
             //window.Render += () => Draw();
             window.Run();
         }
 
 
+
+        private static void GameWindow_MouseLeave(object sender, System.EventArgs e)
+        {
+            throw new System.NotImplementedException();
+        }
 
         static void Draw()
         {

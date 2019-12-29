@@ -24,7 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -114,7 +114,7 @@
     <EmbeddedResource Include="Content\Shader\PBR\IBL\IrradianceMap.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\PBRLightingIBLDiffuse.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\PBRLightingIBLDiffuse.vert" />
-    <EmbeddedResource Include="Content\Shader\PBR\PBRUtil.glsl" />
+    <EmbeddedResource Include="Content\Shader\PBR\PBRUtils.glsl" />
     <EmbeddedResource Include="Content\Shader\PBR\IBL\PrefilterIBLMap.frag" />
     <EmbeddedResource Include="Content\Shader\PBR\IBL\PrefilterIBLMap.vert" />
     <EmbeddedResource Include="Content\Shader\PBR\IBL\IBLUtil.glsl" />
@@ -124,6 +124,9 @@
     <EmbeddedResource Include="Content\Shader\PBR\IBL\BRDFIntegration.vert" />
     <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture2D.frag" />
     <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture2D.vert" />
+    <EmbeddedResource Include="Content\Shader\Debug\PBRReference.frag" />
+    <EmbeddedResource Include="Content\Shader\Debug\PBRReference.vert" />
+    <EmbeddedResource Include="Content\Models\ceberus.obj" />
     <None Include="Content\Textures\Alexs_Apt_2k.hdr">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -155,6 +158,12 @@
     <EmbeddedResource Include="Content\Textures\rustediron2_roughness.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\Cerberus_A.jpg" />
+    <EmbeddedResource Include="Content\Textures\Cerberus_M.jpg" />
+    <EmbeddedResource Include="Content\Textures\Cerberus_N.jpg" />
+    <EmbeddedResource Include="Content\Textures\Cerberus_R.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
