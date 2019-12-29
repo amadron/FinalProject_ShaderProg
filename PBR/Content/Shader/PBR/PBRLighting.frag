@@ -121,31 +121,7 @@ void main()
 		
 	}
 	//----------------End Per Light------------------
-	//vec3 ambient = vec3(0.03);
-	//Calculate the ambient color by taking the irradiance map
-//	vec3 specularFact = FresnelWithRoughness(normal, viewDir, IOR, roughness);
-//
-//	vec3 kS = specularFact;
-//	vec3 kD = 1.0 -specularFact;
-//	kD *= 1.0 - metal;
-//
-//	vec3 irradiance = texture(irradianceMap, normal).rgb;
-//	vec3 diffuse = irradiance * albedo;
-//
-//	vec3 reflectDir = reflect(-viewDir, normal);
-//	const float Max_Reflection_LOD = 4.0;
-//	vec3 prefilteredColor = textureLod(prefilterMap, reflectDir, roughness * Max_Reflection_LOD).rgb;
-//	vec2 envBRDF = texture(brdfLUT, vec2(max(dot(normal, viewDir),0.0)), roughness).rg;
-//
-//	vec3 specular = prefilteredColor * (specularFact * envBRDF.x + envBRDF.y);
-//
-//	vec3 ambient = (kD * diffuse + specular) * ao; //Take only the diffuse part into account
-//
-//	vec3  color = ambient + Lo;
-//	//HDR Color mapping
-//	color = color / (color + vec3(1.0)); 
-//	color = pow(color, vec3(1.0/2.2));
-//	fragColor = vec4(color, 1.0);
+
 		vec3 F = FresnelWithRoughness(normal, viewDir, IOR, roughness);
 		vec3 R = reflect(-viewDir, normal); 
 		vec3 kS = F;
@@ -161,7 +137,7 @@ void main()
 		vec2 brdf  = texture(brdfLUT, vec2(max(dot(normal, viewDir), 0.0), roughness)).rg;
 		vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
-		vec3 ambient = (kD * diffuse + specular) * aoFactor;
+		vec3 ambient = (kD * diffuse + specular) * ao;
     
 		vec3 color = ambient + Lo;
 
