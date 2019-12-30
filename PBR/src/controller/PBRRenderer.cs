@@ -460,7 +460,7 @@ namespace PBR.src.controller
                 float mipHeight = texResY * (float)Math.Pow(0.5, i);
                 GL.Viewport(0, 0, (int)mipWidth, (int)mipHeight);
 
-                float roughness = (float)mipHeight / (float)(maxMipLvl - 1);
+                float roughness = (float)i / (float)(maxMipLvl - 1.0);
                 prefilterMapShader.Uniform("roughness", roughness);
                 for (int j = 0; j < 6; j++)
                 {

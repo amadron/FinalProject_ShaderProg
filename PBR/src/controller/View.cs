@@ -25,10 +25,10 @@ namespace PBR
             this.contentLoader = contentLoader;
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
-            //objects = GetSphereSampleScene();
             GameObject weapon = GetModelSample();
             objects = new List<GameObject>();
             objects.Add(weapon);
+            //objects = GetSphereSampleScene();
             renderer.SetIBLMap("Content/Textures/Alexs_Apt_2k.hdr");
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
@@ -197,12 +197,12 @@ namespace PBR
                     go.material.albedoColor = new Vector3(1, 0, 0);
                     go.mesh = geom;
                     
-                    
+                    /*
                     go.material.albedoMap = albedoText;
                     go.material.metallicMap = metallicText;
                     go.material.normalMap = normalText;
                     go.material.roughnessMap = roughnessText;
-                    
+                    */
 
                     goList.Add(go);
                     tmpStart.X -= spacing;
