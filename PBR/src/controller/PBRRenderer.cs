@@ -23,7 +23,7 @@ namespace PBR.src.controller
         DirectionalLight dLight;
         PointLight[] pointLights;
 
-        IRenderState renderstate;
+        IRenderState renderState;
 
         //IBL Creation Shader
         IShaderProgram cubeProjectionShader;
@@ -41,11 +41,10 @@ namespace PBR.src.controller
         {
             GL.Enable(EnableCap.DebugOutput);
             GL.Enable(EnableCap.TextureCubeMapSeamless);
-            this.renderstate = renderState;
+            this.renderState = renderState;
             GL.Enable(EnableCap.Texture2D);
             GL.Enable(EnableCap.TextureCubeMap);
             renderState.Set(new DepthTest(true));
-            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
             //pbrShader = contentLoader.Load<IShaderProgram>("PBRLightingBasic.*");
             pbrShader = contentLoader.Load<IShaderProgram>("PBRLighting.*");
             //pbrShader = contentLoader.Load<IShaderProgram>("PBRReference.*");
@@ -89,6 +88,7 @@ namespace PBR.src.controller
 
             DefaultMesh cubeMesh = Meshes.CreateCubeWithNormals();
             unitCube = VAOLoader.FromMesh(cubeMesh, cubeProjectionShader);
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
 
         }
 
@@ -125,6 +125,7 @@ namespace PBR.src.controller
 
         public void StartRendering()
         {
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.BACK_SIDE));
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }
 
@@ -164,8 +165,8 @@ namespace PBR.src.controller
         VAO unitCube;
         public void RenderSkybox(Matrix4x4 view, Matrix4x4 projection)
         {
-            //RenderSkybox(ibl_skyboxMap, view, projection);
-            RenderSkybox(ibl_prefilteredEnvironment, view, projection);
+            RenderSkybox(ibl_skyboxMap, view, projection);
+            //RenderSkybox(ibl_prefilteredEnvironment, view, projection);
         }
 
         public void RenderSkybox(uint skyboxTexture, Matrix4x4 view, Matrix4x4 projection)
@@ -479,7 +480,7 @@ namespace PBR.src.controller
         uint CreateIntegratedMap(int frameBuffer)
         {
             ErrorCode err = GL.GetError();
-            renderstate.Set(new FaceCullingModeState(FaceCullingMode.NONE));
+            renderState.Set(new FaceCullingModeState(FaceCullingMode.NONE));
             uint integratedMap = (uint)GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, integratedMap);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rg16f, 512, 512, 0, PixelFormat.Rg, PixelType.Float, IntPtr.Zero);
@@ -509,6 +510,7 @@ namespace PBR.src.controller
 
         public void Render(Matrix4x4 camMatrix, Vector3 camPosition, GameObject obj)
         {
+            
             if (pbrShader == null || obj == null || obj.mesh == null || obj.material == null)
             {
                 return;
