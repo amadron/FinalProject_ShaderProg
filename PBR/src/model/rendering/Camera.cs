@@ -63,7 +63,7 @@ namespace PBR.src.model.rendering
         {
             if(projectionMode == ProjectionMode.Perspective)
             {
-                float fovRad = (float)Math.PI * fov / 180.0f;
+                float fovRad = (float)Math.PI * (fov/2) / 180.0f;
                 return Matrix4x4.CreatePerspectiveFieldOfView(fovRad, aspectRatio, clippingNear, clippingFar);
             }
             else

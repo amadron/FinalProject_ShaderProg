@@ -28,7 +28,7 @@ namespace PBR
             GameObject weapon = GetModelSample();
             objects = new List<GameObject>();
             objects.Add(weapon);
-            //objects = GetSphereSampleScene();
+            objects = GetSphereSampleScene();
             renderer.SetIBLMap("Content/Textures/Alexs_Apt_2k.hdr");
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;

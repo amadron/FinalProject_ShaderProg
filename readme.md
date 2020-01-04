@@ -4,7 +4,7 @@ Based on [Zenseless Framework](https://github.com/danielscherzer/Zenseless) by D
 
 Project Contains two Scenes:
 - Island Scene: Implemented Deferred Rendering and Shadow Maps
-- PBR (Work in Progress): Implementation of Physically based Rendering
+- PBR: Implementation of Physically based Rendering
 
 # Island Scene
 
@@ -97,4 +97,40 @@ The following features/techniques are implemented:
     * Merge ShadowMap pass into Geometry Pass
     * Recalculate normals on Heightmap
 
-# PBR
+# Physically Based Rendering (PBR)
+
+Implementation of the PBR tutorial from [learnopengl.com](https://learnopengl.com/)
+
+
+### Controls
+
+Mouse Left + Mouse movement - Rotate Camera
+
+* A - Move camera left
+* D - Move camera right
+* S - Move camera back
+* W - Move camera forward
+* Q - Move camera up
+* E - Move camera down
+
+The implementation consists of three parts.
+### Lighting
+This is the basic lighting, which samples the radiance of multiple lights over a hemisphere around a point on the surface.
+
+This takes only the lighting of the lights into account. To get more satisfying results, the environment must be taken into account. This is realised by using an hdr texture for image based lighting (IBL).
+
+### Diffuse Image based lighting
+At this stage, the irradiance of the hdr texture will be sampled over a hemisphere and stored into a texture.
+
+### Specular Image based lighting
+For the specular part of the environment, the rendering equation will be split into two parts.
+
+#### Prefiltered HDR environment map
+At this part, the different roughness levels of the environment will be preprocessed.
+To realize it, a cubemap with several mipmap levels will be created and each mipmap level stores a convoluted version of the environment map. 
+The convolution is realized using monte carlo, sampling around a hemisphere around a point.
+
+#### Integrated BRDF
+The second part stores a Look up Texture (LUT) which stores the the results for the specular BRDF function.
+The horizontal part stores the angle between normal Vector and the View direction (dot(normal, w)) from 0.0 to 1.0. 
+And Vertical are the roughness inputs are 0.0 to 1.0.
