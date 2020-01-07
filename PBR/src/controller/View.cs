@@ -17,18 +17,21 @@ namespace PBR
     class View
     {
         PBRRenderer renderer;
-        List<GameObject> objects = new List<GameObject>();
+        List<GameObject> currScene = new List<GameObject>();
+        List<List<GameObject>> sceneList = new List<List<GameObject>>();
         Camera cam;
         IContentLoader contentLoader;
+        int currItem = 0;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
             this.contentLoader = contentLoader;
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
             GameObject weapon = GetModelSample();
-            objects = new List<GameObject>();
-            objects.Add(weapon);
-            objects = GetSphereSampleScene();
+            currScene = new List<GameObject>();
+            currScene.Add(weapon);
+            sceneList.Add(currScene);
+            sceneList.Add(GetSphereSampleScene());
             renderer.SetIBLMap("Content/Textures/Alexs_Apt_2k.hdr");
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
@@ -46,6 +49,10 @@ namespace PBR
             keyStates.Add(Key.W, false);
             keyStates.Add(Key.Q, false);
             keyStates.Add(Key.E, false);
+            for(int i = (int)Key.Number0; i <= (int)Key.Number9; i++)
+            {
+                keyStates.Add((Key)i, false);
+            }
         }
 
         internal void Resize(int width, int height)
@@ -338,6 +345,14 @@ namespace PBR
             camPos.Y += move.Y;
             camPos.Z += move.Z;
             cam.transform.position = camPos;
+            if(keyStates[Key.Number1] && sceneList.Count >= 0)
+            {
+                currScene = sceneList[0];
+            }
+            if(keyStates[Key.Number2] && sceneList.Count >= 1)
+            {
+                currScene = sceneList[1];
+            }
             //fCam.View.Position = camPos;
         }
 
@@ -348,7 +363,7 @@ namespace PBR
             renderer.StartRendering();
             
 
-            foreach(GameObject go in objects)
+            foreach(GameObject go in currScene)
             {
                 //renderer.Render(fCam.Matrix, fCam.View.Position, go.mesh, go.material);
                 renderer.Render(cam.Matrix, cam.transform.position, go);
