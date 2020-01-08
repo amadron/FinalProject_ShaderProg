@@ -21,7 +21,6 @@ namespace PBR
         List<List<GameObject>> sceneList = new List<List<GameObject>>();
         Camera cam;
         IContentLoader contentLoader;
-        int currItem = 0;
         public View(IRenderState renderState, IContentLoader contentLoader)
         {
             this.contentLoader = contentLoader;
@@ -34,7 +33,7 @@ namespace PBR
             sceneList.Add(GetSphereSampleScene());
             List<GameObject> lighterList = new List<GameObject>();
             GameObject lighter = GetPBRModelWithMapPostfix("lighterModel", "Lighter", ".png");
-            lighter.transform.scale = new Vector3(0.15f);
+            lighter.transform.scale = new Vector3(0.05f);
             lighter.transform.rotation = new Vector3(-90, 0, 0);
             lighterList.Add(lighter);
             sceneList.Add(lighterList);

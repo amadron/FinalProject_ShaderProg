@@ -1,5 +1,5 @@
 ﻿#version 430 core
-#include "PBRUtil.glsl"
+#include "PBRUtils.glsl"
 
 uniform vec3 albedoColor;
 uniform sampler2D albedoMap;
