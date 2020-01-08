@@ -27,12 +27,21 @@ namespace PBR
             this.contentLoader = contentLoader;
             renderer = new PBRRenderer(renderState, contentLoader);
             cam = new Camera();
-            GameObject weapon = GetModelSample();
             currScene = new List<GameObject>();
+            GameObject weapon = GetPBRModelWithMapPostfix("ceberus", "Cerberus", ".jpg");
             currScene.Add(weapon);
             sceneList.Add(currScene);
             sceneList.Add(GetSphereSampleScene());
-            renderer.SetIBLMap("Content/Textures/Alexs_Apt_2k.hdr");
+            List<GameObject> lighterList = new List<GameObject>();
+            GameObject lighter = GetPBRModelWithMapPostfix("lighterModel", "Lighter", ".png");
+            lighter.transform.scale = new Vector3(0.15f);
+            lighter.transform.rotation = new Vector3(-90, 0, 0);
+            lighterList.Add(lighter);
+            sceneList.Add(lighterList);
+            renderer.AddIBLMap("Content/Textures/hdr/Alexs_Apt_2k.hdr");
+            renderer.AddIBLMap("Content/Textures/hdr/Arches_E_PineTree_3k.hdr");
+            renderer.AddIBLMap("Content/Textures/hdr/BasketballCourt_3k.hdr");
+            renderer.SetIBLMap(0);
             cam.transform.position = new Vector3(0, 0, 1);
             cam.clippingNear = 0.01f;
             cam.clippingFar = 10000.0f;
@@ -43,16 +52,6 @@ namespace PBR
             MouseState mState = Mouse.GetState();
             lastMousePos = new Vector2(mState.X, mState.Y);
             keyStates = new Dictionary<Key, bool>();
-            keyStates.Add(Key.A, false);
-            keyStates.Add(Key.D, false);
-            keyStates.Add(Key.S, false);
-            keyStates.Add(Key.W, false);
-            keyStates.Add(Key.Q, false);
-            keyStates.Add(Key.E, false);
-            for(int i = (int)Key.Number0; i <= (int)Key.Number9; i++)
-            {
-                keyStates.Add((Key)i, false);
-            }
         }
 
         internal void Resize(int width, int height)
@@ -129,9 +128,18 @@ namespace PBR
             return result;
         }
 
-        GameObject GetModelSample()
+        GameObject GetPBRModelWithMapPostfix(string meshFileName, string textureMainName, string textureFormat)
         {
-            DefaultMesh mesh = contentLoader.Load<DefaultMesh>("ceberus");
+            string albedoMap = textureMainName + "_A" + textureFormat;
+            string normalMap = textureMainName + "_N" + textureFormat;
+            string metallicMap = textureMainName + "_M" + textureFormat;
+            string roughnessMap = textureMainName + "_R" + textureFormat;
+            return GetPBRModel(meshFileName, albedoMap, normalMap, metallicMap, roughnessMap);
+        }
+
+        GameObject GetPBRModel(string meshFileName, string albedoMapFile, string normalMapFile, string metallicMapFile, string roughnessMapFile)
+        {
+            DefaultMesh mesh = contentLoader.Load<DefaultMesh>(meshFileName);
             VAO geom = VAOLoader.FromMesh(mesh, renderer.GetPBRShader());
             GameObject go = new GameObject();
             PBRMaterial mat = new PBRMaterial();
@@ -140,15 +148,26 @@ namespace PBR
             //mat.metal = 1.0f;
             //mat.metal = 0f;
             mat.roughness = 0;
-            string modelName = "Cerberus_";
-            ITexture2D albedoMap = contentLoader.Load<ITexture2D>(modelName + "A");
-            ITexture2D normalMap = contentLoader.Load<ITexture2D>(modelName + "N");
-            ITexture2D roughnessMap = contentLoader.Load<ITexture2D>(modelName + "R");
-            ITexture2D metallicMap = contentLoader.Load<ITexture2D>(modelName + "M");
-            mat.albedoMap = albedoMap;
-            mat.normalMap = normalMap;
-            mat.roughnessMap = roughnessMap;
-            mat.metallicMap = metallicMap;
+            if(albedoMapFile != null)
+            {
+                ITexture2D albedoMap = contentLoader.Load<ITexture2D>(albedoMapFile);
+                mat.albedoMap = albedoMap;
+            }
+            if(normalMapFile != null && normalMapFile != "")
+            {
+                ITexture2D normalMap = contentLoader.Load<ITexture2D>(normalMapFile);
+                mat.normalMap = normalMap;
+            }
+            if(metallicMapFile != null)
+            {
+                ITexture2D metallicMap = contentLoader.Load<ITexture2D>(metallicMapFile);
+                mat.metallicMap = metallicMap;
+            }
+            if(roughnessMapFile != null)
+            {
+                ITexture2D roughnessMap = contentLoader.Load<ITexture2D>(roughnessMapFile);
+                mat.roughnessMap = roughnessMap;
+            }
             return go;
         }
 
@@ -316,27 +335,27 @@ namespace PBR
             forward *= moveSpeed * deltatime;
             Vector3 vertical = new Vector3(0,1,0);
             vertical *= moveSpeed * deltatime;
-            if (keyStates[Key.A])
+            if (CheckKey(Key.A))
             {
                 move -= right;
             }
-            if (keyStates[Key.D])
+            if (CheckKey(Key.D))
             {
                 move += right;
             }
-            if (keyStates[Key.W])
+            if (CheckKey(Key.W))
             {
                 move -= forward;
             }
-            if (keyStates[Key.S])
+            if (CheckKey(Key.S))
             {
                 move += forward;
             }
-            if(keyStates[Key.Q])
+            if(CheckKey(Key.Q))
             {
                 move += vertical;
             }
-            if(keyStates[Key.E])
+            if(CheckKey(Key.E))
             {
                 move -= vertical;
             }
@@ -345,18 +364,41 @@ namespace PBR
             camPos.Y += move.Y;
             camPos.Z += move.Z;
             cam.transform.position = camPos;
-            if(keyStates[Key.Number1] && sceneList.Count >= 0)
+            for(int i = 0; i < 9; i++)
             {
-                currScene = sceneList[0];
+                Key currKey = Key.Number1 + i;
+                if(i > 8)
+                {
+                    currKey = Key.Number0;
+                }
+                if(CheckKey(currKey) && sceneList.Count >= i+1)
+                {
+                    currScene = sceneList[i];
+                }
             }
-            if(keyStates[Key.Number2] && sceneList.Count >= 1)
+            for(int i = 0; i < 12; i++)
             {
-                currScene = sceneList[1];
+                Key currKey = Key.F1 + i;
+                if(CheckKey(currKey))
+                {
+                    renderer.SetIBLMap(i);
+                }
             }
             //fCam.View.Position = camPos;
         }
 
-        
+        bool CheckKey(Key key)
+        {
+            if(!keyStates.ContainsKey(key))
+            {
+                keyStates.Add(key, false);
+                return false;
+            }
+            else
+            {
+                return keyStates[key];
+            }
+        }
 
         public void Render()
         {

@@ -26,7 +26,7 @@ namespace PBR.src.model
 
         public Matrix4x4 GetModelMatrix()
         {
-            return GetRotationMatrix() * GetScaleMatrix() * GetTranslationMatrix();
+            return GetScaleMatrix() * GetRotationMatrix() * GetTranslationMatrix();
         }
 
         public Matrix4x4 GetTranslationMatrix()
@@ -51,16 +51,20 @@ namespace PBR.src.model
         //ToDo:Replace by Quaternion
         public Matrix4x4 GetRotationMatrix()
         {
-            return Matrix4x4.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z);
+            float fact = (float)(Math.PI / 180);
+            return Matrix4x4.CreateFromYawPitchRoll(rotation.Y * fact, rotation.X * fact, rotation.Z* fact);
+            Matrix4x4 xRot = Matrix4x4.CreateFromAxisAngle(new Vector3(1, 0, 0), rotation.X);
+            //return Matrix4x4.CreateFromQuaternion(GetQuaternionRotation());
         }
 
-        /*
+        
         private Quaternion GetQuaternionRotation()
         {
             Quaternion xQuat = new Quaternion(new Vector3(1, 0, 0), rotation.X);
             Quaternion yQuat = new Quaternion(new Vector3(0, 1, 0), rotation.Y);
             Quaternion zQuat = new Quaternion(new Vector3(0, 0, 1), rotation.Z);
+            return yQuat * xQuat * zQuat;
         }
-        */
+        
     }
 }

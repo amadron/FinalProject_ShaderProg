@@ -125,10 +125,14 @@
     <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture2D.frag" />
     <EmbeddedResource Include="Content\Shader\Debug\DisplayTexture2D.vert" />
     <EmbeddedResource Include="Content\Models\ceberus.obj" />
-    <None Include="Content\Textures\Alexs_Apt_2k.hdr">
+    <EmbeddedResource Include="Content\Models\LighterModel.obj" />
+    <None Include="Content\Textures\hdr\Alexs_Apt_2k.hdr">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Content\Textures\Alexs_Apt_Env.hdr">
+    <EmbeddedResource Include="Content\Textures\hdr\Arches_E_PineTree_3k.hdr">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <None Include="Content\Textures\hdr\BasketballCourt_3k.hdr">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="OpenTK.dll.config" />
@@ -144,24 +148,30 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Textures\rustediron2_basecolor.png">
+    <EmbeddedResource Include="Content\Textures\spheres_rusty\rustediron2_basecolor.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Textures\rustediron2_metallic.png">
+    <EmbeddedResource Include="Content\Textures\spheres_rusty\rustediron2_metallic.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Textures\rustediron2_normal.png">
+    <EmbeddedResource Include="Content\Textures\spheres_rusty\rustediron2_normal.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Content\Textures\rustediron2_roughness.png">
+    <EmbeddedResource Include="Content\Textures\spheres_rusty\rustediron2_roughness.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Content\Textures\Cerberus_A.jpg" />
-    <EmbeddedResource Include="Content\Textures\Cerberus_M.jpg" />
-    <EmbeddedResource Include="Content\Textures\Cerberus_N.jpg" />
-    <EmbeddedResource Include="Content\Textures\Cerberus_R.jpg" />
+    <EmbeddedResource Include="Content\Textures\cerberus\Cerberus_A.jpg" />
+    <EmbeddedResource Include="Content\Textures\cerberus\Cerberus_M.jpg" />
+    <EmbeddedResource Include="Content\Textures\cerberus\Cerberus_N.jpg" />
+    <EmbeddedResource Include="Content\Textures\cerberus\Cerberus_R.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Content\Textures\lighter\Lighter_A.png" />
+    <EmbeddedResource Include="Content\Textures\lighter\Lighter_M.png" />
+    <EmbeddedResource Include="Content\Textures\lighter\Lighter_N.png" />
+    <EmbeddedResource Include="Content\Textures\lighter\Lighter_R.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

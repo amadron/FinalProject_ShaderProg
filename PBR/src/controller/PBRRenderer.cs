@@ -1,13 +1,14 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using Zenseless.Geometry;
+using PBR.src.model;
 using PBR.src.model.rendering;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Numerics;
+using System.Runtime.InteropServices;
+using Zenseless.Geometry;
 using Zenseless.HLGL;
 using Zenseless.OpenGL;
-using System.Numerics;
-using PBR.src.model;
-using System.Runtime.InteropServices;
-using System;
-using System.Drawing;
 
 namespace PBR.src.controller
 {
@@ -30,16 +31,27 @@ namespace PBR.src.controller
         IShaderProgram cubeProjectionShader;
         //PBR IBL Diffuse
         IShaderProgram irradianceMapShader;
-        uint ibl_skyboxMap;
-        uint ibl_irradianceMap;
+        
         //PBR IBL Specular part
         IShaderProgram prefilterMapShader;
-        uint ibl_prefilteredEnvironment;
+        
         IShaderProgram integrationMapShader;
-        uint ibl_BrdfIntegraionMap;
+
+        IBLSetup currIBLMaps;
+        List<IBLSetup> iblMapList;
+
+        struct IBLSetup
+        {
+            public uint ibl_prefilteredEnvironment;
+            public uint ibl_skyboxMap;
+            public uint ibl_irradianceMap;
+            public uint ibl_BrdfIntegraionMap;
+        }
+
 
         public PBRRenderer(IRenderState renderState, IContentLoader contentLoader)
         {
+            iblMapList = new List<IBLSetup>();
             GL.Enable(EnableCap.DebugOutput);
             GL.Enable(EnableCap.TextureCubeMapSeamless);
             this.renderState = renderState;
@@ -97,17 +109,28 @@ namespace PBR.src.controller
         {
 
             textureTest.Activate();
-            SetSampler(textureTest.ProgramID, 0, "text", ibl_BrdfIntegraionMap);
+            SetSampler(textureTest.ProgramID, 0, "text", currIBLMaps.ibl_BrdfIntegraionMap);
             GL.DrawArrays(PrimitiveType.Quads, 0, 4);
             DeactivateTexture(0);
             textureTest.Deactivate();
         }
 
 
-        public void SetIBLMap(string path)
+        public void AddIBLMap(string path)
         {
             iblTexture = GetIBLTexture(path);
-            GetCubeIBLMapsFromSphereMap(iblTexture, ref ibl_skyboxMap, ref ibl_irradianceMap, ref ibl_prefilteredEnvironment, ref ibl_BrdfIntegraionMap);
+            IBLSetup iblMaps = new IBLSetup();
+            GetCubeIBLMapsFromSphereMap(iblTexture, ref iblMaps.ibl_skyboxMap, ref iblMaps.ibl_irradianceMap, ref iblMaps.ibl_prefilteredEnvironment, ref iblMaps.ibl_BrdfIntegraionMap);
+            iblMapList.Add(iblMaps);
+            currIBLMaps = iblMaps;
+        }
+
+        public void SetIBLMap(int index)
+        {
+            if(iblMapList.Count > index)
+            {
+                currIBLMaps = iblMapList[index];
+            }
         }
 
         public IShaderProgram GetPBRShader()
@@ -165,7 +188,7 @@ namespace PBR.src.controller
         VAO unitCube;
         public void RenderSkybox(Matrix4x4 view, Matrix4x4 projection)
         {
-            RenderSkybox(ibl_skyboxMap, view, projection);
+            RenderSkybox(currIBLMaps.ibl_skyboxMap, view, projection);
             //RenderSkybox(ibl_prefilteredEnvironment, view, projection);
         }
 
@@ -521,8 +544,8 @@ namespace PBR.src.controller
 
             GL.BindBuffer(BufferTarget.UniformBuffer, ubo);
 
-            SetSampler(pbrShader.ProgramID, 0, "prefilterMap", ibl_prefilteredEnvironment, TextureTarget.TextureCubeMap);
-            SetSampler(pbrShader.ProgramID, 1, "brdfLUT", ibl_BrdfIntegraionMap, TextureTarget.Texture2D);
+            SetSampler(pbrShader.ProgramID, 0, "prefilterMap", currIBLMaps.ibl_prefilteredEnvironment, TextureTarget.TextureCubeMap);
+            SetSampler(pbrShader.ProgramID, 1, "brdfLUT", currIBLMaps.ibl_BrdfIntegraionMap, TextureTarget.Texture2D);
             pbrShader.Uniform("albedoColor", obj.material.albedoColor);
             int textCounter = 2;
 
@@ -579,7 +602,7 @@ namespace PBR.src.controller
                 pbrShader.Uniform("hasOcclusionMap", 0);
             }
 
-            SetSampler(pbrShader.ProgramID, textCounter++, "irradianceMap", ibl_irradianceMap,TextureTarget.TextureCubeMap);
+            SetSampler(pbrShader.ProgramID, textCounter++, "irradianceMap", currIBLMaps.ibl_irradianceMap,TextureTarget.TextureCubeMap);
 
             Matrix4x4 mat = camMatrix;
             Vector3 camPos = camPosition;
